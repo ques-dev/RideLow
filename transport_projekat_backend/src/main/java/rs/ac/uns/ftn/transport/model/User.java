@@ -1,7 +1,9 @@
 package rs.ac.uns.ftn.transport.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import static jakarta.persistence.InheritanceType.JOINED;
 
@@ -11,6 +13,8 @@ import static jakarta.persistence.InheritanceType.JOINED;
 @Table(name = "users")
 @Inheritance(strategy = JOINED)
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public abstract class User {
 
     @Id

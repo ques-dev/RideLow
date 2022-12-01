@@ -1,11 +1,15 @@
 package rs.ac.uns.ftn.transport.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "notes")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Note {
 
     @Id

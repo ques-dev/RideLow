@@ -1,12 +1,16 @@
 package rs.ac.uns.ftn.transport.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import rs.ac.uns.ftn.transport.model.enumerations.DocumentType;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "documents")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Document {
 
     @Id

@@ -1,13 +1,17 @@
 package rs.ac.uns.ftn.transport.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.text.SimpleDateFormat;
 
 @Entity
 @Table(name = "rejections")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Rejection {
 
     @Id

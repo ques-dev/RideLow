@@ -1,7 +1,9 @@
 package rs.ac.uns.ftn.transport.model;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import rs.ac.uns.ftn.transport.model.enumerations.MessageType;
 import jakarta.persistence.*;
 
@@ -10,6 +12,8 @@ import java.text.SimpleDateFormat;
 @Entity
 @Table(name = "messages")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Message {
 
     @Id
