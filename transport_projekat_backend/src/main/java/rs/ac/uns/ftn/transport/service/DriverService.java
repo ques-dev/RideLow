@@ -14,6 +14,10 @@ public class DriverService {
         this.driverRepository = driverRepository;
     }
 
+    public Driver findOne(Integer id) {
+        return driverRepository.findById(id).orElseGet(null);
+    }
+
     public Driver save(Driver driver) {
         return driverRepository.save(driver);
     }
