@@ -3,9 +3,12 @@ package rs.ac.uns.ftn.transport.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import rs.ac.uns.ftn.transport.dto.DocumentDTO;
 import rs.ac.uns.ftn.transport.dto.DriverDTO;
-import rs.ac.uns.ftn.transport.mapper.DriverDTOMapper;
+import rs.ac.uns.ftn.transport.model.Document;
 import rs.ac.uns.ftn.transport.model.Driver;
+import rs.ac.uns.ftn.transport.model.enumerations.DocumentType;
+import rs.ac.uns.ftn.transport.service.DocumentService;
 import rs.ac.uns.ftn.transport.service.DriverService;
 
 @RestController
@@ -13,9 +16,11 @@ import rs.ac.uns.ftn.transport.service.DriverService;
 public class DriverController {
 
     private final DriverService driverService;
+    private final DocumentService documentService;
 
-    public DriverController(DriverService driverService) {
+    public DriverController(DriverService driverService, DocumentService documentService) {
         this.driverService = driverService;
+        this.documentService = documentService;
     }
 
     @GetMapping(value = "/{id}")
@@ -48,5 +53,15 @@ public class DriverController {
 
         driverToUpdate = driverService.save(driverToUpdate);
         return new ResponseEntity<>(new DriverDTO(driverToUpdate), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/{id}/documents", consumes = "application/json")
+    public ResponseEntity<DocumentDTO> saveDocument(@PathVariable Integer id, @RequestBody DocumentDTO documentDTO) {
+        Driver driver = driverService.findOne(id);
+
+        Document document = new Document(DocumentType.getEnum(documentDTO.getName()), documentDTO.getDocumentImage(), driver);
+
+        document = documentService.save(document);
+        return new ResponseEntity<>(new DocumentDTO(document), HttpStatus.CREATED);
     }
 }

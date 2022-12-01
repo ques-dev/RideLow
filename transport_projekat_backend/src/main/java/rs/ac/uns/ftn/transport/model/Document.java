@@ -21,10 +21,16 @@ public class Document {
     @Column(name = "name")
     private DocumentType name;
 
-    @Column(name = "picture")
-    private String picture;
+    @Column(name = "documentImage")
+    private String documentImage;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn (name = "driverId")
     private Driver driver;
+
+    public Document(DocumentType name, String documentImage, Driver driver) {
+        this.name = name;
+        this.documentImage = documentImage;
+        this.driver = driver;
+    }
 }
