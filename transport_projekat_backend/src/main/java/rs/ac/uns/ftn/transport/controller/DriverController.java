@@ -8,17 +8,18 @@ import rs.ac.uns.ftn.transport.dto.DriverDTO;
 import rs.ac.uns.ftn.transport.model.Document;
 import rs.ac.uns.ftn.transport.model.Driver;
 import rs.ac.uns.ftn.transport.model.enumerations.DocumentType;
-import rs.ac.uns.ftn.transport.service.DocumentService;
-import rs.ac.uns.ftn.transport.service.DriverService;
+import rs.ac.uns.ftn.transport.service.interfaces.IDocumentService;
+import rs.ac.uns.ftn.transport.service.interfaces.IDriverService;
 
 @RestController
 @RequestMapping(value="api/driver")
 public class DriverController {
 
-    private final DriverService driverService;
-    private final DocumentService documentService;
+    private final IDriverService driverService;
+    private final IDocumentService documentService;
 
-    public DriverController(DriverService driverService, DocumentService documentService) {
+    public DriverController(IDriverService driverService,
+                            IDocumentService documentService) {
         this.driverService = driverService;
         this.documentService = documentService;
     }

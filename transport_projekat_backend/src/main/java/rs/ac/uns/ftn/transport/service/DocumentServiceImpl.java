@@ -1,15 +1,15 @@
 package rs.ac.uns.ftn.transport.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.transport.model.Document;
 import rs.ac.uns.ftn.transport.repository.DocumentRepository;
+import rs.ac.uns.ftn.transport.service.interfaces.IDocumentService;
 
 @Service
-public class DocumentService {
+public class DocumentServiceImpl implements IDocumentService {
     private final DocumentRepository documentRepository;
 
-    public DocumentService(DocumentRepository documentRepository) {
+    public DocumentServiceImpl(DocumentRepository documentRepository) {
         this.documentRepository = documentRepository;
     }
 
