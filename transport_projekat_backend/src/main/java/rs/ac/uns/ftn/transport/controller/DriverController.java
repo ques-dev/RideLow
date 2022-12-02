@@ -5,11 +5,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.transport.dto.DocumentDTO;
 import rs.ac.uns.ftn.transport.dto.DriverDTO;
+import rs.ac.uns.ftn.transport.mapper.DocumentDTOMapper;
 import rs.ac.uns.ftn.transport.model.Document;
 import rs.ac.uns.ftn.transport.model.Driver;
 import rs.ac.uns.ftn.transport.model.enumerations.DocumentType;
 import rs.ac.uns.ftn.transport.service.interfaces.IDocumentService;
 import rs.ac.uns.ftn.transport.service.interfaces.IDriverService;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value="api/driver")
@@ -64,5 +69,15 @@ public class DriverController {
 
         document = documentService.save(document);
         return new ResponseEntity<>(new DocumentDTO(document), HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "/{id}/documents")
+    public ResponseEntity<Set<DocumentDTO>> getDocuments(@PathVariable Integer id) {
+        Set<Document> documents = documentService.findAllByDriver_Id(id);
+
+        Set<DocumentDTO> documentDTOs = documents.stream()
+                                    .map(DocumentDTOMapper::fromDocumenttoDTO)
+                                    .collect(Collectors.toSet());
+        return new ResponseEntity<>(documentDTOs, HttpStatus.OK);
     }
 }

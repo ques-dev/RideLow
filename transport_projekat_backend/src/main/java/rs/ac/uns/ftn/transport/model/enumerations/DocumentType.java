@@ -1,7 +1,16 @@
 package rs.ac.uns.ftn.transport.model.enumerations;
 
 public enum DocumentType {
-    SAOBRACAJNA_DOZVOLA, VOZACKA_DOZVOLA;
+    SAOBRACAJNA_DOZVOLA {
+        public String toString() {
+            return "Saobraćajna dozvola";
+        }
+    },
+    VOZACKA_DOZVOLA {
+        public String toString() {
+            return "Vozačka dozvola";
+        }
+    };
 
     public static DocumentType getEnum(String name) {
         if (name.equalsIgnoreCase("Vozačka dozvola") || name.equalsIgnoreCase("Vozacka dozvola"))
