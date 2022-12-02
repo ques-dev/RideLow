@@ -8,4 +8,5 @@ import java.util.Set;
 
 public interface DocumentRepository extends JpaRepository<Document, Integer> {
     Set<Document> findAllByDriver_Id(@Param("id") Integer id);
+    Integer deleteAllByDriver_Id(@Param("id") Integer id);
 }

@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.transport.controller;
 
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -79,5 +80,15 @@ public class DriverController {
                                     .map(DocumentDTOMapper::fromDocumenttoDTO)
                                     .collect(Collectors.toSet());
         return new ResponseEntity<>(documentDTOs, HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/{id}/documents")
+    @Transactional
+    public ResponseEntity<String> deleteDocuments(@PathVariable Integer id) {
+        if (documentService.deleteAllByDriver_Id(id) > 0) {
+            return new ResponseEntity<>("Driver's documents deleted successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Invalid request", HttpStatus.BAD_REQUEST);
+        }
     }
 }

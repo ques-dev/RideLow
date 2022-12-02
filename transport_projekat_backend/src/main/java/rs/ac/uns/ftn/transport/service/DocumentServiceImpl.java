@@ -19,8 +19,11 @@ public class DocumentServiceImpl implements IDocumentService {
         return documentRepository.save(document);
     }
 
-    @Override
     public Set<Document> findAllByDriver_Id(Integer id) {
         return documentRepository.findAllByDriver_Id(id);
+    }
+
+    public Integer deleteAllByDriver_Id(Integer id) {
+        return documentRepository.deleteAllByDriver_Id(id);
     }
 }

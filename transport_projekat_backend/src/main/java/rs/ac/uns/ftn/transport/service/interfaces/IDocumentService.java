@@ -7,4 +7,6 @@ import java.util.Set;
 public interface IDocumentService {
     Document save(Document document);
     Set<Document> findAllByDriver_Id(Integer id);
+
+    Integer deleteAllByDriver_Id(Integer id);
 }
