@@ -17,4 +17,8 @@ public class VehicleServiceImpl implements IVehicleService {
     public Vehicle save(Vehicle vehicle) {
         return vehicleRepository.save(vehicle);
     }
+
+    public Vehicle getVehicleByDriver_Id(Integer id) {
+        return vehicleRepository.getVehicleByDriver_Id(id);
+    }
 }

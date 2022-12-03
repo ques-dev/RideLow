@@ -120,4 +120,40 @@ public class DriverController {
         driverService.save(driver);
         return new ResponseEntity<>(VehicleDTOMapper.fromVehicletoDTO(vehicle), HttpStatus.CREATED);
     }
+
+    @GetMapping(value = "/{id}/vehicle")
+    public ResponseEntity<VehicleDTO> getVehicle(@PathVariable Integer id) {
+        Vehicle vehicle = vehicleService.getVehicleByDriver_Id(id);
+
+        if (vehicle == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(VehicleDTOMapper.fromVehicletoDTO(vehicle), HttpStatus.OK);
+    }
+
+    @PutMapping(value = "/{id}/vehicle", consumes = "application/json")
+    public ResponseEntity<VehicleDTO> updateVehicle(@PathVariable Integer id, @RequestBody VehicleDTO vehicleDTO) {
+        Vehicle oldVehicle = vehicleService.getVehicleByDriver_Id(id);
+
+        if (oldVehicle == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Vehicle newVehicle = VehicleDTOMapper.fromDTOtoVehicle(vehicleDTO);
+
+        oldVehicle.setVehicleType(newVehicle.getVehicleType());
+        oldVehicle.setModel(newVehicle.getModel());
+        oldVehicle.setLicenseNumber(newVehicle.getLicenseNumber());
+
+        oldVehicle.setCurrentLocation(newVehicle.getCurrentLocation());
+        locationService.save(oldVehicle.getCurrentLocation());
+
+        oldVehicle.setPassengerSeats(newVehicle.getPassengerSeats());
+        oldVehicle.setBabyTransport(newVehicle.getBabyTransport());
+        oldVehicle.setPetTransport(newVehicle.getPetTransport());
+
+        oldVehicle = vehicleService.save(oldVehicle);
+        return new ResponseEntity<>(VehicleDTOMapper.fromVehicletoDTO(oldVehicle), HttpStatus.OK);
+    }
 }
