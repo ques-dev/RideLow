@@ -1,13 +1,17 @@
 package rs.ac.uns.ftn.transport.controller;
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.transport.dto.DocumentDTO;
 import rs.ac.uns.ftn.transport.dto.DriverDTO;
+import rs.ac.uns.ftn.transport.dto.DriverPageDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleDTO;
 import rs.ac.uns.ftn.transport.mapper.DocumentDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.DriverDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.VehicleDTOMapper;
 import rs.ac.uns.ftn.transport.model.Document;
 import rs.ac.uns.ftn.transport.model.Driver;
@@ -51,6 +55,17 @@ public class DriverController {
         }
 
         return new ResponseEntity<>(new DriverDTO(driver), HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<DriverPageDTO> getDrivers(Pageable page) {
+        Page<Driver> drivers = driverService.findAll(page);
+
+        Set<DriverDTO> driverDTOs = drivers.stream()
+                .map(DriverDTOMapper::fromDrivertoDTO)
+                .collect(Collectors.toSet());
+
+        return new ResponseEntity<>(new DriverPageDTO(drivers.getTotalElements(), driverDTOs), HttpStatus.OK);
     }
 
     @PostMapping(consumes = "application/json")

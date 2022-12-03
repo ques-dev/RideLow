@@ -1,5 +1,7 @@
 package rs.ac.uns.ftn.transport.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.transport.model.Driver;
 import rs.ac.uns.ftn.transport.repository.DriverRepository;
@@ -12,6 +14,10 @@ public class DriverServiceImpl implements IDriverService {
 
     public DriverServiceImpl(DriverRepository driverRepository) {
         this.driverRepository = driverRepository;
+    }
+
+    public Page<Driver> findAll(Pageable page) {
+        return driverRepository.findAll(page);
     }
 
     public Driver findOne(Integer id) {
