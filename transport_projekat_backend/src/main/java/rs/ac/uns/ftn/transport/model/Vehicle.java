@@ -33,7 +33,7 @@ public class Vehicle {
     @Column(name = "licenseNumber")
     private String licenseNumber;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "currentLocation")
     @ToString.Exclude
     private Location currentLocation;
