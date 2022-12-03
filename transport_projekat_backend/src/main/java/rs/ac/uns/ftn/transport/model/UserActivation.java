@@ -1,17 +1,19 @@
 package rs.ac.uns.ftn.transport.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import java.text.SimpleDateFormat;
+import java.util.Objects;
 
 //TODO:Pitacu za zivotni ve sta predstavlja
 
 @Entity
 @Table(name = "userActivations")
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserActivation {
@@ -28,4 +30,17 @@ public class UserActivation {
 
     @Column(name = "validUntil")
     private SimpleDateFormat validUntil;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        UserActivation that = (UserActivation) o;
+        return id != null && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

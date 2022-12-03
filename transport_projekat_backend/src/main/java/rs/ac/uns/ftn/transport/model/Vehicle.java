@@ -1,13 +1,16 @@
 package rs.ac.uns.ftn.transport.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.Hibernate;
+
+import java.util.Objects;
 
 @Entity
 @Table(name = "vehicles")
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Vehicle {
@@ -16,11 +19,12 @@ public class Vehicle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(mappedBy = "vehicle", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "vehicle")
     private Driver driver;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicleType")
+    @ToString.Exclude
     private VehicleType vehicleType;
 
     @Column(name = "model")
@@ -31,6 +35,7 @@ public class Vehicle {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "currentLocation")
+    @ToString.Exclude
     private Location currentLocation;
 
     @Column(name = "passengerSeats")
@@ -45,4 +50,17 @@ public class Vehicle {
     // TODO: vratiti kada review bude spreman
 //    @OneToMany(mappedBy = "vehicle",fetch = FetchType.LAZY)
 //    Set<Review> reviews;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Vehicle vehicle = (Vehicle) o;
+        return id != null && Objects.equals(id, vehicle.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

@@ -1,9 +1,10 @@
 package rs.ac.uns.ftn.transport.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.Hibernate;
+
+import java.util.Objects;
 
 import static jakarta.persistence.InheritanceType.JOINED;
 
@@ -12,7 +13,9 @@ import static jakarta.persistence.InheritanceType.JOINED;
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = JOINED)
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public abstract class User {
@@ -53,4 +56,16 @@ public abstract class User {
     @JoinColumn(name = "userActivation_id", referencedColumnName = "id")
     private UserActivation userActivation;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        User user = (User) o;
+        return id != null && Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

@@ -1,9 +1,15 @@
 package rs.ac.uns.ftn.transport.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "admins")
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class Admin {
 
     @Id

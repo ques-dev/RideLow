@@ -4,9 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import rs.ac.uns.ftn.transport.dto.DocumentDTO;
-import rs.ac.uns.ftn.transport.dto.DriverDTO;
 import rs.ac.uns.ftn.transport.model.Document;
-import rs.ac.uns.ftn.transport.model.Driver;
 
 @Component
 public class DocumentDTOMapper {

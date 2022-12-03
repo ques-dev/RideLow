@@ -13,7 +13,6 @@ import rs.ac.uns.ftn.transport.model.enumerations.DocumentType;
 import rs.ac.uns.ftn.transport.service.interfaces.IDocumentService;
 import rs.ac.uns.ftn.transport.service.interfaces.IDriverService;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 

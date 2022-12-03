@@ -1,15 +1,17 @@
 package rs.ac.uns.ftn.transport.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import java.text.SimpleDateFormat;
+import java.util.Objects;
 
 @Entity
 @Table(name = "panics")
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Panic {
@@ -19,10 +21,12 @@ public class Panic {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
+    @ToString.Exclude
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "currentRideId")
+    @ToString.Exclude
     private Ride currentRide;
 
     @Column(name = "dateTime")
@@ -30,4 +34,17 @@ public class Panic {
 
     @Column(name = "reason")
     private String reason;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Panic panic = (Panic) o;
+        return id != null && Objects.equals(id, panic.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
