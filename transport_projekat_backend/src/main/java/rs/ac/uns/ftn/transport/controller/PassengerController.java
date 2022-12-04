@@ -8,10 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import rs.ac.uns.ftn.transport.dto.DriverDTO;
-import rs.ac.uns.ftn.transport.dto.DriverPageDTO;
-import rs.ac.uns.ftn.transport.dto.PassengerDTO;
-import rs.ac.uns.ftn.transport.dto.PassengerCreatedDTO;
+import rs.ac.uns.ftn.transport.dto.*;
 import rs.ac.uns.ftn.transport.mapper.DriverDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.PassengerCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.PassengerDTOMapper;
@@ -39,4 +36,14 @@ public class PassengerController {
         return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(created), HttpStatus.CREATED);
     }
 
+    @GetMapping
+    public ResponseEntity<PassengerPageDTO> getPassengers(Pageable page) {
+        Page<Passenger> passengers = passengerService.findAll(page);
+
+        Set<PassengerCreatedDTO> passengerCreatedDTOs = passengers.stream()
+                .map(PassengerCreatedDTOMapper :: fromPassengerToDTO)
+                .collect(Collectors.toSet());
+
+        return new ResponseEntity<>(new PassengerPageDTO(passengers.getTotalElements(), passengerCreatedDTOs), HttpStatus.OK);
+    }
 }
