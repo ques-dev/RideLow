@@ -197,4 +197,19 @@ public class DriverController {
 
         return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
     }
+
+    @PutMapping(value = "/{driverId}/working-hour/{workingHourId}")
+    public ResponseEntity<WorkingHoursDTO> updateWorkingHour(@PathVariable Integer driverId, @PathVariable Integer workingHourId) {
+        Driver driver = driverService.findOne(driverId);
+        WorkingHours workingHours = workingHoursService.findOne(workingHourId);
+
+        if (workingHours == null || !workingHours.getDriver().equals(driver)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        workingHours.setEnd(LocalDateTime.now());
+
+        workingHours = workingHoursService.save(workingHours);
+        return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
+    }
 }
