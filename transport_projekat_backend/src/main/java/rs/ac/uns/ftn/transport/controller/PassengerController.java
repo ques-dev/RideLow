@@ -1,16 +1,26 @@
 package rs.ac.uns.ftn.transport.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import rs.ac.uns.ftn.transport.dto.DriverDTO;
+import rs.ac.uns.ftn.transport.dto.DriverPageDTO;
 import rs.ac.uns.ftn.transport.dto.PassengerDTO;
 import rs.ac.uns.ftn.transport.dto.PassengerCreatedDTO;
+import rs.ac.uns.ftn.transport.mapper.DriverDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.PassengerCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.PassengerDTOMapper;
+import rs.ac.uns.ftn.transport.model.Driver;
 import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/passenger")
@@ -28,4 +38,5 @@ public class PassengerController {
         Passenger created = passengerService.save(PassengerDTOMapper.fromDTOtoPassenger(passenger));
         return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(created), HttpStatus.CREATED);
     }
+
 }
