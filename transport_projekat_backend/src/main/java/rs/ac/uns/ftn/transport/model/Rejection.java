@@ -20,7 +20,7 @@ public class Rejection {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rideId")
     @ToString.Exclude
     private Ride ride;

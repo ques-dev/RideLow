@@ -20,12 +20,12 @@ public class Driver extends User{
     @ToString.Exclude
     private Set<Document> documents;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "driver", fetch = FetchType.LAZY)
     @ToString.Exclude
     private Set<Ride> rides;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vehicleId")
+    @JoinColumn(name = "VehicleId")
     @ToString.Exclude
     private Vehicle vehicle;
 
