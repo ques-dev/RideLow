@@ -16,4 +16,8 @@ public class WorkingHoursServiceImpl implements IWorkingHoursService {
     public WorkingHours save(WorkingHours workingHours) {
         return workingHoursRepository.save(workingHours);
     }
+
+    public WorkingHours findOne(Integer id) {
+        return workingHoursRepository.findById(id).orElseGet(null);
+    }
 }
