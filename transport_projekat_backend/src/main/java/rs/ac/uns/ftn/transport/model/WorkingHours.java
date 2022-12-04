@@ -3,12 +3,10 @@ package rs.ac.uns.ftn.transport.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Objects;
-
-//TODO: Pitacu da li vozac ima fiksno radno vreme, i da li se generise svaki dan posebno. Isto cu ga pitati da li ima smisla
-// da radno vreme ima id
 
 @Entity
 @Table(name = "workingHours")
@@ -23,16 +21,21 @@ public class WorkingHours {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "shiftStart")
-    private SimpleDateFormat shiftStart;
-
-    @Column(name = "shiftEnd")
-    private SimpleDateFormat shiftEnd;
+    @Column(name = "shiftStart", columnDefinition = "TIMESTAMP")
+    private LocalDateTime start;
+    @Column(name = "shiftEnd", columnDefinition = "TIMESTAMP")
+    private LocalDateTime end;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "driverId")
     @ToString.Exclude
     private Driver driver;
+
+    public WorkingHours(LocalDateTime start, LocalDateTime end, Driver driver) {
+        this.start = start;
+        this.end = end;
+        this.driver = driver;
+    }
 
     @Override
     public boolean equals(Object o) {
