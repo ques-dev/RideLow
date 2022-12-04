@@ -212,4 +212,34 @@ public class DriverController {
         workingHours = workingHoursService.save(workingHours);
         return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
     }
+
+    @GetMapping(value = "/{id}/working-hours")
+    public ResponseEntity<WorkingHoursPageDTO> getWorkingHours(Pageable page,
+                                                               @PathVariable Integer id,
+                                                               @RequestParam(value = "from", required = false) LocalDateTime from,
+                                                               @RequestParam(value = "to", required = false) LocalDateTime to) {
+        Driver driver = driverService.findOne(id);
+
+        if (driver == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Page<WorkingHours> workingHours;
+
+        if (from == null && to == null) {
+            workingHours = workingHoursService.findAllByDriver_Id(id, page);
+        } else if (from != null && to == null) {
+            workingHours = workingHoursService.findAllByDriver_IdAndStartIsAfter(id, from, page);
+        } else if (from == null) {
+            workingHours = workingHoursService.findAllByDriver_IdAndEndIsBefore(id, to, page);
+        } else {
+            workingHours = workingHoursService.findAllByDriver_IdAndStartIsAfterAndEndIsBefore(id, from, to, page);
+        }
+
+        Set<WorkingHoursDTO> workingHoursDTOs = workingHours.stream()
+                .map(WorkingHoursDTOMapper::fromWorkingHoursToDTO)
+                .collect(Collectors.toSet());
+
+        return new ResponseEntity<>(new WorkingHoursPageDTO(workingHours.getTotalElements(), workingHoursDTOs), HttpStatus.OK);
+    }
 }
