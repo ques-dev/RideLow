@@ -12,7 +12,7 @@ import java.util.Objects;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class Route {
 
     @Id
@@ -22,11 +22,13 @@ public class Route {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "startLocationId")
     @ToString.Exclude
+    @NonNull
     private Location startLocation;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "endLocationId")
     @ToString.Exclude
+    @NonNull
     private Location endLocation;
 
     @Column(name = "distanceInKm")
