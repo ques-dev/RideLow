@@ -73,8 +73,7 @@ public class Ride {
     @JoinColumn(name = "VehicleType")
     @ToString.Exclude
     private VehicleType vehicleType;
-
-
+    
 
     @Override
     public boolean equals(Object o) {
