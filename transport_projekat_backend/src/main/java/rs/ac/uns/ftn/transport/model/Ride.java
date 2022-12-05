@@ -31,24 +31,24 @@ public class Ride {
     private LocalDateTime endTime;
 
     @Column (name = "TotalPrice")
-    private Double totalPrice;
+    private Double totalCost;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn (name = "DriverId")
     @ToString.Exclude
     private Driver driver;
 
-    @ManyToMany()
+    @ManyToMany(cascade = {CascadeType.MERGE})
     @ToString.Exclude
     private Set<Passenger> passengers;
 
-    @ManyToMany()
+    @ManyToMany(cascade = {CascadeType.PERSIST})
     @JoinTable(name = "ride_route", joinColumns = @JoinColumn(name = "RideId", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "RouteId", referencedColumnName = "id"))
     @ToString.Exclude
-    private Set<Route> routes;
+    private Set<Route> locations;
 
-    @Column(name = "TimeEstimate", columnDefinition = "TIMESTAMP")
-    private LocalDateTime timeEstimate;
+    @Column(name = "TimeEstimate")
+    private Integer estimatedTimeInMinutes;
 
     @OneToMany(fetch = FetchType.LAZY)
     @ToString.Exclude
@@ -66,12 +66,12 @@ public class Ride {
     private Boolean isPanicPressed;
 
     @Column(name = "TransportsBaby")
-    private Boolean transportsBaby;
+    private Boolean babyTransport;
 
     @Column(name = "TransportsPet")
-    private Boolean transportsPet;
+    private Boolean petTransport;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
     @JoinColumn(name = "VehicleType")
     @ToString.Exclude
     private VehicleType vehicleType;

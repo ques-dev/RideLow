@@ -19,17 +19,18 @@ public class Route {
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH})
     @JoinColumn(name = "startLocationId")
     @ToString.Exclude
     @NonNull
-    private Location startLocation;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    private Location departure;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH})
     @JoinColumn(name = "endLocationId")
     @ToString.Exclude
     @NonNull
-    private Location endLocation;
+    private Location destination;
 
     @Column(name = "distanceInKm")
     private  Double distanceInKm;

@@ -7,3 +7,5 @@ INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,PROFILE_P
                   ('Adresa','mail@mail.com',true,false,'Imenko','neprobojna_lozinka','XYZ','Prezimić','065338295504');
 
 INSERT INTO PASSENGERS VALUES 1;
+
+
