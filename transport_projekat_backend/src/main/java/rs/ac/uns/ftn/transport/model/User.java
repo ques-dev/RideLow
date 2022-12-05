@@ -44,8 +44,8 @@ public abstract class User {
     @Column (name = "password", nullable = false)
     private String password;
 
-    @Column (name = "isActive")
-    private Boolean isActive;
+    @Column (name = "isActivated")
+    private Boolean isActivated;
 
     @Column (name = "isBlocked")
     private Boolean isBlocked;

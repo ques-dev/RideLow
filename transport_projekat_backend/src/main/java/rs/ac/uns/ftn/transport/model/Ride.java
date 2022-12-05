@@ -6,6 +6,8 @@ import org.hibernate.Hibernate;
 import rs.ac.uns.ftn.transport.model.enumerations.RideStatus;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Objects;
 import java.util.Set;
 
@@ -22,11 +24,11 @@ public class Ride {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "StartTime")
-    private SimpleDateFormat startTime;
+    @Column(name = "StartTime", columnDefinition = "TIMESTAMP")
+    private LocalDateTime startTime;
 
-    @Column (name = "EndTime")
-    private SimpleDateFormat endTime;
+    @Column (name = "EndTime", columnDefinition = "TIMESTAMP")
+    private LocalDateTime endTime;
 
     @Column (name = "TotalPrice")
     private Double totalPrice;
@@ -45,8 +47,8 @@ public class Ride {
     @ToString.Exclude
     private Set<Route> routes;
 
-    @Column(name = "TimeEstimate")
-    private SimpleDateFormat timeEstimate;
+    @Column(name = "TimeEstimate", columnDefinition = "TIMESTAMP")
+    private LocalDateTime timeEstimate;
 
     @OneToMany(fetch = FetchType.LAZY)
     @ToString.Exclude
