@@ -1,4 +1,4 @@
-package rs.ac.uns.ftn.transport.dto;
+package rs.ac.uns.ftn.transport.dto.passenger;
 
 import lombok.Data;
 
