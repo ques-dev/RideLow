@@ -7,6 +7,8 @@ import org.hibernate.Hibernate;
 import rs.ac.uns.ftn.transport.model.enumerations.MessageType;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Objects;
 
 @Entity
@@ -35,8 +37,8 @@ public class Message {
     @Column(name = "message")
     private String message;
 
-    @Column(name = "sentDateTime")
-    private SimpleDateFormat sentDateTime;
+    @Column(name = "sentDateTime", columnDefinition = "TIMESTAMP")
+    private LocalDateTime sentDateTime;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "messageType")

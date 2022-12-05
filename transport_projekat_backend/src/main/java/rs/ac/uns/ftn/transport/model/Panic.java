@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -29,8 +30,8 @@ public class Panic {
     @ToString.Exclude
     private Ride currentRide;
 
-    @Column(name = "dateTime")
-    private SimpleDateFormat dateTime;
+    @Column(name = "dateTime", columnDefinition = "TIMESTAMP")
+    private LocalDateTime dateTime;
 
     @Column(name = "reason")
     private String reason;

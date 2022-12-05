@@ -5,9 +5,10 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-//TODO:Pitacu za zivotni ve sta predstavlja
 
 @Entity
 @Table(name = "userActivations")
@@ -25,11 +26,11 @@ public class UserActivation {
     @OneToOne(mappedBy = "userActivation")
     private User user;
 
-    @Column(name = "dateCreated")
-    private SimpleDateFormat dateCreated;
+    @Column(name = "dateCreated", columnDefinition = "TIMESTAMP")
+    private LocalDateTime dateCreated;
 
-    @Column(name = "validUntil")
-    private SimpleDateFormat validUntil;
+    @Column(name = "minutesValid")
+    private Integer minutesValid;
 
     @Override
     public boolean equals(Object o) {
@@ -42,5 +43,11 @@ public class UserActivation {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public boolean checkIfExpired() {
+        LocalDateTime expiryDate = dateCreated.plus(minutesValid,ChronoUnit.MINUTES);
+        if (expiryDate.isBefore(LocalDateTime.now())) return true;
+        return false;
     }
 }

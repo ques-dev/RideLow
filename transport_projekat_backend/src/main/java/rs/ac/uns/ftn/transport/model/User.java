@@ -8,8 +8,6 @@ import java.util.Objects;
 
 import static jakarta.persistence.InheritanceType.JOINED;
 
-//TODO: Mora verovatno da postoji polje da li je aktivan, inace bi mogao da se uloguje. Pitacu i sta znaci da je aktivan.
-// Svakako treba da bude samo vozac u mogucnsti da to izmeni
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = JOINED)
