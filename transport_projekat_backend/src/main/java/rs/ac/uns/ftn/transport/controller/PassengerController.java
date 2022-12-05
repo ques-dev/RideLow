@@ -44,4 +44,15 @@ public class PassengerController {
         }
         return  new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(retrieved),HttpStatus.OK);
     }
+
+    @PutMapping(value = "/{id}", consumes = "application/json")
+    public ResponseEntity<PassengerCreatedDTO> updatePassenger(@PathVariable Integer id, @RequestBody PassengerDTO newInfo)
+    {
+        Passenger retrieved = passengerService.findOne(id);
+        if(retrieved == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        retrieved.update(newInfo);
+        passengerService.save(retrieved);
+        return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(retrieved),HttpStatus.OK);
+    }
+
 }

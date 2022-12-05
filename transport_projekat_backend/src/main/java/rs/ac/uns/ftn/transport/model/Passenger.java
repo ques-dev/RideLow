@@ -4,6 +4,7 @@ package rs.ac.uns.ftn.transport.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
+import rs.ac.uns.ftn.transport.dto.PassengerDTO;
 
 import java.util.Objects;
 import java.util.Set;
@@ -38,5 +39,16 @@ public class Passenger extends User{
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public void update(PassengerDTO newInfo)
+    {
+        this.setName(newInfo.getName());
+        this.setSurname(newInfo.getSurname());
+        this.setProfilePicture(newInfo.getProfilePicture());
+        this.setAddress(newInfo.getAddress());
+        this.setTelephoneNumber(newInfo.getTelephoneNumber());
+        this.setEmail(newInfo.getEmail());
+        this.setPassword(newInfo.getPassword());
     }
 }
