@@ -6,26 +6,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.transport.dto.DocumentDTO;
-import rs.ac.uns.ftn.transport.dto.DriverDTO;
-import rs.ac.uns.ftn.transport.dto.DriverPageDTO;
-import rs.ac.uns.ftn.transport.dto.VehicleDTO;
+import rs.ac.uns.ftn.transport.dto.*;
 import rs.ac.uns.ftn.transport.mapper.DocumentDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.DriverDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.VehicleDTOMapper;
-import rs.ac.uns.ftn.transport.model.Document;
-import rs.ac.uns.ftn.transport.model.Driver;
-import rs.ac.uns.ftn.transport.model.Location;
-import rs.ac.uns.ftn.transport.model.Vehicle;
+import rs.ac.uns.ftn.transport.mapper.WorkingHoursDTOMapper;
+import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.model.enumerations.DocumentType;
-import rs.ac.uns.ftn.transport.service.interfaces.IDocumentService;
-import rs.ac.uns.ftn.transport.service.interfaces.IDriverService;
-import rs.ac.uns.ftn.transport.service.interfaces.ILocationService;
-import rs.ac.uns.ftn.transport.service.interfaces.IVehicleService;
+import rs.ac.uns.ftn.transport.service.interfaces.*;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@CrossOrigin("http://localhost:4200")
 @RestController
 @RequestMapping(value="api/driver")
 public class DriverController {
@@ -34,16 +28,19 @@ public class DriverController {
     private final IDocumentService documentService;
     private final IVehicleService vehicleService;
     private final ILocationService locationService;
+    private final IWorkingHoursService workingHoursService;
 
 
     public DriverController(IDriverService driverService,
                             IDocumentService documentService,
                             IVehicleService vehicleService,
-                            ILocationService locationService) {
+                            ILocationService locationService,
+                            IWorkingHoursService workingHoursService) {
         this.driverService = driverService;
         this.documentService = documentService;
         this.vehicleService = vehicleService;
         this.locationService = locationService;
+        this.workingHoursService = workingHoursService;
     }
 
     @GetMapping(value = "/{id}")
@@ -170,5 +167,76 @@ public class DriverController {
 
         oldVehicle = vehicleService.save(oldVehicle);
         return new ResponseEntity<>(VehicleDTOMapper.fromVehicletoDTO(oldVehicle), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/{id}/working-hours")
+    public ResponseEntity<WorkingHoursDTO> saveWorkingHours(@PathVariable Integer id) {
+        Driver driver = driverService.findOne(id);
+
+        if (driver == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        WorkingHours workingHours = new WorkingHours(LocalDateTime.now(), LocalDateTime.now(), driver);
+        workingHours = workingHoursService.save(workingHours);
+
+        return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "/{driverId}/working-hour/{workingHourId}")
+    public ResponseEntity<WorkingHoursDTO> getWorkingHour(@PathVariable Integer driverId, @PathVariable Integer workingHourId) {
+        Driver driver = driverService.findOne(driverId);
+        WorkingHours workingHours = workingHoursService.findOne(workingHourId);
+
+        if (workingHours == null || !workingHours.getDriver().equals(driver)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
+    }
+
+    @PutMapping(value = "/{driverId}/working-hour/{workingHourId}")
+    public ResponseEntity<WorkingHoursDTO> updateWorkingHour(@PathVariable Integer driverId, @PathVariable Integer workingHourId) {
+        Driver driver = driverService.findOne(driverId);
+        WorkingHours workingHours = workingHoursService.findOne(workingHourId);
+
+        if (workingHours == null || !workingHours.getDriver().equals(driver)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        workingHours.setEnd(LocalDateTime.now());
+
+        workingHours = workingHoursService.save(workingHours);
+        return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{id}/working-hours")
+    public ResponseEntity<WorkingHoursPageDTO> getWorkingHours(Pageable page,
+                                                               @PathVariable Integer id,
+                                                               @RequestParam(value = "from", required = false) LocalDateTime from,
+                                                               @RequestParam(value = "to", required = false) LocalDateTime to) {
+        Driver driver = driverService.findOne(id);
+
+        if (driver == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Page<WorkingHours> workingHours;
+
+        if (from == null && to == null) {
+            workingHours = workingHoursService.findAllByDriver_Id(id, page);
+        } else if (from != null && to == null) {
+            workingHours = workingHoursService.findAllByDriver_IdAndStartIsAfter(id, from, page);
+        } else if (from == null) {
+            workingHours = workingHoursService.findAllByDriver_IdAndEndIsBefore(id, to, page);
+        } else {
+            workingHours = workingHoursService.findAllByDriver_IdAndStartIsAfterAndEndIsBefore(id, from, to, page);
+        }
+
+        Set<WorkingHoursDTO> workingHoursDTOs = workingHours.stream()
+                .map(WorkingHoursDTOMapper::fromWorkingHoursToDTO)
+                .collect(Collectors.toSet());
+
+        return new ResponseEntity<>(new WorkingHoursPageDTO(workingHours.getTotalElements(), workingHoursDTOs), HttpStatus.OK);
     }
 }
