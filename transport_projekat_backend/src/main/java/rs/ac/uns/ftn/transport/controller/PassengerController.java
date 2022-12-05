@@ -4,10 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.transport.dto.*;
 import rs.ac.uns.ftn.transport.mapper.DriverDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.PassengerCreatedDTOMapper;
@@ -30,7 +27,7 @@ public class PassengerController {
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<PassengerCreatedDTO> savePassenger(PassengerDTO passenger)
+    public ResponseEntity<PassengerCreatedDTO> savePassenger(@RequestBody PassengerDTO passenger)
     {
         Passenger created = passengerService.save(PassengerDTOMapper.fromDTOtoPassenger(passenger));
         return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(created), HttpStatus.CREATED);
