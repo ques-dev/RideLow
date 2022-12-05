@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -33,8 +34,8 @@ public class Rejection {
     @ToString.Exclude
     private User user;
 
-    @Column(name = "dateTime")
-    private SimpleDateFormat dateTime;
+    @Column(name = "dateTime", columnDefinition = "TIMESTAMP")
+    private LocalDateTime dateTime;
 
     @Override
     public boolean equals(Object o) {
