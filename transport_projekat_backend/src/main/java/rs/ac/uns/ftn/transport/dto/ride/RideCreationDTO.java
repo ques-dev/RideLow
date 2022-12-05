@@ -1,6 +1,9 @@
-package rs.ac.uns.ftn.transport.dto;
+package rs.ac.uns.ftn.transport.dto.ride;
 
 import lombok.Data;
+import rs.ac.uns.ftn.transport.dto.PassengerIdEmailDTO;
+import rs.ac.uns.ftn.transport.dto.RouteDTO;
+import rs.ac.uns.ftn.transport.dto.VehicleTypeNameDTO;
 import rs.ac.uns.ftn.transport.model.enumerations.RideStatus;
 
 import java.util.List;

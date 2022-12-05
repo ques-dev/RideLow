@@ -1,9 +1,9 @@
-package rs.ac.uns.ftn.transport.dto;
+package rs.ac.uns.ftn.transport.dto.ride;
 
 import lombok.Data;
+import rs.ac.uns.ftn.transport.dto.DriverIdEmailDTO;
 import rs.ac.uns.ftn.transport.model.enumerations.RideStatus;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 
 @Data

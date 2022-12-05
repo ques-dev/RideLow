@@ -4,7 +4,7 @@ package rs.ac.uns.ftn.transport.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
-import rs.ac.uns.ftn.transport.dto.PassengerDTO;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerDTO;
 
 import java.util.Objects;
 import java.util.Set;

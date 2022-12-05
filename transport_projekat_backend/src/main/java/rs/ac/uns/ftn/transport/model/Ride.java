@@ -4,10 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 import rs.ac.uns.ftn.transport.model.enumerations.RideStatus;
-
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Objects;
 import java.util.Set;
 
@@ -43,11 +40,11 @@ public class Ride {
     private Set<Passenger> passengers;
 
     @ManyToMany(cascade = {CascadeType.PERSIST})
-    @JoinTable(name = "ride_route", joinColumns = @JoinColumn(name = "RideId", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "RouteId", referencedColumnName = "id"))
+    @JoinTable(name = "Ride_route", joinColumns = @JoinColumn(name = "RideId", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "RouteId", referencedColumnName = "id"))
     @ToString.Exclude
     private Set<Route> locations;
 
-    @Column(name = "TimeEstimate")
+    @Column(name = "EstimatedTimeInMinutes")
     private Integer estimatedTimeInMinutes;
 
     @OneToMany(fetch = FetchType.LAZY)

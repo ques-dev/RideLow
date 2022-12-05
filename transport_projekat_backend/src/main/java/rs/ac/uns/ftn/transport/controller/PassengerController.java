@@ -3,10 +3,10 @@ package rs.ac.uns.ftn.transport.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.transport.dto.PassengerDTO;
-import rs.ac.uns.ftn.transport.dto.PassengerCreatedDTO;
-import rs.ac.uns.ftn.transport.mapper.PassengerCreatedDTOMapper;
-import rs.ac.uns.ftn.transport.mapper.PassengerDTOMapper;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerDTO;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerCreatedDTO;
+import rs.ac.uns.ftn.transport.mapper.passenger.PassengerCreatedDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.passenger.PassengerDTOMapper;
 import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
 
@@ -25,13 +25,6 @@ public class PassengerController {
     {
         Passenger created = passengerService.save(PassengerDTOMapper.fromDTOtoPassenger(passenger));
         return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(created), HttpStatus.CREATED);
-    }
-
-    @PostMapping(value = "/{activationId}")
-    public ResponseEntity<String> activateUser(@PathVariable Integer activationId)
-    {
-        //return new ResponseEntity<>("")
-        return null;
     }
 
     @GetMapping(value = "/{id}")
