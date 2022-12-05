@@ -5,4 +5,6 @@ import rs.ac.uns.ftn.transport.model.Passenger;
 public interface IPassengerService {
 
     Passenger save(Passenger passenger);
+
+    Passenger findOne(Integer id);
 }

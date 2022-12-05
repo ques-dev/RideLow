@@ -18,4 +18,11 @@ public class PassengerService implements IPassengerService {
     public Passenger save(Passenger passenger) {
         return passengerRepository.save(passenger);
     }
+
+    @Override
+    public Passenger findOne(Integer id) {
+        return passengerRepository.findById(id).orElseGet(null);
+    }
+
+
 }
