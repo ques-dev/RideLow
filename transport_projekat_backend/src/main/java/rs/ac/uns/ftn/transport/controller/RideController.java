@@ -26,4 +26,27 @@ public class RideController {
         Ride ride = rideService.save(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO));
         return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(ride), HttpStatus.CREATED);
     }
+
+    @GetMapping(value = "/driver/{driverId}/active")
+    public ResponseEntity<RideCreatedDTO> getActiveForDriver(@PathVariable Integer driverId)
+    {
+        Ride active = rideService.findActiveForDriver(driverId);
+        if(active == null)
+        {
+            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(active),HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/passenger/{passengerId}/active")
+    public ResponseEntity<RideCreatedDTO> getActiveForPassenger(@PathVariable Integer passengerId)
+    {
+        Ride active = rideService.findActiveForPassenger(passengerId);
+        if(active == null)
+        {
+            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(active),HttpStatus.OK);
+    }
 }
+
