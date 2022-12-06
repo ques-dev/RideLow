@@ -44,4 +44,9 @@ public class RideService implements IRideService {
     public Ride findActiveForDriver(Integer driverId) {
         return rideRepository.findByDriver_IdAndStatus(driverId, RideStatus.ACTIVE);
     }
+
+    @Override
+    public Ride findActiveForPassenger(Integer passengerId) {
+        return rideRepository.findByPassengers_IdAndStatus(passengerId, RideStatus.ACTIVE);
+    }
 }

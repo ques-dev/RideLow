@@ -7,4 +7,5 @@ public interface IRideService {
 
     Ride save(Ride ride);
     Ride findActiveForDriver(Integer driverId);
+    Ride findActiveForPassenger(Integer passengerId);
 }
