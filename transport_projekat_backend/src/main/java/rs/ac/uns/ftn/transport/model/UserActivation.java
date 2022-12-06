@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
@@ -26,7 +25,7 @@ public class UserActivation {
     @OneToOne(mappedBy = "userActivation")
     private User user;
 
-    @Column(name = "dateCreated", columnDefinition = "TIMESTAMP")
+    @Column(name = "dateCreated")
     private LocalDateTime dateCreated;
 
     @Column(name = "minutesValid")

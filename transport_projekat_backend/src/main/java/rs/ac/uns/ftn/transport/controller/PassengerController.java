@@ -11,7 +11,9 @@ import rs.ac.uns.ftn.transport.dto.passenger.PassengerPageDTO;
 import rs.ac.uns.ftn.transport.mapper.passenger.PassengerCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.passenger.PassengerDTOMapper;
 import rs.ac.uns.ftn.transport.model.Passenger;
+import rs.ac.uns.ftn.transport.model.UserActivation;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
+import rs.ac.uns.ftn.transport.service.interfaces.IUserActivationService;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,9 +23,11 @@ import java.util.stream.Collectors;
 public class PassengerController {
 
     private final IPassengerService passengerService;
+    private final IUserActivationService userActivationService;
 
-    public PassengerController(IPassengerService passengerService) {
+    public PassengerController(IPassengerService passengerService,IUserActivationService userActivationService) {
         this.passengerService = passengerService;
+        this.userActivationService = userActivationService;
     }
 
     @PostMapping(consumes = "application/json")
@@ -63,5 +67,21 @@ public class PassengerController {
                 .collect(Collectors.toSet());
 
         return new ResponseEntity<>(new PassengerPageDTO(passengers.getTotalElements(), passengerCreatedDTOs), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/{activationId}")
+    public ResponseEntity<String> activatePassenger(@PathVariable Integer activationId)
+    {
+        UserActivation activation = userActivationService.findOne(activationId);
+        if(activation.checkIfExpired()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Passenger toActivate = (Passenger) activation.getUser();
+        if(toActivate.getIsActivated()) {
+            return new ResponseEntity<>("Account has already been activated.",HttpStatus.BAD_REQUEST);
+        }
+        toActivate.setIsActivated(true);
+        passengerService.save(toActivate);
+        return new ResponseEntity<>("Successful account activation.",HttpStatus.OK);
     }
 }
