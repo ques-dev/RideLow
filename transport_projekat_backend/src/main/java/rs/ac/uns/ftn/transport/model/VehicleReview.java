@@ -6,15 +6,14 @@ import org.hibernate.Hibernate;
 
 import java.util.Objects;
 
-//TODO: Model nije jasan sto se tice recenzija (vozac i vozilo odvojeno). Pitacu asistenta za ovo. Do tada ostaje prazno
 @Entity
-@Table(name = "reviews")
+@Table(name = "VehicleReviews")
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class Review {
+public class VehicleReview extends Review{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,27 +21,16 @@ public abstract class Review {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reviewerId")
+    @JoinColumn(name = "vehicleId")
     @ToString.Exclude
-    private User reviewer;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "currentRideId")
-    @ToString.Exclude
-    private Ride currentRide;
-
-    @Column(name = "comment")
-    private String comment;
-
-    @Column(name = "rating")
-    private Integer rating;
+    private Vehicle vehicle;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Review review = (Review) o;
-        return id != null && Objects.equals(id, review.id);
+        return id != null && Objects.equals(id, review.getId());
     }
 
     @Override
