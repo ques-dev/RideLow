@@ -10,6 +10,7 @@ import rs.ac.uns.ftn.transport.mapper.PassengerDTOMapper;
 import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
 
+@CrossOrigin("http://localhost:4200")
 @RestController
 @RequestMapping(value = "/api/passenger")
 public class PassengerController {
@@ -35,7 +36,7 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<PassengerCreatedDTO> findPassenger(@PathVariable Integer id)
+    public ResponseEntity<PassengerCreatedDTO> getPassenger(@PathVariable Integer id)
     {
         Passenger retrieved = passengerService.findOne(id);
         if (retrieved == null)
