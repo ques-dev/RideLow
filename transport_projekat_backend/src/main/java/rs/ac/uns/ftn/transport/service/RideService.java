@@ -26,14 +26,22 @@ public class RideService implements IRideService {
         ride.setEstimatedTimeInMinutes(5);
         ride.setStartTime(LocalDateTime.now());
         ride.setEndTime(LocalDateTime.now().plus(5, ChronoUnit.MINUTES));
-        /*Driver driver = new Driver();
+        Driver driver = new Driver();
         driver.setId(2);
         driver.setEmail("driver@mail.com");
-        ride.setDriver(driver);*/
+        ride.setDriver(driver);
         Rejection r = new Rejection();
+        r.setReason("Boba");
+        r.setTimeOfRejection(LocalDateTime.now());
+        r.setRide(ride);
         ride.setRejection(r);
         ride.setTotalCost(1234.0);
-        ride.setStatus(RideStatus.PENDING);
+        ride.setStatus(RideStatus.ACTIVE);
         return rideRepository.save(ride);
+    }
+
+    @Override
+    public Ride findActiveForDriver(Integer driverId) {
+        return rideRepository.findByDriver_IdAndStatus(driverId, RideStatus.ACTIVE);
     }
 }
