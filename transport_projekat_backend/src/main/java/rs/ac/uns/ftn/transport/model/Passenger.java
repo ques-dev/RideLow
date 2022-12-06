@@ -4,7 +4,7 @@ package rs.ac.uns.ftn.transport.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
-import rs.ac.uns.ftn.transport.dto.PassengerDTO;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerDTO;
 
 import java.util.Objects;
 import java.util.Set;
@@ -18,12 +18,12 @@ import java.util.Set;
 @AllArgsConstructor
 public class Passenger extends User{
 
-    @ManyToMany()
+    @ManyToMany(cascade = {CascadeType.PERSIST})
     @JoinTable(name = "passenger_Ride", joinColumns = @JoinColumn(name = "PassengerId", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "RideId", referencedColumnName = "id"))
     @ToString.Exclude
     private Set<Ride> rides;
 
-    @ManyToMany()
+    @ManyToMany(cascade = {CascadeType.PERSIST})
     @JoinTable(name = "passenger_FavoriteRoute", joinColumns = @JoinColumn(name = "PassengerId", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "RouteId", referencedColumnName = "id"))
     @ToString.Exclude
     private Set<Route> favorites;

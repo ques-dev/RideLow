@@ -1,19 +1,15 @@
-package rs.ac.uns.ftn.transport.dto;
+package rs.ac.uns.ftn.transport.dto.passenger;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class PassengerDTO {
+public class PassengerCreatedDTO {
 
+    private Integer id;
     private String name;
     private String surname;
     private String profilePicture;
     private String telephoneNumber;
     private String email;
     private String address;
-    private String password;
 }

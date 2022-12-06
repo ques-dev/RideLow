@@ -12,22 +12,25 @@ import java.util.Objects;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class Route {
 
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH})
     @JoinColumn(name = "startLocationId")
     @ToString.Exclude
-    private Location startLocation;
+    @NonNull
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    private Location departure;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH})
     @JoinColumn(name = "endLocationId")
     @ToString.Exclude
-    private Location endLocation;
+    @NonNull
+    private Location destination;
 
     @Column(name = "distanceInKm")
     private  Double distanceInKm;

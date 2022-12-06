@@ -1,14 +1,29 @@
 package rs.ac.uns.ftn.transport.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.transport.dto.PassengerDTO;
-import rs.ac.uns.ftn.transport.dto.PassengerCreatedDTO;
-import rs.ac.uns.ftn.transport.mapper.PassengerCreatedDTOMapper;
-import rs.ac.uns.ftn.transport.mapper.PassengerDTOMapper;
+import rs.ac.uns.ftn.transport.dto.RidePageDTO;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerDTO;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerCreatedDTO;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerPageDTO;
+import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
+import rs.ac.uns.ftn.transport.mapper.passenger.PassengerCreatedDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.passenger.PassengerDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.model.Passenger;
+import rs.ac.uns.ftn.transport.model.Ride;
+import rs.ac.uns.ftn.transport.model.UserActivation;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
+import rs.ac.uns.ftn.transport.service.interfaces.IUserActivationService;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @CrossOrigin("http://localhost:4200")
 @RestController
@@ -16,23 +31,18 @@ import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
 public class PassengerController {
 
     private final IPassengerService passengerService;
+    private final IUserActivationService userActivationService;
 
-    public PassengerController(IPassengerService passengerService) {
+    public PassengerController(IPassengerService passengerService,IUserActivationService userActivationService) {
         this.passengerService = passengerService;
+        this.userActivationService = userActivationService;
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<PassengerCreatedDTO> savePassenger(PassengerDTO passenger)
+    public ResponseEntity<PassengerCreatedDTO> savePassenger(@RequestBody PassengerDTO passenger)
     {
         Passenger created = passengerService.save(PassengerDTOMapper.fromDTOtoPassenger(passenger));
         return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(created), HttpStatus.CREATED);
-    }
-
-    @PostMapping(value = "/{activationId}")
-    public ResponseEntity<String> activateUser(@PathVariable Integer activationId)
-    {
-        //return new ResponseEntity<>("")
-        return null;
     }
 
     @GetMapping(value = "/{id}")
@@ -56,4 +66,43 @@ public class PassengerController {
         return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(retrieved),HttpStatus.OK);
     }
 
+    @GetMapping
+    public ResponseEntity<PassengerPageDTO> getPassengers(Pageable page) {
+        Page<Passenger> passengers = passengerService.findAll(page);
+
+        Set<PassengerCreatedDTO> passengerCreatedDTOs = passengers.stream()
+                .map(PassengerCreatedDTOMapper :: fromPassengerToDTO)
+                .collect(Collectors.toSet());
+
+        return new ResponseEntity<>(new PassengerPageDTO(passengers.getTotalElements(), passengerCreatedDTOs), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/activate/{activationId}")
+    public ResponseEntity<String> activatePassenger(@PathVariable Integer activationId)
+    {
+        UserActivation activation = userActivationService.findOne(activationId);
+        if(activation.checkIfExpired()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Passenger toActivate = (Passenger) activation.getUser();
+        if(toActivate.getIsActivated()) {
+            return new ResponseEntity<>("Account has already been activated.",HttpStatus.BAD_REQUEST);
+        }
+        toActivate.setIsActivated(true);
+        passengerService.save(toActivate);
+        return new ResponseEntity<>("Successful account activation.",HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{id}/ride")
+    public ResponseEntity<RidePageDTO> findRidesBetweenTimeSpan(Pageable page, @PathVariable Integer id, @RequestParam String from, @RequestParam String to)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime startPoint = LocalDateTime.parse(from,formatter);
+        LocalDateTime endPoint = LocalDateTime.parse(to,formatter);
+        Page<Ride> retrieved = passengerService.findRidesBetweenTimeRange(id,startPoint,endPoint, page);
+        Set<RideCreatedDTO> rideDTOs = retrieved.stream()
+                .map(RideCreatedDTOMapper:: fromRideToDTO)
+                .collect(Collectors.toSet());
+        return new ResponseEntity<>(new RidePageDTO(retrieved.getTotalElements(),rideDTOs),HttpStatus.OK);
+    }
 }

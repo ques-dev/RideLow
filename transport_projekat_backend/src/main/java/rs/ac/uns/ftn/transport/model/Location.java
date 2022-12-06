@@ -6,8 +6,6 @@ import org.hibernate.Hibernate;
 
 import java.util.Objects;
 
-//TODO: Pitacu kako je zamisljeno da se lokacija pamti - da li postoji neki kao "repo" svih mogucih lokacija i
-// da li ima smisla da ima id, i sta bi trebao da bude kljuc
 @Entity
 @Table(name = "locations")
 @Getter
