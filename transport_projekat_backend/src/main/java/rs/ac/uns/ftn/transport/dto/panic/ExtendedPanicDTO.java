@@ -1,12 +1,14 @@
 package rs.ac.uns.ftn.transport.dto.panic;
 
-import rs.ac.uns.ftn.transport.dto.LocationDTO;
+import lombok.Data;
 import rs.ac.uns.ftn.transport.dto.UserDTO;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
-import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
+import rs.ac.uns.ftn.transport.model.Passenger;
 
 import java.time.LocalDateTime;
 
+@Data
 public class ExtendedPanicDTO {
 
     private Integer id;

@@ -4,10 +4,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.transport.dto.PanicDTO;
+import rs.ac.uns.ftn.transport.dto.panic.ExtendedPanicDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreationDTO;
+import rs.ac.uns.ftn.transport.mapper.panic.ExtendedPanicDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.panic.PanicReasonDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreationDTOMapper;
+import rs.ac.uns.ftn.transport.model.Panic;
 import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.service.interfaces.IPanicService;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
@@ -72,11 +76,13 @@ public class RideController {
     }
 
     @PutMapping(value = "/{id}/panic", consumes = "application/json")
-    public ResponseEntity<RideCreatedDTO> panic(@PathVariable Integer id, @RequestBody PanicDTO panic)
+    public ResponseEntity<ExtendedPanicDTO> panic(@PathVariable Integer id, @RequestBody PanicDTO panic)
     {
-
-        Ride toCancel = rideService.cancelRide(id);
-        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toCancel),HttpStatus.OK);
+        Panic retrieved = panicService.save(PanicReasonDTOMapper.fromDTOtoPanic(panic),id);
+        System.out.println(retrieved);
+        System.out.println(retrieved.getRide());
+        System.out.println(retrieved.getUser());
+        return new ResponseEntity<>(ExtendedPanicDTOMapper.fromPanicToDTO(retrieved),HttpStatus.OK);
     }
 
 }
