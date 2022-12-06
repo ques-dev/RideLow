@@ -28,10 +28,10 @@ public class Panic {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "currentRideId")
     @ToString.Exclude
-    private Ride currentRide;
+    private Ride ride;
 
     @Column(name = "dateTime", columnDefinition = "TIMESTAMP")
-    private LocalDateTime dateTime;
+    private LocalDateTime time;
 
     @Column(name = "reason")
     private String reason;

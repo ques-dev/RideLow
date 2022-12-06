@@ -15,4 +15,9 @@ public class PanicServiceImpl implements IPanicService {
     public PanicServiceImpl(PanicRepository panicRepository){this.panicRepository = panicRepository;}
 
     public List<Panic> findAll(){return panicRepository.findAll();}
+
+    @Override
+    public Panic save(Panic panic) {
+        return panicRepository.save(panic);
+    }
 }

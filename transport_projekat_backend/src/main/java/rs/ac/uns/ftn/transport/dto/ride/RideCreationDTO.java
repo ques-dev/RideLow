@@ -3,7 +3,6 @@ package rs.ac.uns.ftn.transport.dto.ride;
 import lombok.Data;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerIdEmailDTO;
 import rs.ac.uns.ftn.transport.dto.RouteDTO;
-import rs.ac.uns.ftn.transport.dto.VehicleTypeNameDTO;
 
 import java.util.Set;
 

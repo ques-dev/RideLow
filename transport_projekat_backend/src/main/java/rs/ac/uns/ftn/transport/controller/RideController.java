@@ -3,11 +3,13 @@ package rs.ac.uns.ftn.transport.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import rs.ac.uns.ftn.transport.dto.PanicDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreationDTO;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreationDTOMapper;
 import rs.ac.uns.ftn.transport.model.Ride;
+import rs.ac.uns.ftn.transport.service.interfaces.IPanicService;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 
 @RestController
@@ -15,9 +17,11 @@ import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 public class RideController {
 
     private final IRideService rideService;
+    private final IPanicService panicService;
 
-    public RideController(IRideService rideService) {
+    public RideController(IRideService rideService, IPanicService panicService) {
         this.rideService = rideService;
+        this.panicService = panicService;
     }
 
     @PostMapping(consumes = "application/json")
@@ -59,5 +63,21 @@ public class RideController {
         }
         return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(ride),HttpStatus.OK);
     }
+
+    @PutMapping(value = "/{id}/withdraw")
+    public ResponseEntity<RideCreatedDTO> cancelRide(@PathVariable Integer id)
+    {
+        Ride toCancel = rideService.cancelRide(id);
+        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toCancel),HttpStatus.OK);
+    }
+
+    @PutMapping(value = "/{id}/panic", consumes = "application/json")
+    public ResponseEntity<RideCreatedDTO> panic(@PathVariable Integer id, @RequestBody PanicDTO panic)
+    {
+
+        Ride toCancel = rideService.cancelRide(id);
+        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toCancel),HttpStatus.OK);
+    }
+
 }
 
