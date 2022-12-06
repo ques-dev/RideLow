@@ -8,6 +8,7 @@ import rs.ac.uns.ftn.transport.repository.RideRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class RideService implements IRideService {
@@ -21,15 +22,15 @@ public class RideService implements IRideService {
     @Override
     public Ride save(Ride ride) {
 
-        Ride created = rideRepository.save(ride);
-        created.setEstimatedTimeInMinutes(5);
-        created.setStartTime(LocalDateTime.now());
-        Driver driver = new Driver();
+        ride.setEstimatedTimeInMinutes(5);
+        ride.setStartTime(LocalDateTime.now());
+        ride.setEndTime(LocalDateTime.now().plus(5, ChronoUnit.MINUTES));
+        /*Driver driver = new Driver();
         driver.setId(2);
         driver.setEmail("driver@mail.com");
-        created.setDriver(driver);
-        created.setTotalCost(1234.0);
-        created.setStatus(RideStatus.PENDING);
-        return created;
+        ride.setDriver(driver);*/
+        ride.setTotalCost(1234.0);
+        ride.setStatus(RideStatus.PENDING);
+        return rideRepository.save(ride);
     }
 }

@@ -5,16 +5,23 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import rs.ac.uns.ftn.transport.dto.RidePageDTO;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerDTO;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerCreatedDTO;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerPageDTO;
+import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
 import rs.ac.uns.ftn.transport.mapper.passenger.PassengerCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.passenger.PassengerDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.model.Passenger;
+import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.model.UserActivation;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
 import rs.ac.uns.ftn.transport.service.interfaces.IUserActivationService;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -83,5 +90,18 @@ public class PassengerController {
         toActivate.setIsActivated(true);
         passengerService.save(toActivate);
         return new ResponseEntity<>("Successful account activation.",HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{id}/ride")
+    public ResponseEntity<RidePageDTO> findRidesBetweenTimeSpan(Pageable page, @PathVariable Integer id, @RequestParam String from, @RequestParam String to)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime startPoint = LocalDateTime.parse(from,formatter);
+        LocalDateTime endPoint = LocalDateTime.parse(to,formatter);
+        Page<Ride> retrieved = passengerService.findRidesBetweenTimeRange(id,startPoint,endPoint, page);
+        Set<RideCreatedDTO> rideDTOs = retrieved.stream()
+                .map(RideCreatedDTOMapper:: fromRideToDTO)
+                .collect(Collectors.toSet());
+        return new ResponseEntity<>(new RidePageDTO(retrieved.getTotalElements(),rideDTOs),HttpStatus.OK);
     }
 }
