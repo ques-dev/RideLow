@@ -183,24 +183,22 @@ public class DriverController {
         return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.CREATED);
     }
 
-    @GetMapping(value = "/{driverId}/working-hour/{workingHourId}")
-    public ResponseEntity<WorkingHoursDTO> getWorkingHour(@PathVariable Integer driverId, @PathVariable Integer workingHourId) {
-        Driver driver = driverService.findOne(driverId);
+    @GetMapping(value = "/working-hour/{workingHourId}")
+    public ResponseEntity<WorkingHoursDTO> getWorkingHour(@PathVariable Integer workingHourId) {
         WorkingHours workingHours = workingHoursService.findOne(workingHourId);
 
-        if (workingHours == null || !workingHours.getDriver().equals(driver)) {
+        if (workingHours == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
     }
 
-    @PutMapping(value = "/{driverId}/working-hour/{workingHourId}")
-    public ResponseEntity<WorkingHoursDTO> updateWorkingHour(@PathVariable Integer driverId, @PathVariable Integer workingHourId) {
-        Driver driver = driverService.findOne(driverId);
+    @PutMapping(value = "/working-hour/{workingHourId}")
+    public ResponseEntity<WorkingHoursDTO> updateWorkingHour(@PathVariable Integer workingHourId) {
         WorkingHours workingHours = workingHoursService.findOne(workingHourId);
 
-        if (workingHours == null || !workingHours.getDriver().equals(driver)) {
+        if (workingHours == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 

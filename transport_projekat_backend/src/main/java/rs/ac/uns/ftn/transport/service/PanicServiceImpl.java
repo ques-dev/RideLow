@@ -8,7 +8,7 @@ import rs.ac.uns.ftn.transport.service.interfaces.IPanicService;
 import java.util.List;
 
 @Service
-public class PanicServiceImpl extends IPanicService {
+public class PanicServiceImpl implements IPanicService {
 
     private final PanicRepository panicRepository;
 

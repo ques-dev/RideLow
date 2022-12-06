@@ -21,4 +21,6 @@ public class VehicleServiceImpl implements IVehicleService {
     public Vehicle getVehicleByDriver_Id(Integer id) {
         return vehicleRepository.getVehicleByDriver_Id(id);
     }
+
+    public Vehicle getVehicleById(Integer id){return vehicleRepository.findById(id).orElseGet(null);}
 }

@@ -1,0 +1,45 @@
+package rs.ac.uns.ftn.transport.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import rs.ac.uns.ftn.transport.dto.VehicleReviewDTO;
+import rs.ac.uns.ftn.transport.dto.VehicleReviewPageDTO;
+import rs.ac.uns.ftn.transport.mapper.VehicleReviewDTOMapper;
+import rs.ac.uns.ftn.transport.model.VehicleReview;
+import rs.ac.uns.ftn.transport.service.interfaces.IReviewService;
+import rs.ac.uns.ftn.transport.service.interfaces.IVehicleService;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@CrossOrigin("http://localhost:4200")
+@RestController
+@RequestMapping(value="api/review")
+public class ReviewController {
+    private final IReviewService reviewService;
+    private final IVehicleService vehicleService;
+
+    public ReviewController(IReviewService reviewService, IVehicleService vehicleService){
+        this.reviewService = reviewService;
+        this.vehicleService = vehicleService;
+    }
+
+    @PostMapping(value = "vehicle/{id}", consumes = "application/json")
+    public ResponseEntity<VehicleReviewDTO> saveVehicleReview(@PathVariable Integer id, @RequestBody VehicleReview vehicleReview){
+        vehicleReview.setVehicle(vehicleService.getVehicleById(id));
+        vehicleReview = reviewService.saveVehicleReview(vehicleReview);
+        return new ResponseEntity<>(new VehicleReviewDTO(vehicleReview), HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "vehicle/{id}")
+    public ResponseEntity<VehicleReviewPageDTO> getVehicleReviewsForVehicle(@PathVariable Integer id){
+        Set<VehicleReview> reviews = reviewService.getVehicleReviewsofVehicle(id);
+
+        Set<VehicleReviewDTO> vehicleReviewDTOS = reviews.stream()
+                .map(VehicleReviewDTOMapper::fromVehicleReviewtoDTO)
+                .collect(Collectors.toSet());
+
+        return new ResponseEntity<>(new VehicleReviewPageDTO((long) reviews.size(), vehicleReviewDTOS), HttpStatus.OK);
+    }
+}
