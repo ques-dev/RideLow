@@ -68,7 +68,7 @@ public class RideController {
         return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(ride),HttpStatus.OK);
     }
 
-    @PutMapping(value = "/{id}/withdraw")
+    @PutMapping(value = "/{id}/withdraw") 
     public ResponseEntity<RideCreatedDTO> cancelRide(@PathVariable Integer id)
     {
         Ride toCancel = rideService.cancelRide(id);
