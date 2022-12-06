@@ -18,3 +18,5 @@ public interface RideRepository extends JpaRepository<Ride,Integer> {
     Page<Ride> findRidesBetweenDateRange(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page);
 
 }
+
+
