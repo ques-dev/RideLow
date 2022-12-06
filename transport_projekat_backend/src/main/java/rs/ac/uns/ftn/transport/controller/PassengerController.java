@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@CrossOrigin("http://localhost:4200")
 @RestController
 @RequestMapping(value = "/api/passenger")
 public class PassengerController {
@@ -45,7 +46,7 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<PassengerCreatedDTO> findPassenger(@PathVariable Integer id)
+    public ResponseEntity<PassengerCreatedDTO> getPassenger(@PathVariable Integer id)
     {
         Passenger retrieved = passengerService.findOne(id);
         if (retrieved == null)
