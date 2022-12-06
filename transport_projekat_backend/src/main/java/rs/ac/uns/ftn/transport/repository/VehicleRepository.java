@@ -6,5 +6,4 @@ import rs.ac.uns.ftn.transport.model.Vehicle;
 
 public interface VehicleRepository extends JpaRepository<Vehicle, Integer> {
     Vehicle getVehicleByDriver_Id(@Param("id") Integer id);
-    Vehicle getVehicleById(@Param("id") Integer id);
 }

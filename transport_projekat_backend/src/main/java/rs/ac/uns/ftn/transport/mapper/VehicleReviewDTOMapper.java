@@ -22,7 +22,7 @@ public class VehicleReviewDTOMapper {
         return modelMapper.map(dto, VehicleReview.class);
     }
 
-    public static VehicleReviewDTO fromVehicleReviewtoDTO(Driver dto) {
+    public static VehicleReviewDTO fromVehicleReviewtoDTO(VehicleReview dto) {
         return modelMapper.map(dto, VehicleReviewDTO.class);
     }
 }
