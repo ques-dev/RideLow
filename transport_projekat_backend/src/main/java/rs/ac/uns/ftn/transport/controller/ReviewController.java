@@ -3,10 +3,13 @@ package rs.ac.uns.ftn.transport.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import rs.ac.uns.ftn.transport.dto.DriverReviewDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleReviewDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleReviewPageDTO;
 import rs.ac.uns.ftn.transport.mapper.VehicleReviewDTOMapper;
+import rs.ac.uns.ftn.transport.model.DriverReview;
 import rs.ac.uns.ftn.transport.model.VehicleReview;
+import rs.ac.uns.ftn.transport.service.interfaces.IDriverService;
 import rs.ac.uns.ftn.transport.service.interfaces.IReviewService;
 import rs.ac.uns.ftn.transport.service.interfaces.IVehicleService;
 
@@ -18,11 +21,13 @@ import java.util.stream.Collectors;
 @RequestMapping(value="api/review")
 public class ReviewController {
     private final IReviewService reviewService;
+    private final IDriverService driverService;
     private final IVehicleService vehicleService;
 
-    public ReviewController(IReviewService reviewService, IVehicleService vehicleService){
+    public ReviewController(IReviewService reviewService, IVehicleService vehicleService, IDriverService driverService){
         this.reviewService = reviewService;
         this.vehicleService = vehicleService;
+        this.driverService = driverService;
     }
 
     @PostMapping(value = "vehicle/{id}", consumes = "application/json")
@@ -41,5 +46,12 @@ public class ReviewController {
                 .collect(Collectors.toSet());
 
         return new ResponseEntity<>(new VehicleReviewPageDTO((long) reviews.size(), vehicleReviewDTOS), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "driver/{id}", consumes = "application/json")
+    public ResponseEntity<DriverReviewDTO> saveDriverReview(@PathVariable Integer id, @RequestBody DriverReview driverReview){
+        driverReview.setDriver(driverService.findOne(id));
+        driverReview = reviewService.saveDriverReview(driverReview);
+        return new ResponseEntity<>(new DriverReviewDTO(driverReview), HttpStatus.CREATED);
     }
 }

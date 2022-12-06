@@ -62,4 +62,20 @@ public class RideServiceImpl implements IRideService {
     public Ride findOne(Integer id) {
         return rideRepository.findById(id).orElseGet(null);
     }
+
+    public Page<Ride> findAllByDriver_Id(Integer id, Pageable page) {
+        return rideRepository.findAllByDriver_Id(id, page);
+    }
+
+    public Page<Ride> findAllByDriver_IdAndStartTimeIsAfterAndEndTimeIsBefore(Integer id, LocalDateTime start, LocalDateTime end, Pageable page) {
+        return rideRepository.findAllByDriver_IdAndStartTimeIsAfterAndEndTimeIsBefore(id, start, end, page);
+    }
+
+    public Page<Ride> findAllByDriver_IdAndStartTimeIsAfter(Integer id, LocalDateTime start, Pageable page) {
+        return rideRepository.findAllByDriver_IdAndStartTimeIsAfter(id, start, page);
+    }
+
+    public Page<Ride> findAllByDriver_IdAndEndTimeIsBefore(Integer id, LocalDateTime end, Pageable page) {
+        return rideRepository.findAllByDriver_IdAndEndTimeIsBefore(id, end, page);
+    }
 }
