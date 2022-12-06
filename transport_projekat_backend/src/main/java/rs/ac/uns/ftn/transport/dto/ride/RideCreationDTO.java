@@ -8,7 +8,6 @@ import rs.ac.uns.ftn.transport.dto.VehicleTypeNameDTO;
 import java.util.Set;
 
 @Data
-
 public class RideCreationDTO {
 
     private Set<RouteDTO> locations;
@@ -16,4 +15,5 @@ public class RideCreationDTO {
     private String vehicleType;
     private Boolean babyTransport;
     private Boolean petTransport;
+
 }

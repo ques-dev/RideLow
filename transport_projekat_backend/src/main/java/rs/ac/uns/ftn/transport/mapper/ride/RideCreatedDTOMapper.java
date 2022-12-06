@@ -6,6 +6,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
+import rs.ac.uns.ftn.transport.dto.ride.RideCreationDTO;
 import rs.ac.uns.ftn.transport.model.Ride;
 
 @Component
@@ -20,6 +21,17 @@ public class RideCreatedDTOMapper {
                 .setFieldMatchingEnabled(true)
                 .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE)
                 .setMatchingStrategy(MatchingStrategies.STANDARD);
+
+        modelMapper.typeMap(Ride.class, RideCreatedDTO.class).addMappings(mapper -> {
+            mapper.map(src -> src.getVehicleType().getName(),
+                    RideCreatedDTO::setVehicleType);
+        });
+
+        modelMapper.typeMap(RideCreatedDTO.class, Ride.class).addMappings(mapper -> {
+            mapper.map(src -> src.getVehicleType(),
+                    Ride::setVehicleTypeName);
+        });
+
     }
 
     public static RideCreatedDTO fromRideToDTO(Ride model) {

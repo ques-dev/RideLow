@@ -48,5 +48,16 @@ public class RideController {
         }
         return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(active),HttpStatus.OK);
     }
+
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<RideCreatedDTO> getRideDetails(@PathVariable Integer id)
+    {
+        Ride ride = rideService.findOne(id);
+        if(ride == null)
+        {
+            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(ride),HttpStatus.OK);
+    }
 }
 

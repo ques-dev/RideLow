@@ -74,6 +74,14 @@ public class Ride {
     private VehicleType vehicleType;
     
 
+    public void setVehicleTypeName(String name)
+    {
+        if(this.vehicleType == null)
+        {
+            this.vehicleType = new VehicleType();
+        }
+        this.vehicleType.setName(name);
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

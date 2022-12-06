@@ -13,4 +13,5 @@ public interface IRideService {
     Ride findActiveForDriver(Integer driverId);
     Ride findActiveForPassenger(Integer passengerId);
     Page<Ride> findBetweenDateRange(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page);
+    Ride findOne(Integer id);
 }

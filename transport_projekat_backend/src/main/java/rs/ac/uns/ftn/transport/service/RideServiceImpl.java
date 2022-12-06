@@ -12,6 +12,7 @@ import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 @Service
 public class RideServiceImpl implements IRideService {
@@ -55,5 +56,10 @@ public class RideServiceImpl implements IRideService {
     @Override
     public Page<Ride> findBetweenDateRange(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page) {
         return rideRepository.findRidesBetweenDateRange(passengerId,start,end,page);
+    }
+
+    @Override
+    public Ride findOne(Integer id) {
+        return rideRepository.findById(id).orElseGet(null);
     }
 }
