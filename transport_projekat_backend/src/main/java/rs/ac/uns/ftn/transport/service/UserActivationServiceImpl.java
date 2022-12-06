@@ -1,23 +1,17 @@
 package rs.ac.uns.ftn.transport.service;
 
-
 import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.transport.model.UserActivation;
 import rs.ac.uns.ftn.transport.repository.UserActivationRepository;
-import rs.ac.uns.ftn.transport.service.interfaces.IAccountActivationService;
+import rs.ac.uns.ftn.transport.service.interfaces.IUserActivationService;
 
 @Service
-public class AccountActivationService implements IAccountActivationService {
+public class UserActivationServiceImpl implements IUserActivationService {
 
     private final UserActivationRepository userActivationRepository;
 
-    public AccountActivationService(UserActivationRepository userActivationRepository) {
+    public UserActivationServiceImpl(UserActivationRepository userActivationRepository) {
         this.userActivationRepository = userActivationRepository;
-    }
-
-    @Override
-    public UserActivation save(UserActivation activation) {
-        return userActivationRepository.save(activation);
     }
 
     @Override

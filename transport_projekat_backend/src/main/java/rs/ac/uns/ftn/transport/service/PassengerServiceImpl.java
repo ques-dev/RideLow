@@ -8,21 +8,20 @@ import rs.ac.uns.ftn.transport.repository.PassengerRepository;
 import rs.ac.uns.ftn.transport.repository.RideRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
 import org.springframework.data.domain.Pageable;
+import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
 
 
 @Service
-public class PassengerService implements IPassengerService {
+public class PassengerServiceImpl implements IPassengerService {
 
     private final PassengerRepository passengerRepository;
-    private final RideRepository rideRepository;
+    private final IRideService rideService;
 
-    public PassengerService(PassengerRepository passengerRepository, RideRepository rideRepository) {
+    public PassengerServiceImpl(PassengerRepository passengerRepository,IRideService rideService) {
         this.passengerRepository = passengerRepository;
-        this.rideRepository = rideRepository;
+        this.rideService = rideService;
     }
 
     @Override
@@ -41,6 +40,6 @@ public class PassengerService implements IPassengerService {
 
     @Override
     public Page<Ride> findRidesBetweenTimeRange(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page) {
-        return rideRepository.findRidesBetweenDateRange(passengerId,start,end, page);
+        return rideService.findBetweenDateRange(passengerId,start,end, page);
     }
 }

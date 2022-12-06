@@ -13,7 +13,7 @@ public class RideCreationDTO {
 
     private Set<RouteDTO> locations;
     private Set<PassengerIdEmailDTO> passengers;
-    private VehicleTypeNameDTO vehicleType;
+    private String vehicleType;
     private Boolean babyTransport;
     private Boolean petTransport;
 }
