@@ -55,7 +55,7 @@ public class Ride {
     @Column(name = "Status")
     private RideStatus status;
 
-    @OneToOne(mappedBy = "ride", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "ride", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
     @ToString.Exclude
     private Rejection rejection;
 

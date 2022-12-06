@@ -77,7 +77,7 @@ public class PassengerController {
         return new ResponseEntity<>(new PassengerPageDTO(passengers.getTotalElements(), passengerCreatedDTOs), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/{activationId}")
+    @PostMapping(value = "/activate/{activationId}")
     public ResponseEntity<String> activatePassenger(@PathVariable Integer activationId)
     {
         UserActivation activation = userActivationService.findOne(activationId);

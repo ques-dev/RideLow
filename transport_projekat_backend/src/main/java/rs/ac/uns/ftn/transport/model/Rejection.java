@@ -34,8 +34,8 @@ public class Rejection {
     @ToString.Exclude
     private User user;
 
-    @Column(name = "dateTime", columnDefinition = "TIMESTAMP")
-    private LocalDateTime dateTime;
+    @Column(name = "dateTime")
+    private LocalDateTime timeOfRejection;
 
     @Override
     public boolean equals(Object o) {
