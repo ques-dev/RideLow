@@ -4,14 +4,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.transport.dto.PanicDTO;
+import rs.ac.uns.ftn.transport.dto.RejectionDTO;
+import rs.ac.uns.ftn.transport.dto.RejectionReasonDTO;
 import rs.ac.uns.ftn.transport.dto.panic.ExtendedPanicDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreationDTO;
+import rs.ac.uns.ftn.transport.mapper.RejectionReasonDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.ExtendedPanicDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.PanicReasonDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreationDTOMapper;
 import rs.ac.uns.ftn.transport.model.Panic;
+import rs.ac.uns.ftn.transport.model.Rejection;
 import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.service.interfaces.IPanicService;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
@@ -94,6 +98,15 @@ public class RideController {
     {
         Ride toEnd = rideService.endRide(id);
         return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toEnd),HttpStatus.OK);
+    }
+
+    @PutMapping(value = "/{id}/cancel")
+    public ResponseEntity<RideCreatedDTO> cancelRideWithExplanation(@PathVariable Integer id ,
+                                                                    @RequestBody RejectionReasonDTO explanation)
+    {
+        Rejection rejection = RejectionReasonDTOMapper.fromDTOtoRejection(explanation);
+        Ride rejected = rideService.cancelWithExplanation(id,rejection);
+        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(rejected),HttpStatus.OK);
     }
 
 }

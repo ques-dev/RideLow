@@ -102,4 +102,15 @@ public class RideServiceImpl implements IRideService {
         rideRepository.save(toEnd);
         return toEnd;
     }
+
+    @Override
+    public Ride cancelWithExplanation(Integer rideId, Rejection explanation) {
+        Ride toReject = rideRepository.findById(rideId).orElseGet(null);
+        toReject.setStatus(RideStatus.REJECTED);
+        explanation.setRide(toReject);
+        explanation.setTimeOfRejection(LocalDateTime.now());
+        toReject.setRejection(explanation);
+        rideRepository.save(toReject);
+        return toReject;
+    }
 }
