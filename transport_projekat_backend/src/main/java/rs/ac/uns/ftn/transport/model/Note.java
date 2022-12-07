@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -21,6 +22,9 @@ public class Note {
 
     @Column(name = "message")
     private String message;
+
+    @Column(name = "date")
+    private LocalDateTime date;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")

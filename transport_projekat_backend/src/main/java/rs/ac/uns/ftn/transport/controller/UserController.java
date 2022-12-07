@@ -9,10 +9,7 @@ import rs.ac.uns.ftn.transport.dto.*;
 import rs.ac.uns.ftn.transport.dto.ride.RidePage2DTO;
 import rs.ac.uns.ftn.transport.mapper.RideDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.UserDTOMapper;
-import rs.ac.uns.ftn.transport.model.Message;
-import rs.ac.uns.ftn.transport.model.Passenger;
-import rs.ac.uns.ftn.transport.model.Ride;
-import rs.ac.uns.ftn.transport.model.User;
+import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.model.enumerations.MessageType;
 import rs.ac.uns.ftn.transport.service.interfaces.IDriverService;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
@@ -103,5 +100,17 @@ public class UserController {
     public ResponseEntity<String> unblockUser(@PathVariable Integer id){
         userService.unblockUser(id);
         return new ResponseEntity<>("User is successfully unblocked", HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping(value = "/{id}/note")
+    public ResponseEntity<NoteLiteDTO> creatingNote(@PathVariable Integer id, @RequestBody Note note){
+        note = userService.saveNote(id, note);
+        return new ResponseEntity<>(new NoteLiteDTO(note), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{id}/note")
+    public ResponseEntity<NotePageDTO> findNotes(@PathVariable Integer id, Pageable page){
+        NotePageDTO notePageDTO = userService.findNotes(id, page);
+        return new ResponseEntity<>(notePageDTO, HttpStatus.OK);
     }
 }

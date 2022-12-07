@@ -4,15 +4,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.transport.dto.MessageDTO;
+import rs.ac.uns.ftn.transport.dto.NoteDTO;
+import rs.ac.uns.ftn.transport.dto.NotePageDTO;
 import rs.ac.uns.ftn.transport.dto.TokenDTO;
 import rs.ac.uns.ftn.transport.mapper.MessageDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.NoteDTOMapper;
 import rs.ac.uns.ftn.transport.model.Message;
+import rs.ac.uns.ftn.transport.model.Note;
 import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.model.User;
 import rs.ac.uns.ftn.transport.repository.MessageRepository;
+import rs.ac.uns.ftn.transport.repository.NoteRepository;
 import rs.ac.uns.ftn.transport.repository.UserRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IUserService;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,10 +27,11 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
-
+    private final NoteRepository noteRepository;
     private final MessageRepository messageRepository;
 
-    public UserServiceImpl(UserRepository userRepository, MessageRepository messageRepository){
+    public UserServiceImpl(UserRepository userRepository, MessageRepository messageRepository, NoteRepository noteRepository){
+        this.noteRepository = noteRepository;
         this.userRepository = userRepository;
         this.messageRepository = messageRepository;
     }
@@ -82,5 +89,28 @@ public class UserServiceImpl implements IUserService {
         User user = findOne(id);
         user.setIsBlocked(false);
         save(user);
+    }
+
+    @Override
+    public Note saveNote(Integer id, Note note) {
+        Optional<User> userO = userRepository.findById(id);
+        if(!userO.isPresent())
+            return null;
+        User user = userO.get();
+        note.setUser(user);
+        note.setDate(LocalDateTime.now());
+
+        return noteRepository.save(note);
+    }
+
+    @Override
+    public NotePageDTO findNotes(Integer id, Pageable page) {
+        Optional<User> userO = userRepository.findById(id);
+        if(!userO.isPresent())
+            return null;
+        User user = userO.get();
+        Page<Note> notes = noteRepository.findByUser(user, page);
+        Set<NoteDTO> noteDTOS = notes.stream().map(NoteDTOMapper::fromNotetoDTO).collect(Collectors.toSet());
+        return new NotePageDTO((long) noteDTOS.size(), noteDTOS);
     }
 }
