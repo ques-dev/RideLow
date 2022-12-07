@@ -3,10 +3,7 @@ package rs.ac.uns.ftn.transport.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.transport.dto.DriverReviewDTO;
-import rs.ac.uns.ftn.transport.dto.DriverReviewPageDTO;
-import rs.ac.uns.ftn.transport.dto.VehicleReviewDTO;
-import rs.ac.uns.ftn.transport.dto.VehicleReviewPageDTO;
+import rs.ac.uns.ftn.transport.dto.*;
 import rs.ac.uns.ftn.transport.mapper.DriverReviewDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.VehicleReviewDTOMapper;
 import rs.ac.uns.ftn.transport.model.DriverReview;
@@ -66,5 +63,11 @@ public class ReviewController {
                 .collect(Collectors.toSet());
 
         return new ResponseEntity<>(new DriverReviewPageDTO((long) reviews.size(), driverReviewDTOS), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{rideId}")
+    public ResponseEntity<ReviewRideDTO> getReviewsForRide(@PathVariable Integer rideId){
+        ReviewRideDTO reviewRideDTO = reviewService.getReviewsForRide(rideId);
+        return new ResponseEntity<>(reviewRideDTO, HttpStatus.OK);
     }
 }
