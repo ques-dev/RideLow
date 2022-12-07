@@ -89,5 +89,12 @@ public class RideController {
         return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toAccept),HttpStatus.OK);
     }
 
+    @PutMapping(value = "/{id}/end")
+    public ResponseEntity<RideCreatedDTO> endRide(@PathVariable Integer id)
+    {
+        Ride toEnd = rideService.endRide(id);
+        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toEnd),HttpStatus.OK);
+    }
+
 }
 

@@ -94,7 +94,10 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/{id}/ride")
-    public ResponseEntity<RidePageDTO> findRidesBetweenTimeSpan(Pageable page, @PathVariable Integer id, @RequestParam LocalDateTime from, @RequestParam LocalDateTime to)
+    public ResponseEntity<RidePageDTO> findRidesBetweenTimeSpan(Pageable page,
+                                                                @PathVariable Integer id,
+                                                                @RequestParam(required = false) LocalDateTime from,
+                                                                @RequestParam(required = false) LocalDateTime to)
     {
         Page<Ride> retrieved = passengerService.findRidesBetweenTimeRange(id,from,to, page);
         Set<RideCreatedDTO> rideDTOs = retrieved.stream()

@@ -94,4 +94,12 @@ public class RideServiceImpl implements IRideService {
         rideRepository.save(toAccept);
         return toAccept;
     }
+
+    @Override
+    public Ride endRide(Integer id) {
+        Ride toEnd = rideRepository.findById(id).orElse(null);
+        toEnd.setStatus(RideStatus.FINISHED);
+        rideRepository.save(toEnd);
+        return toEnd;
+    }
 }

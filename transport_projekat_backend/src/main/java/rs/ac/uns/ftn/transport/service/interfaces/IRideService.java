@@ -12,6 +12,7 @@ public interface IRideService {
     Ride findActiveForPassenger(Integer passengerId);
 
     Page<Ride> findBetweenDateRange(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page);
+    
     Ride findOne(Integer id);
     Page<Ride> findAllByDriver_Id(Integer id, Pageable page);
     Page<Ride> findAllByDriver_IdAndStartTimeIsAfterAndEndTimeIsBefore(Integer id, LocalDateTime start, LocalDateTime end, Pageable page);
@@ -19,6 +20,7 @@ public interface IRideService {
     Page<Ride> findAllByDriver_IdAndEndTimeIsBefore(Integer id, LocalDateTime end, Pageable page);
     Ride cancelRide(Integer id);
     Ride acceptRide(Integer id);
+    Ride endRide(Integer id);
 
 
 }
