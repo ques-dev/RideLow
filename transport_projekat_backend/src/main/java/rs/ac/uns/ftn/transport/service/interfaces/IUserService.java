@@ -20,4 +20,6 @@ public interface IUserService {
     Set<MessageDTO> findMessagesOfUser(Integer id);
 
     Message SaveMessage(Message message);
+
+    void blockUser(Integer id);
 }

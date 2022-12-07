@@ -69,4 +69,11 @@ public class UserServiceImpl implements IUserService {
     public Message SaveMessage(Message message) {
         return messageRepository.save(message);
     }
+
+    @Override
+    public void blockUser(Integer id) {
+        User user = findOne(id);
+        user.setIsBlocked(true);
+        save(user);
+    }
 }

@@ -93,4 +93,10 @@ public class UserController {
         messageLight.setSenderId(id);
         return new ResponseEntity<>(messageLight, HttpStatus.CREATED);
     }
+
+    @PutMapping(value = "/{id}/block")
+    public ResponseEntity<String> blockUser(@PathVariable Integer id){
+        userService.blockUser(id);
+        return new ResponseEntity<>("User is successfully blocked", HttpStatus.NO_CONTENT);
+    }
 }
