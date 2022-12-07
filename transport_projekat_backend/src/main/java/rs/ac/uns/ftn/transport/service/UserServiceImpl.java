@@ -76,4 +76,11 @@ public class UserServiceImpl implements IUserService {
         user.setIsBlocked(true);
         save(user);
     }
+
+    @Override
+    public void unblockUser(Integer id) {
+        User user = findOne(id);
+        user.setIsBlocked(false);
+        save(user);
+    }
 }

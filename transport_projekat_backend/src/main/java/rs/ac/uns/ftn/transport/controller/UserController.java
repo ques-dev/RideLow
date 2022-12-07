@@ -99,4 +99,9 @@ public class UserController {
         userService.blockUser(id);
         return new ResponseEntity<>("User is successfully blocked", HttpStatus.NO_CONTENT);
     }
+    @PutMapping(value = "/{id}/unblock")
+    public ResponseEntity<String> unblockUser(@PathVariable Integer id){
+        userService.unblockUser(id);
+        return new ResponseEntity<>("User is successfully unblocked", HttpStatus.NO_CONTENT);
+    }
 }

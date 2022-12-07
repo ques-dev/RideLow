@@ -22,4 +22,6 @@ public interface IUserService {
     Message SaveMessage(Message message);
 
     void blockUser(Integer id);
+
+    void unblockUser(Integer id);
 }
