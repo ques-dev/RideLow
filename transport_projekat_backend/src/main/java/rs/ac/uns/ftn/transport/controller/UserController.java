@@ -6,11 +6,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.transport.dto.RideDTO;
+import rs.ac.uns.ftn.transport.dto.TokenDTO;
 import rs.ac.uns.ftn.transport.dto.UserDTO;
 import rs.ac.uns.ftn.transport.dto.UserPageDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RidePage2DTO;
 import rs.ac.uns.ftn.transport.mapper.RideDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.UserDTOMapper;
+import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.model.User;
 import rs.ac.uns.ftn.transport.service.interfaces.IDriverService;
@@ -62,4 +64,10 @@ public class UserController {
         return new ResponseEntity<>(new UserPageDTO(users.getTotalElements(), userDTOS), HttpStatus.OK);
     }
 
+    @PostMapping(value = "/login")
+    public ResponseEntity<TokenDTO> login(@RequestBody Passenger user){
+        user = userService.findByLogin(user);
+        TokenDTO token = userService.saveToken(user);
+        return new ResponseEntity<>(token, HttpStatus.CREATED);
+    }
 }
