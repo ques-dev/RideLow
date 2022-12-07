@@ -79,9 +79,6 @@ public class RideController {
     public ResponseEntity<ExtendedPanicDTO> panic(@PathVariable Integer id, @RequestBody PanicDTO panic)
     {
         Panic retrieved = panicService.save(PanicReasonDTOMapper.fromDTOtoPanic(panic),id);
-        System.out.println(retrieved);
-        System.out.println(retrieved.getRide());
-        System.out.println(retrieved.getUser());
         return new ResponseEntity<>(ExtendedPanicDTOMapper.fromPanicToDTO(retrieved),HttpStatus.OK);
     }
 
