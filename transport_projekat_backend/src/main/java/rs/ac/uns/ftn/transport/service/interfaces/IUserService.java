@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import rs.ac.uns.ftn.transport.dto.MessageDTO;
 import rs.ac.uns.ftn.transport.dto.TokenDTO;
+import rs.ac.uns.ftn.transport.model.Message;
 import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.model.User;
 
@@ -17,4 +18,6 @@ public interface IUserService {
     Passenger findByLogin(User user);
     TokenDTO saveToken(User user);
     Set<MessageDTO> findMessagesOfUser(Integer id);
+
+    Message SaveMessage(Message message);
 }

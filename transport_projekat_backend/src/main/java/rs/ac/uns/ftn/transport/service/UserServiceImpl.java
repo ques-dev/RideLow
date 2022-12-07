@@ -64,4 +64,9 @@ public class UserServiceImpl implements IUserService {
         Set<MessageDTO> messageDTOS = messages.stream().map(MessageDTOMapper::fromMessagetoDTO).collect(Collectors.toSet());
         return messageDTOS;
     }
+
+    @Override
+    public Message SaveMessage(Message message) {
+        return messageRepository.save(message);
+    }
 }

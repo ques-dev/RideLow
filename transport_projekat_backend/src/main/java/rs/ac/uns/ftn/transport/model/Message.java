@@ -4,6 +4,7 @@ package rs.ac.uns.ftn.transport.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
+import rs.ac.uns.ftn.transport.dto.MessageLightDTO;
 import rs.ac.uns.ftn.transport.model.enumerations.MessageType;
 
 import java.text.SimpleDateFormat;

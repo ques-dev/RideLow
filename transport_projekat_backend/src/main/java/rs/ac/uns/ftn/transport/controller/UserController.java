@@ -9,14 +9,17 @@ import rs.ac.uns.ftn.transport.dto.*;
 import rs.ac.uns.ftn.transport.dto.ride.RidePage2DTO;
 import rs.ac.uns.ftn.transport.mapper.RideDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.UserDTOMapper;
+import rs.ac.uns.ftn.transport.model.Message;
 import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.model.User;
+import rs.ac.uns.ftn.transport.model.enumerations.MessageType;
 import rs.ac.uns.ftn.transport.service.interfaces.IDriverService;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 import rs.ac.uns.ftn.transport.service.interfaces.IUserService;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -72,5 +75,22 @@ public class UserController {
     public ResponseEntity<MessagePageDTO> findUserMessages(@PathVariable Integer id){
         Set<MessageDTO> messageDTOS = userService.findMessagesOfUser(id);
         return new ResponseEntity<>(new MessagePageDTO((long) messageDTOS.size(), messageDTOS), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/{id}/message")
+    public ResponseEntity<MessageLightDTO> createMessage(@PathVariable Integer id, @RequestBody MessageLightDTO messageLight){
+        Message message = new Message();
+        message.setSender(userService.findOne(id));
+        message.setReceiver(userService.findOne(messageLight.getReceiverId()));
+        message.setMessage(messageLight.getMessage());
+        message.setSentDateTime(LocalDateTime.now());
+        message.setMessageType(MessageType.VOZNJA);
+        message.setRide(rideService.findOne(id));
+        message = userService.SaveMessage(message);
+
+        messageLight.setId(message.getId());
+        messageLight.setTimeOfSending(message.getSentDateTime());
+        messageLight.setSenderId(id);
+        return new ResponseEntity<>(messageLight, HttpStatus.CREATED);
     }
 }
