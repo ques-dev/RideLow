@@ -11,7 +11,7 @@ public class PanicDTOMapper {
     private static ModelMapper modelMapper;
 
     @Autowired
-    public PanicDTOMapper(ModelMapper modelMapper){this.modelMapper = modelMapper;}
+    public PanicDTOMapper(ModelMapper modelMapper){PanicDTOMapper.modelMapper = modelMapper;}
 
     public static Panic fromDTOtoPanic(PanicDTO dto) {return modelMapper.map(dto,  Panic.class);}
 
