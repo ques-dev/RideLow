@@ -5,10 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.transport.dto.RideDTO;
-import rs.ac.uns.ftn.transport.dto.TokenDTO;
-import rs.ac.uns.ftn.transport.dto.UserDTO;
-import rs.ac.uns.ftn.transport.dto.UserPageDTO;
+import rs.ac.uns.ftn.transport.dto.*;
 import rs.ac.uns.ftn.transport.dto.ride.RidePage2DTO;
 import rs.ac.uns.ftn.transport.mapper.RideDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.UserDTOMapper;
@@ -69,5 +66,11 @@ public class UserController {
         user = userService.findByLogin(user);
         TokenDTO token = userService.saveToken(user);
         return new ResponseEntity<>(token, HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "/{id}/message")
+    public ResponseEntity<MessagePageDTO> findUserMessages(@PathVariable Integer id){
+        Set<MessageDTO> messageDTOS = userService.findMessagesOfUser(id);
+        return new ResponseEntity<>(new MessagePageDTO((long) messageDTOS.size(), messageDTOS), HttpStatus.OK);
     }
 }

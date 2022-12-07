@@ -3,18 +3,31 @@ package rs.ac.uns.ftn.transport.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import rs.ac.uns.ftn.transport.dto.MessageDTO;
 import rs.ac.uns.ftn.transport.dto.TokenDTO;
+import rs.ac.uns.ftn.transport.mapper.MessageDTOMapper;
+import rs.ac.uns.ftn.transport.model.Message;
 import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.model.User;
+import rs.ac.uns.ftn.transport.repository.MessageRepository;
 import rs.ac.uns.ftn.transport.repository.UserRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IUserService;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
 
-    public UserServiceImpl(UserRepository userRepository){this.userRepository = userRepository;}
+    private final MessageRepository messageRepository;
+
+    public UserServiceImpl(UserRepository userRepository, MessageRepository messageRepository){
+        this.userRepository = userRepository;
+        this.messageRepository = messageRepository;
+    }
     public User save(User user)
     {
         return userRepository.save(user);
@@ -38,5 +51,17 @@ public class UserServiceImpl implements IUserService {
     @Override
     public TokenDTO saveToken(User user) {
         return new TokenDTO(user, "1", "1");
+    }
+
+    @Override
+    public Set<MessageDTO> findMessagesOfUser(Integer id) {
+        Optional<User> userO = userRepository.findById(id);
+        if(!userO.isPresent()){
+            return null;
+        }
+        User user = userO.get();
+        Set<Message> messages = messageRepository.findBySender(user);
+        Set<MessageDTO> messageDTOS = messages.stream().map(MessageDTOMapper::fromMessagetoDTO).collect(Collectors.toSet());
+        return messageDTOS;
     }
 }
