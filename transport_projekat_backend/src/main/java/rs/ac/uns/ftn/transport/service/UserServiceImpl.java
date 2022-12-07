@@ -1,4 +1,24 @@
 package rs.ac.uns.ftn.transport.service;
 
-public class UserServiceImpl {
+import org.springframework.stereotype.Service;
+import rs.ac.uns.ftn.transport.model.User;
+import rs.ac.uns.ftn.transport.repository.UserRepository;
+import rs.ac.uns.ftn.transport.repository.VehicleReviewRepository;
+import rs.ac.uns.ftn.transport.service.interfaces.IUserService;
+
+@Service
+public class UserServiceImpl implements IUserService {
+
+    private final UserRepository userRepository;
+
+    public UserServiceImpl(UserRepository userRepository){this.userRepository = userRepository;}
+    public User save(User user)
+    {
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User findOne(Integer id) {
+        return userRepository.findById(id).orElseGet(null);
+    }
 }

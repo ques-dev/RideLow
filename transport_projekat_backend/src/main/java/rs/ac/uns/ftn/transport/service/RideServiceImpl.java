@@ -78,4 +78,12 @@ public class RideServiceImpl implements IRideService {
     public Page<Ride> findAllByDriver_IdAndEndTimeIsBefore(Integer id, LocalDateTime end, Pageable page) {
         return rideRepository.findAllByDriver_IdAndEndTimeIsBefore(id, end, page);
     }
+
+    @Override
+    public Ride cancelRide(Integer id) {
+        Ride toCancel = rideRepository.findById(id).orElse(null);
+        toCancel.setStatus(RideStatus.CANCELLED);
+        rideRepository.save(toCancel);
+        return toCancel;
+    }
 }
