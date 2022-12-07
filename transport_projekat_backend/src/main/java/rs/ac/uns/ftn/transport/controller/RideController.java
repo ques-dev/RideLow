@@ -82,5 +82,12 @@ public class RideController {
         return new ResponseEntity<>(ExtendedPanicDTOMapper.fromPanicToDTO(retrieved),HttpStatus.OK);
     }
 
+    @PutMapping(value = "/{id}/accept")
+    public ResponseEntity<RideCreatedDTO> acceptRide(@PathVariable Integer id)
+    {
+        Ride toAccept = rideService.acceptRide(id);
+        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toAccept),HttpStatus.OK);
+    }
+
 }
 

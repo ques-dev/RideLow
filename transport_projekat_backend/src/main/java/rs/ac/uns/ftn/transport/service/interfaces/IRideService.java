@@ -18,6 +18,7 @@ public interface IRideService {
     Page<Ride> findAllByDriver_IdAndStartTimeIsAfter(Integer id, LocalDateTime start, Pageable page);
     Page<Ride> findAllByDriver_IdAndEndTimeIsBefore(Integer id, LocalDateTime end, Pageable page);
     Ride cancelRide(Integer id);
+    Ride acceptRide(Integer id);
 
 
 }

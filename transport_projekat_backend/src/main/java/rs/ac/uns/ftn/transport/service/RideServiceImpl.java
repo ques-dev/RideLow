@@ -86,4 +86,12 @@ public class RideServiceImpl implements IRideService {
         rideRepository.save(toCancel);
         return toCancel;
     }
+
+    @Override
+    public Ride acceptRide(Integer id) {
+        Ride toAccept = rideRepository.findById(id).orElse(null);
+        toAccept.setStatus(RideStatus.ACCEPTED);
+        rideRepository.save(toAccept);
+        return toAccept;
+    }
 }
