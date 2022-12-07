@@ -8,6 +8,7 @@ import rs.ac.uns.ftn.transport.model.DriverReview;
 
 @Component
 public class DriverReviewDTOMapper {
+
     private static ModelMapper modelMapper;
 
     @Autowired
@@ -19,7 +20,7 @@ public class DriverReviewDTOMapper {
         return modelMapper.map(dto, DriverReview.class);
     }
 
-    public static DriverReviewDTO fromVehicleReviewtoDTO(DriverReview dto) {
+    public static DriverReviewDTO fromDriverReviewtoDTO(DriverReview dto) {
         return modelMapper.map(dto, DriverReviewDTO.class);
     }
 }

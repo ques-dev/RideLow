@@ -4,8 +4,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.transport.dto.DriverReviewDTO;
+import rs.ac.uns.ftn.transport.dto.DriverReviewPageDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleReviewDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleReviewPageDTO;
+import rs.ac.uns.ftn.transport.mapper.DriverReviewDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.VehicleReviewDTOMapper;
 import rs.ac.uns.ftn.transport.model.DriverReview;
 import rs.ac.uns.ftn.transport.model.VehicleReview;
@@ -53,5 +55,16 @@ public class ReviewController {
         driverReview.setDriver(driverService.findOne(id));
         driverReview = reviewService.saveDriverReview(driverReview);
         return new ResponseEntity<>(new DriverReviewDTO(driverReview), HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "driver/{id}")
+    public ResponseEntity<DriverReviewPageDTO> getDriverReviewsForDriver(@PathVariable Integer id){
+        Set<DriverReview> reviews = reviewService.getDriverReviewsofDriver(id);
+
+        Set<DriverReviewDTO> driverReviewDTOS = reviews.stream()
+                .map(DriverReviewDTOMapper::fromDriverReviewtoDTO)
+                .collect(Collectors.toSet());
+
+        return new ResponseEntity<>(new DriverReviewPageDTO((long) reviews.size(), driverReviewDTOS), HttpStatus.OK);
     }
 }

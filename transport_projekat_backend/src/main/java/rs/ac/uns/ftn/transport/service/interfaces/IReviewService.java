@@ -9,5 +9,6 @@ import java.util.Set;
 public interface IReviewService {
     VehicleReview saveVehicleReview(VehicleReview review);
     Set<VehicleReview> getVehicleReviewsofVehicle(Integer id);
+    Set<DriverReview> getDriverReviewsofDriver(Integer id);
     DriverReview saveDriverReview(DriverReview driverReview);
 }
