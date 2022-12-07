@@ -27,7 +27,7 @@ public abstract class Review {
     private User reviewer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "currentRideId")
+    @JoinColumn(name = "currentRide")
     @ToString.Exclude
     private Ride currentRide;
 

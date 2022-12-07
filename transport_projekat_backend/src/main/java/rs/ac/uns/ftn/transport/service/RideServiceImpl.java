@@ -59,6 +59,11 @@ public class RideServiceImpl implements IRideService {
     }
 
     @Override
+    public Page<Ride> findPassenger(Integer passengerId, Pageable page) {
+        return rideRepository.findPassenger(passengerId, page);
+    }
+
+    @Override
     public Ride findOne(Integer id) {
         return rideRepository.findById(id).orElseGet(null);
     }

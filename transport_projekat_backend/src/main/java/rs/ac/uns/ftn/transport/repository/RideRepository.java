@@ -15,6 +15,9 @@ public interface RideRepository extends JpaRepository<Ride,Integer> {
     @Query("SELECT r FROM Ride r LEFT JOIN r.passengers pass " +
             "WHERE pass.id = ?1 AND r.startTime >= ?2 AND r.endTime <= ?3")
     Page<Ride> findRidesBetweenDateRange(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page);
+    @Query("SELECT r FROM Ride r LEFT JOIN r.passengers pass " +
+            "WHERE pass.id = ?1")
+    Page<Ride> findPassenger(Integer passengerId, Pageable page);
 
     Ride findByDriver_IdAndStatus(Integer driverId, RideStatus status);
 
@@ -24,6 +27,7 @@ public interface RideRepository extends JpaRepository<Ride,Integer> {
     Page<Ride> findAllByDriver_IdAndStartTimeIsAfterAndEndTimeIsBefore(@Param("id") Integer id, @Param("from") LocalDateTime start, @Param("to") LocalDateTime end, Pageable page);
     Page<Ride> findAllByDriver_IdAndStartTimeIsAfter(@Param("id") Integer id, @Param("from") LocalDateTime start, Pageable page);
     Page<Ride> findAllByDriver_IdAndEndTimeIsBefore(@Param("id") Integer id, @Param("to") LocalDateTime end, Pageable page);
+
 }
 
 
