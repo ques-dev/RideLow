@@ -56,11 +56,17 @@ public class ReviewController {
         return new ResponseEntity<>(new VehicleReviewPageDTO((long) reviews.size(), vehicleReviewDTOS), HttpStatus.OK);
     }
 
-    @PostMapping(value = "driver/{id}", consumes = "application/json")
-    public ResponseEntity<DriverReviewDTO> saveDriverReview(@PathVariable Integer id, @RequestBody DriverReview driverReview){
+    @PostMapping(value = "{rideId}/driver/{id}", consumes = "application/json")
+    public ResponseEntity<DriverReviewDTO> saveDriverReview(@PathVariable Integer rideId, @PathVariable Integer id,
+                                                            @RequestBody DriverReviewDTO review){
+        DriverReview driverReview = new DriverReview();
         driverReview.setDriver(driverService.findOne(id));
-        driverReview = reviewService.saveDriverReview(driverReview);
-        return new ResponseEntity<>(new DriverReviewDTO(driverReview), HttpStatus.CREATED);
+        driverReview.setCurrentRide(rideService.findOne(rideId));
+        driverReview.setDriver(driverService.findOne(id));
+        driverReview.setRating(review.getRating());
+        driverReview.setComment(review.getComment());
+        review = DriverReviewDTOMapper.fromDriverReviewToDTO(reviewService.saveDriverReview(driverReview));
+        return new ResponseEntity<>(review, HttpStatus.CREATED);
     }
 
     @GetMapping(value = "driver/{id}")
