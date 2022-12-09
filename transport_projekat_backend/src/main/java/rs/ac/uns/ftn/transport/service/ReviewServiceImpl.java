@@ -1,9 +1,9 @@
 package rs.ac.uns.ftn.transport.service;
 
 import org.springframework.stereotype.Service;
-import rs.ac.uns.ftn.transport.dto.DriverReviewDTO;
-import rs.ac.uns.ftn.transport.dto.ReviewRideDTO;
-import rs.ac.uns.ftn.transport.dto.VehicleReviewDTO;
+import rs.ac.uns.ftn.transport.dto.review.DriverReviewDTO;
+import rs.ac.uns.ftn.transport.dto.review.ReviewRideDTO;
+import rs.ac.uns.ftn.transport.dto.review.VehicleReviewDTO;
 import rs.ac.uns.ftn.transport.model.DriverReview;
 import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.model.VehicleReview;

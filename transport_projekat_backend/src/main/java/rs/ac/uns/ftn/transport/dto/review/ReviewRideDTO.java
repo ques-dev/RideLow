@@ -1,10 +1,8 @@
-package rs.ac.uns.ftn.transport.dto;
+package rs.ac.uns.ftn.transport.dto.review;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import rs.ac.uns.ftn.transport.model.DriverReview;
-import rs.ac.uns.ftn.transport.model.VehicleReview;
 
 @Data
 @NoArgsConstructor

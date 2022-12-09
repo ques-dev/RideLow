@@ -12,8 +12,6 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
-@AllArgsConstructor
 public abstract class Review {
 
     @Id

@@ -1,11 +1,12 @@
-package rs.ac.uns.ftn.transport.mapper;
+package rs.ac.uns.ftn.transport.mapper.review;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import rs.ac.uns.ftn.transport.dto.DriverDTO;
-import rs.ac.uns.ftn.transport.dto.VehicleReviewDTO;
-import rs.ac.uns.ftn.transport.model.Driver;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerIdEmailDTO;
+import rs.ac.uns.ftn.transport.dto.review.DriverReviewDTO;
+import rs.ac.uns.ftn.transport.dto.review.VehicleReviewDTO;
+import rs.ac.uns.ftn.transport.model.DriverReview;
 import rs.ac.uns.ftn.transport.model.VehicleReview;
 
 @Component
@@ -16,6 +17,10 @@ public class VehicleReviewDTOMapper {
     @Autowired
     public VehicleReviewDTOMapper(ModelMapper modelMapper) {
         VehicleReviewDTOMapper.modelMapper = modelMapper;
+        modelMapper.typeMap(VehicleReview.class, VehicleReviewDTO.class).addMappings(mapper -> {
+            mapper.map(src -> new PassengerIdEmailDTO(src.getReviewer().getId(), src.getReviewer().getEmail()),
+                    VehicleReviewDTO::setPassenger);
+        });
     }
 
     public static VehicleReview fromDTOtoVehicleReview(VehicleReviewDTO dto) {

@@ -1,8 +1,7 @@
 package rs.ac.uns.ftn.transport.service.interfaces;
 
-import rs.ac.uns.ftn.transport.dto.ReviewRideDTO;
+import rs.ac.uns.ftn.transport.dto.review.ReviewRideDTO;
 import rs.ac.uns.ftn.transport.model.DriverReview;
-import rs.ac.uns.ftn.transport.model.Vehicle;
 import rs.ac.uns.ftn.transport.model.VehicleReview;
 
 import java.util.Set;
