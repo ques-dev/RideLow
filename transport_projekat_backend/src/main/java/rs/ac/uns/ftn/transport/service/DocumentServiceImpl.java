@@ -26,4 +26,8 @@ public class DocumentServiceImpl implements IDocumentService {
     public Integer deleteAllByDriver_Id(Integer id) {
         return documentRepository.deleteAllByDriver_Id(id);
     }
+
+    public void deleteById(Integer id) {
+        documentRepository.deleteById(id);
+    }
 }

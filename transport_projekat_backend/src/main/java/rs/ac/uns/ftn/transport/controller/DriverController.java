@@ -18,7 +18,6 @@ import rs.ac.uns.ftn.transport.model.enumerations.DocumentType;
 import rs.ac.uns.ftn.transport.service.interfaces.*;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -74,7 +73,7 @@ public class DriverController {
     @PostMapping(consumes = "application/json")
     public ResponseEntity<DriverDTO> saveDriver(@RequestBody Driver driver) {
         driver = driverService.save(driver);
-        return new ResponseEntity<>(new DriverDTO(driver), HttpStatus.CREATED);
+        return new ResponseEntity<>(new DriverDTO(driver), HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
@@ -99,7 +98,7 @@ public class DriverController {
         Document document = new Document(DocumentType.getEnum(documentDTO.getName()), documentDTO.getDocumentImage(), driver);
 
         document = documentService.save(document);
-        return new ResponseEntity<>(new DocumentDTO(document), HttpStatus.CREATED);
+        return new ResponseEntity<>(new DocumentDTO(document), HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}/documents")
@@ -112,14 +111,11 @@ public class DriverController {
         return new ResponseEntity<>(documentDTOs, HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/{id}/documents")
+    @DeleteMapping(value = "/document/{id}")
     @Transactional
-    public ResponseEntity<String> deleteDocuments(@PathVariable Integer id) {
-        if (documentService.deleteAllByDriver_Id(id) > 0) {
-            return new ResponseEntity<>("Driver's documents deleted successfully", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Invalid request", HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<String> deleteDocument(@PathVariable Integer id) {
+        documentService.deleteById(id);
+        return new ResponseEntity<>("Driver document deleted successfully", HttpStatus.NO_CONTENT);
     }
 
     @PostMapping(value = "/{id}/vehicle", consumes = "application/json")
@@ -136,7 +132,7 @@ public class DriverController {
 
         driver.setVehicle(vehicle);
         driverService.save(driver);
-        return new ResponseEntity<>(VehicleDTOMapper.fromVehicletoDTO(vehicle), HttpStatus.CREATED);
+        return new ResponseEntity<>(VehicleDTOMapper.fromVehicletoDTO(vehicle), HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}/vehicle")
@@ -175,7 +171,7 @@ public class DriverController {
         return new ResponseEntity<>(VehicleDTOMapper.fromVehicletoDTO(oldVehicle), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/{id}/working-hours")
+    @PostMapping(value = "/{id}/working-hour")
     public ResponseEntity<WorkingHoursDTO> saveWorkingHours(@PathVariable Integer id) {
         Driver driver = driverService.findOne(id);
 
@@ -186,7 +182,7 @@ public class DriverController {
         WorkingHours workingHours = new WorkingHours(LocalDateTime.now(), LocalDateTime.now(), driver);
         workingHours = workingHoursService.save(workingHours);
 
-        return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.CREATED);
+        return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
     }
 
     @GetMapping(value = "/working-hour/{workingHourId}")
@@ -214,7 +210,7 @@ public class DriverController {
         return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/{id}/working-hours")
+    @GetMapping(value = "/{id}/working-hour")
     public ResponseEntity<WorkingHoursPageDTO> getWorkingHours(Pageable page,
                                                                @PathVariable Integer id,
                                                                @RequestParam(value = "from", required = false) LocalDateTime from,
