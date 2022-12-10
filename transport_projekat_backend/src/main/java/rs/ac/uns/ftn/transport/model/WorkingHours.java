@@ -3,7 +3,6 @@ package rs.ac.uns.ftn.transport.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -30,12 +29,6 @@ public class WorkingHours {
     @JoinColumn(name = "driverId")
     @ToString.Exclude
     private Driver driver;
-
-    public WorkingHours(LocalDateTime start, LocalDateTime end, Driver driver) {
-        this.start = start;
-        this.end = end;
-        this.driver = driver;
-    }
 
     @Override
     public boolean equals(Object o) {

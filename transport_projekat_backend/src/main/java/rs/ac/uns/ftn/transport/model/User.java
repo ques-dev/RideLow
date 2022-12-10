@@ -32,7 +32,7 @@ public abstract class User {
     @Column (name = "profilePicture")
     private String profilePicture;
 
-    @Column (name = "telephoneNumber",nullable = false)
+    @Column (name = "telephoneNumber")
     private String telephoneNumber;
 
     @Column (name = "email", nullable = false, unique = true)

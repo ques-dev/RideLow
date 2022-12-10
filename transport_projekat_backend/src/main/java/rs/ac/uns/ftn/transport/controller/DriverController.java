@@ -56,7 +56,7 @@ public class DriverController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>(new DriverDTO(driver), HttpStatus.OK);
+        return new ResponseEntity<>(DriverDTOMapper.fromDrivertoDTO(driver), HttpStatus.OK);
     }
 
     @GetMapping
@@ -73,7 +73,8 @@ public class DriverController {
     @PostMapping(consumes = "application/json")
     public ResponseEntity<DriverDTO> saveDriver(@RequestBody Driver driver) {
         driver = driverService.save(driver);
-        return new ResponseEntity<>(new DriverDTO(driver), HttpStatus.OK);
+
+        return new ResponseEntity<>(DriverDTOMapper.fromDrivertoDTO(driver), HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
@@ -88,7 +89,7 @@ public class DriverController {
         driverToUpdate.setAddress(driver.getAddress());
 
         driverToUpdate = driverService.save(driverToUpdate);
-        return new ResponseEntity<>(new DriverDTO(driverToUpdate), HttpStatus.OK);
+        return new ResponseEntity<>(DriverDTOMapper.fromDrivertoDTO(driverToUpdate), HttpStatus.OK);
     }
 
     @PostMapping(value = "/{id}/documents", consumes = "application/json")
@@ -98,7 +99,7 @@ public class DriverController {
         Document document = new Document(DocumentType.getEnum(documentDTO.getName()), documentDTO.getDocumentImage(), driver);
 
         document = documentService.save(document);
-        return new ResponseEntity<>(new DocumentDTO(document), HttpStatus.OK);
+        return new ResponseEntity<>(DocumentDTOMapper.fromDocumenttoDTO(document), HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}/documents")
@@ -125,8 +126,10 @@ public class DriverController {
         Vehicle vehicle = VehicleDTOMapper.fromDTOtoVehicle(vehicleDTO);
         vehicle.setDriver(driver);
 
-        Location location = vehicle.getCurrentLocation();
-        locationService.save(location);
+        if (vehicle.getCurrentLocation() != null) {
+            Location location = vehicle.getCurrentLocation();
+            locationService.save(location);
+        }
 
         vehicle = vehicleService.save(vehicle);
 
@@ -160,8 +163,10 @@ public class DriverController {
         oldVehicle.setModel(newVehicle.getModel());
         oldVehicle.setLicenseNumber(newVehicle.getLicenseNumber());
 
-        oldVehicle.setCurrentLocation(newVehicle.getCurrentLocation());
-        locationService.save(oldVehicle.getCurrentLocation());
+        if (newVehicle.getCurrentLocation() != null) {
+            oldVehicle.setCurrentLocation(newVehicle.getCurrentLocation());
+            locationService.save(oldVehicle.getCurrentLocation());
+        }
 
         oldVehicle.setPassengerSeats(newVehicle.getPassengerSeats());
         oldVehicle.setBabyTransport(newVehicle.getBabyTransport());
@@ -171,17 +176,18 @@ public class DriverController {
         return new ResponseEntity<>(VehicleDTOMapper.fromVehicletoDTO(oldVehicle), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/{id}/working-hour")
-    public ResponseEntity<WorkingHoursDTO> saveWorkingHours(@PathVariable Integer id) {
+    @PostMapping(value = "/{id}/working-hour", consumes = "application/json")
+    public ResponseEntity<WorkingHoursDTO> saveWorkingHours(@PathVariable Integer id, @RequestBody WorkingHoursDTO workingHoursDTO) {
         Driver driver = driverService.findOne(id);
 
         if (driver == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        WorkingHours workingHours = new WorkingHours(LocalDateTime.now(), LocalDateTime.now(), driver);
-        workingHours = workingHoursService.save(workingHours);
+        WorkingHours workingHours = WorkingHoursDTOMapper.fromDTOToWorkingHours(workingHoursDTO);
+        workingHours.setDriver(driver);
 
+        workingHours = workingHoursService.save(workingHours);
         return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
     }
 
@@ -196,15 +202,18 @@ public class DriverController {
         return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
     }
 
-    @PutMapping(value = "/working-hour/{workingHourId}")
-    public ResponseEntity<WorkingHoursDTO> updateWorkingHour(@PathVariable Integer workingHourId) {
+    @PutMapping(value = "/working-hour/{workingHourId}", consumes = "application/json")
+    public ResponseEntity<WorkingHoursDTO> updateWorkingHour(@PathVariable Integer workingHourId, @RequestBody WorkingHoursDTO workingHoursDTO) {
         WorkingHours workingHours = workingHoursService.findOne(workingHourId);
 
         if (workingHours == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        workingHours.setEnd(LocalDateTime.now());
+        workingHours.setStart(workingHoursDTO.getStart());
+        if (workingHoursDTO.getEnd() != null) {
+            workingHours.setEnd(workingHoursDTO.getEnd());
+        }
 
         workingHours = workingHoursService.save(workingHours);
         return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
