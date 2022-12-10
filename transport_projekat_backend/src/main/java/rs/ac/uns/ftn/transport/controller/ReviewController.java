@@ -62,11 +62,10 @@ public class ReviewController {
         DriverReview driverReview = new DriverReview();
         driverReview.setDriver(driverService.findOne(id));
         driverReview.setCurrentRide(rideService.findOne(rideId));
-        driverReview.setDriver(driverService.findOne(id));
         driverReview.setRating(review.getRating());
         driverReview.setComment(review.getComment());
         review = DriverReviewDTOMapper.fromDriverReviewToDTO(reviewService.saveDriverReview(driverReview));
-        return new ResponseEntity<>(review, HttpStatus.CREATED);
+        return new ResponseEntity<>(review, HttpStatus.OK);
     }
 
     @GetMapping(value = "driver/{id}")

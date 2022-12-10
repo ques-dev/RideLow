@@ -4,9 +4,7 @@ import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.transport.dto.review.DriverReviewDTO;
 import rs.ac.uns.ftn.transport.dto.review.ReviewRideDTO;
 import rs.ac.uns.ftn.transport.dto.review.VehicleReviewDTO;
-import rs.ac.uns.ftn.transport.model.DriverReview;
-import rs.ac.uns.ftn.transport.model.Ride;
-import rs.ac.uns.ftn.transport.model.VehicleReview;
+import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.repository.*;
 import rs.ac.uns.ftn.transport.service.interfaces.IReviewService;
 
@@ -34,8 +32,22 @@ public class ReviewServiceImpl implements IReviewService {
         return vehicleReviewRepository.save(review);
     }
 
-    public Set<VehicleReview> getVehicleReviewsofVehicle(Integer id){return vehicleReviewRepository.findByVehicle(vehicleRepository.findById(id).orElseGet(null));}
-    public Set<DriverReview> getDriverReviewsofDriver(Integer id){return driverReviewRepository.findByDriver(driverRepository.findById(id).orElseGet(null));}
+    public Set<VehicleReview> getVehicleReviewsofVehicle(Integer id){
+        Optional<Vehicle> vehicleOptional = vehicleRepository.findById(id);
+        if(!vehicleOptional.isPresent()){
+            return null;
+        }
+        Vehicle vehicle = vehicleOptional.get();
+        return vehicleReviewRepository.findByVehicle(vehicle);
+    }
+    public Set<DriverReview> getDriverReviewsofDriver(Integer id){
+        Optional<Driver> driverOptional= driverRepository.findById(id);
+        if(!driverOptional.isPresent()){
+            return null;
+        }
+        Driver driver = driverOptional.get();
+        return driverReviewRepository.findByDriver(driver);
+    }
 
     public DriverReview saveDriverReview(DriverReview driverReview){return driverReviewRepository.save(driverReview);}
 
