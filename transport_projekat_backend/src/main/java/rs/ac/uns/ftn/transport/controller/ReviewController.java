@@ -82,6 +82,7 @@ public class ReviewController {
     @GetMapping(value = "/{rideId}")
     public ResponseEntity<ReviewRideDTO> getReviewsForRide(@PathVariable Integer rideId){
         ReviewRideDTO reviewRideDTO = reviewService.getReviewsForRide(rideId);
+        System.err.println(reviewRideDTO);
         return new ResponseEntity<>(reviewRideDTO, HttpStatus.OK);
     }
 }
