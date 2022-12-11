@@ -3,7 +3,6 @@ INSERT INTO VEHICLE_TYPES (NAME, PRICE_PER_KM) VALUES
                                                    ('LUKSUZNO', 5),
                                                    ('KOMBI', 7);
 
-
 -- INSERT INTO USER_ACTIVATIONS(DATE_CREATED,MINUTES_VALID) VALUES
 --     (CURRENT_TIMESTAMP,25);
 --
@@ -12,19 +11,27 @@ INSERT INTO VEHICLE_TYPES (NAME, PRICE_PER_KM) VALUES
 --
 -- INSERT INTO PASSENGERS VALUES 1;
 --
--- INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,PROFILE_PICTURE,SURNAME,TELEPHONE_NUMBER) VALUES
---     ('Adresa','mail_inactive@mail.com',false,false,'Imenko','neprobojna_lozinka','XYZ','Prezimić','065338295504');
+INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,PROFILE_PICTURE,SURNAME,TELEPHONE_NUMBER) VALUES
+    ('Adresa','mail_inactive@mail.com',false,false,'Imenko','neprobojna_lozinka','XYZ','Prezimić','065338295504');
 --
+
+INSERT INTO LOCATIONS (ADDRESS, LATITUDE, LONGITUDE) VALUES
+                                                         ('Bulevar oslobodjenja 46', 45.267136, 19.833549),
+                                                         ('Bulevar oslobodjenja 47', 46.267136, 20.833549);
+
+INSERT INTO VEHICLES (BABY_TRANSPORT, LICENSE_NUMBER, MODEL, PASSENGER_SEATS, PET_TRANSPORT, CURRENT_LOCATION, VEHICLE_TYPE) VALUES
+    (true, 'NS 123-AB', 'VS Golf 3', 4, true, 1, 1);
+
 -- INSERT INTO VEHICLES(VEHICLE_TYPE) VALUES(1);
---
--- INSERT INTO DRIVERS(ID,VEHICLE_ID) VALUES (2,1);
---
--- INSERT INTO LOCATIONS (ADDRESS, LATITUDE, LONGITUDE) VALUES
---     ('Bulevar oslobodjenja 46', 45.267136, 19.833549),
---     ('Bulevar oslobodjenja 47', 46.267136, 20.833549);
---
--- INSERT INTO VEHICLES (BABY_TRANSPORT, LICENSE_NUMBER, MODEL, PASSENGER_SEATS, PET_TRANSPORT, CURRENT_LOCATION, VEHICLE_TYPE) VALUES
---     (true, 'NS 123-AB', 'VS Golf 3', 4, true, 1, 1);
+
+INSERT INTO DRIVERS(ID, VEHICLE_ID) VALUES (1, 1);
+
+INSERT INTO DOCUMENTS(DOCUMENT_IMAGE, NAME, DRIVER_ID) VALUES
+                                                               ('U3dhZ2dlciByb2Nrcw=', 'VOZACKA_DOZVOLA', 1);
+
+INSERT INTO WORKING_HOURS(SHIFT_START, SHIFT_END, DRIVER_ID) VALUES
+                                                                     ('2019-08-24 14:15:22', '2019-08-24 14:15:22', 1);
+
 --
 -- INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,PROFILE_PICTURE,SURNAME,TELEPHONE_NUMBER) VALUES
 --     ('Bulevar Oslobođenja 23','driver@mail.com',true, false, 'Jovan', 'neprobojna_lozinka', 'XYZ', 'Jovanović', '06533829');
