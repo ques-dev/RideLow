@@ -23,7 +23,7 @@ public class VehicleController {
     {
         Location newLocation = LocationDTOMapper.fromDTOtoLocation(currentLocation);
         vehicleService.changeLocation(id,newLocation);
-        return new ResponseEntity<>("Coordinates successfully updated.",HttpStatus.OK);
+        return new ResponseEntity<>("Coordinates successfully updated.",HttpStatus.NO_CONTENT);
     }
 
 }

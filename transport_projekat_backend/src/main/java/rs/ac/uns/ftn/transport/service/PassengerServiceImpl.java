@@ -31,6 +31,7 @@ public class PassengerServiceImpl implements IPassengerService {
 
     @Override
     public Passenger findOne(Integer id) {
+        System.out.println(id);
         return passengerRepository.findById(id).orElseGet(null);
     }
 

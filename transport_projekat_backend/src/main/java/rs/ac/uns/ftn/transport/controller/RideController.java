@@ -36,7 +36,7 @@ public class RideController {
     public ResponseEntity<RideCreatedDTO> createRide(@RequestBody RideCreationDTO rideCreationDTO)
     {
         Ride ride = rideService.save(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO));
-        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(ride), HttpStatus.CREATED);
+        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(ride), HttpStatus.OK);
     }
 
     @GetMapping(value = "/driver/{driverId}/active")
