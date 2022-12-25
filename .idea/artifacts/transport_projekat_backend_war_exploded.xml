@@ -60,10 +60,8 @@
           <element id="library" level="project" name="Maven: org.hibernate.orm:hibernate-core:6.1.5.Final" />
           <element id="library" level="project" name="Maven: jakarta.persistence:jakarta.persistence-api:3.1.0" />
           <element id="library" level="project" name="Maven: jakarta.transaction:jakarta.transaction-api:2.0.1" />
-          <element id="library" level="project" name="Maven: org.jboss.logging:jboss-logging:3.5.0.Final" />
           <element id="library" level="project" name="Maven: org.hibernate.common:hibernate-commons-annotations:6.0.2.Final" />
           <element id="library" level="project" name="Maven: org.jboss:jandex:2.4.2.Final" />
-          <element id="library" level="project" name="Maven: com.fasterxml:classmate:1.5.1" />
           <element id="library" level="project" name="Maven: org.glassfish.jaxb:jaxb-runtime:4.0.1" />
           <element id="library" level="project" name="Maven: org.glassfish.jaxb:jaxb-core:4.0.1" />
           <element id="library" level="project" name="Maven: org.eclipse.angus:angus-activation:1.0.0" />
@@ -78,6 +76,10 @@
           <element id="library" level="project" name="Maven: org.springframework:spring-aspects:6.0.2" />
           <element id="library" level="project" name="Maven: org.modelmapper:modelmapper:3.0.0" />
           <element id="library" level="project" name="Maven: com.h2database:h2:2.1.214" />
+          <element id="library" level="project" name="Maven: org.hibernate.validator:hibernate-validator:8.0.0.Final" />
+          <element id="library" level="project" name="Maven: jakarta.validation:jakarta.validation-api:3.0.2" />
+          <element id="library" level="project" name="Maven: org.jboss.logging:jboss-logging:3.5.0.Final" />
+          <element id="library" level="project" name="Maven: com.fasterxml:classmate:1.5.1" />
         </element>
       </element>
       <element id="directory" name="META-INF">

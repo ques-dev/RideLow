@@ -1,6 +1,9 @@
 package rs.ac.uns.ftn.transport.controller;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -71,14 +74,18 @@ public class DriverController {
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<DriverDTO> saveDriver(@RequestBody Driver driver) {
-        driver = driverService.save(driver);
+    public ResponseEntity<DriverDTO> saveDriver(@Valid @RequestBody Driver driver) throws ConstraintViolationException {
+        try {
+            driver = driverService.save(driver);
+        } catch (DataIntegrityViolationException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
         return new ResponseEntity<>(DriverDTOMapper.fromDrivertoDTO(driver), HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
-    public ResponseEntity<DriverDTO> updateDriver(@PathVariable Integer id, @RequestBody Driver driver) {
+    public ResponseEntity<DriverDTO> updateDriver(@PathVariable Integer id, @Valid @RequestBody Driver driver) throws ConstraintViolationException {
         Driver driverToUpdate = driverService.findOne(id);
 
         driverToUpdate.setName(driver.getName());
@@ -88,12 +95,16 @@ public class DriverController {
         driverToUpdate.setEmail(driver.getEmail());
         driverToUpdate.setAddress(driver.getAddress());
 
-        driverToUpdate = driverService.save(driverToUpdate);
+        try {
+            driverToUpdate = driverService.save(driverToUpdate);
+        } catch (DataIntegrityViolationException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(DriverDTOMapper.fromDrivertoDTO(driverToUpdate), HttpStatus.OK);
     }
 
     @PostMapping(value = "/{id}/documents", consumes = "application/json")
-    public ResponseEntity<DocumentDTO> saveDocument(@PathVariable Integer id, @RequestBody DocumentDTO documentDTO) {
+    public ResponseEntity<DocumentDTO> saveDocument(@PathVariable Integer id, @Valid @RequestBody DocumentDTO documentDTO) throws ConstraintViolationException {
         Driver driver = driverService.findOne(id);
 
         Document document = new Document(DocumentType.getEnum(documentDTO.getName()), documentDTO.getDocumentImage(), driver);
@@ -120,7 +131,7 @@ public class DriverController {
     }
 
     @PostMapping(value = "/{id}/vehicle", consumes = "application/json")
-    public ResponseEntity<VehicleDTO> saveVehicle(@PathVariable Integer id, @RequestBody VehicleDTO vehicleDTO) {
+    public ResponseEntity<VehicleDTO> saveVehicle(@PathVariable Integer id, @Valid @RequestBody VehicleDTO vehicleDTO) throws ConstraintViolationException {
         Driver driver = driverService.findOne(id);
 
         Vehicle vehicle = VehicleDTOMapper.fromDTOtoVehicle(vehicleDTO);
@@ -150,7 +161,7 @@ public class DriverController {
     }
 
     @PutMapping(value = "/{id}/vehicle", consumes = "application/json")
-    public ResponseEntity<VehicleDTO> updateVehicle(@PathVariable Integer id, @RequestBody VehicleDTO vehicleDTO) {
+    public ResponseEntity<VehicleDTO> updateVehicle(@PathVariable Integer id, @Valid @RequestBody VehicleDTO vehicleDTO) throws ConstraintViolationException {
         Vehicle oldVehicle = vehicleService.getVehicleByDriver_Id(id);
 
         if (oldVehicle == null) {
@@ -177,7 +188,7 @@ public class DriverController {
     }
 
     @PostMapping(value = "/{id}/working-hour", consumes = "application/json")
-    public ResponseEntity<WorkingHoursDTO> saveWorkingHours(@PathVariable Integer id, @RequestBody WorkingHoursDTO workingHoursDTO) {
+    public ResponseEntity<WorkingHoursDTO> saveWorkingHours(@PathVariable Integer id, @Valid @RequestBody WorkingHoursDTO workingHoursDTO) throws ConstraintViolationException {
         Driver driver = driverService.findOne(id);
 
         if (driver == null) {
@@ -203,7 +214,7 @@ public class DriverController {
     }
 
     @PutMapping(value = "/working-hour/{workingHourId}", consumes = "application/json")
-    public ResponseEntity<WorkingHoursDTO> updateWorkingHour(@PathVariable Integer workingHourId, @RequestBody WorkingHoursDTO workingHoursDTO) {
+    public ResponseEntity<WorkingHoursDTO> updateWorkingHour(@PathVariable Integer workingHourId, @Valid @RequestBody WorkingHoursDTO workingHoursDTO) throws ConstraintViolationException {
         WorkingHours workingHours = workingHoursService.findOne(workingHourId);
 
         if (workingHours == null) {
