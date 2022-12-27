@@ -12,11 +12,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.transport.dto.*;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
+import rs.ac.uns.ftn.transport.dto.workinghours.WorkingHoursDTO;
+import rs.ac.uns.ftn.transport.dto.workinghours.WorkingHoursEndDTO;
+import rs.ac.uns.ftn.transport.dto.workinghours.WorkingHoursPageDTO;
+import rs.ac.uns.ftn.transport.dto.workinghours.WorkingHoursStartDTO;
 import rs.ac.uns.ftn.transport.mapper.DocumentDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.DriverDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.VehicleDTOMapper;
-import rs.ac.uns.ftn.transport.mapper.WorkingHoursDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.workinghours.WorkingHoursDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.workinghours.WorkingHoursStartDTOMapper;
 import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.model.enumerations.DocumentType;
 import rs.ac.uns.ftn.transport.service.interfaces.*;
@@ -193,15 +198,16 @@ public class DriverController {
     }
 
     @PostMapping(value = "/{id}/working-hour", consumes = "application/json")
-    public ResponseEntity<WorkingHoursDTO> saveWorkingHours(@PathVariable Integer id, @Valid @RequestBody WorkingHoursDTO workingHoursDTO) throws ConstraintViolationException {
+    public ResponseEntity<WorkingHoursDTO> saveWorkingHours(@PathVariable Integer id, @Valid @RequestBody WorkingHoursStartDTO workingHoursDTO) throws ConstraintViolationException {
         Driver driver = driverService.findOne(id);
 
         if (driver == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        WorkingHours workingHours = WorkingHoursDTOMapper.fromDTOToWorkingHours(workingHoursDTO);
+        WorkingHours workingHours = WorkingHoursStartDTOMapper.fromDTOToWorkingHoursStart(workingHoursDTO);
         workingHours.setDriver(driver);
+        workingHours.setEnd(workingHours.getStart());
 
         workingHours = workingHoursService.save(workingHours);
         return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
@@ -219,17 +225,14 @@ public class DriverController {
     }
 
     @PutMapping(value = "/working-hour/{workingHourId}", consumes = "application/json")
-    public ResponseEntity<WorkingHoursDTO> updateWorkingHour(@PathVariable Integer workingHourId, @Valid @RequestBody WorkingHoursDTO workingHoursDTO) throws ConstraintViolationException {
+    public ResponseEntity<WorkingHoursDTO> updateWorkingHour(@PathVariable Integer workingHourId, @Valid @RequestBody WorkingHoursEndDTO workingHoursDTO) throws ConstraintViolationException {
         WorkingHours workingHours = workingHoursService.findOne(workingHourId);
 
         if (workingHours == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        workingHours.setStart(workingHoursDTO.getStart());
-        if (workingHoursDTO.getEnd() != null) {
-            workingHours.setEnd(workingHoursDTO.getEnd());
-        }
+        workingHours.setEnd(workingHoursDTO.getEnd());
 
         workingHours = workingHoursService.save(workingHours);
         return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);

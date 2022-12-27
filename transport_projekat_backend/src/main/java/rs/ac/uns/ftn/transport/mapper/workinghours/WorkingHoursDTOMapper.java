@@ -1,12 +1,10 @@
-package rs.ac.uns.ftn.transport.mapper;
+package rs.ac.uns.ftn.transport.mapper.workinghours;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import rs.ac.uns.ftn.transport.dto.WorkingHoursDTO;
+import rs.ac.uns.ftn.transport.dto.workinghours.WorkingHoursDTO;
 import rs.ac.uns.ftn.transport.model.WorkingHours;
-
-import java.time.LocalDateTime;
 
 @Component
 public class WorkingHoursDTOMapper {
