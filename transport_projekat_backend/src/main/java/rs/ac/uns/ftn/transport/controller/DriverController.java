@@ -310,15 +310,19 @@ public class DriverController {
     }
 
     @GetMapping(value = "/{id}/ride")
-    public ResponseEntity<RidePageDTO> getRides(Pageable page,
+    public ResponseEntity<?> getRides(Pageable page,
                                                 @PathVariable Integer id,
                                                 @RequestParam(value = "from", required = false) LocalDateTime from,
                                                 @RequestParam(value = "to", required = false) LocalDateTime to)
     {
-        Driver driver = driverService.findOne(id);
+        try {
+            driverService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("driver.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
 
-        if (driver == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (from != null && from.isAfter(LocalDateTime.now())) {
+            return new ResponseEntity<>(messageSource.getMessage("from.future", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
 
         Page<Ride> rides;
