@@ -1,9 +1,6 @@
 package rs.ac.uns.ftn.transport.dto;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
@@ -13,20 +10,21 @@ public class VehicleDTO {
 
     private Integer driverId;
 
-    @NotBlank
+    @NotBlank(message = "{required}")
+    @Pattern(regexp = "STANDARD|LUKSUZNO|KOMBI", flags = Pattern.Flag.CASE_INSENSITIVE, message = "{format}")
     private String vehicleType;
 
-    @NotBlank
-    @Length(max = 100)
+    @NotBlank(message = "{required}")
+    @Length(max = 100, message = "{maxLength}")
     private String model;
 
-    @NotBlank
-    @Length(max = 20)
+    @NotBlank(message = "{required}")
+    @Length(max = 20, message = "{maxLength}")
     private String licenseNumber;
 
     private LocationDTO currentLocation;
 
-    @NotNull
+    @NotNull(message = "{required}")
     @Min(1)
     @Max(20)
     private Integer passengerSeats;

@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(value="api/driver")
 public class DriverController {
-
     private final IDriverService driverService;
     private final IDocumentService documentService;
     private final IVehicleService vehicleService;
@@ -49,7 +48,6 @@ public class DriverController {
     private final IWorkingHoursService workingHoursService;
     private final IRideService rideService;
     private final MessageSource messageSource;
-
 
     public DriverController(IDriverService driverService,
                             IDocumentService documentService,
@@ -154,8 +152,13 @@ public class DriverController {
     }
 
     @PostMapping(value = "/{id}/vehicle", consumes = "application/json")
-    public ResponseEntity<VehicleDTO> saveVehicle(@PathVariable Integer id, @Valid @RequestBody VehicleDTO vehicleDTO) throws ConstraintViolationException {
-        Driver driver = driverService.findOne(id);
+    public ResponseEntity<?> saveVehicle(@PathVariable Integer id, @Valid @RequestBody VehicleDTO vehicleDTO) throws ConstraintViolationException {
+        Driver driver;
+        try {
+            driver = driverService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("driver.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
 
         Vehicle vehicle = VehicleDTOMapper.fromDTOtoVehicle(vehicleDTO);
         vehicle.setDriver(driver);
@@ -163,6 +166,13 @@ public class DriverController {
         if (vehicle.getCurrentLocation() != null) {
             Location location = vehicle.getCurrentLocation();
             locationService.save(location);
+        }
+
+        if (vehicle.getPetTransport() == null) {
+            vehicle.setPetTransport(false);
+        }
+        if (vehicle.getBabyTransport() == null) {
+            vehicle.setBabyTransport(false);
         }
 
         vehicle = vehicleService.save(vehicle);
@@ -173,22 +183,36 @@ public class DriverController {
     }
 
     @GetMapping(value = "/{id}/vehicle")
-    public ResponseEntity<VehicleDTO> getVehicle(@PathVariable Integer id) {
-        Vehicle vehicle = vehicleService.getVehicleByDriver_Id(id);
+    public ResponseEntity<?> getVehicle(@PathVariable Integer id) {
+        Driver driver;
+        try {
+            driver = driverService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("driver.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
+
+        Vehicle vehicle = driver.getVehicle();
 
         if (vehicle == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(messageSource.getMessage("vehicle.notFound", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(VehicleDTOMapper.fromVehicletoDTO(vehicle), HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}/vehicle", consumes = "application/json")
-    public ResponseEntity<VehicleDTO> updateVehicle(@PathVariable Integer id, @Valid @RequestBody VehicleDTO vehicleDTO) throws ConstraintViolationException {
-        Vehicle oldVehicle = vehicleService.getVehicleByDriver_Id(id);
+    public ResponseEntity<?> updateVehicle(@PathVariable Integer id, @Valid @RequestBody VehicleDTO vehicleDTO) throws ConstraintViolationException {
+        Driver driver;
+        try {
+            driver = driverService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("driver.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
+
+        Vehicle oldVehicle = driver.getVehicle();
 
         if (oldVehicle == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(messageSource.getMessage("vehicle.notFound", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
 
         Vehicle newVehicle = VehicleDTOMapper.fromDTOtoVehicle(vehicleDTO);
@@ -203,8 +227,12 @@ public class DriverController {
         }
 
         oldVehicle.setPassengerSeats(newVehicle.getPassengerSeats());
-        oldVehicle.setBabyTransport(newVehicle.getBabyTransport());
-        oldVehicle.setPetTransport(newVehicle.getPetTransport());
+        if (newVehicle.getBabyTransport() != null) {
+            oldVehicle.setBabyTransport(newVehicle.getBabyTransport());
+        }
+        if (newVehicle.getPetTransport() != null) {
+            oldVehicle.setPetTransport(newVehicle.getPetTransport());
+        }
 
         oldVehicle = vehicleService.save(oldVehicle);
         return new ResponseEntity<>(VehicleDTOMapper.fromVehicletoDTO(oldVehicle), HttpStatus.OK);
