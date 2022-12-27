@@ -4,21 +4,27 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import com.google.common.base.Strings;
+import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.*;
+import rs.ac.uns.ftn.transport.dto.driver.DriverDTO;
+import rs.ac.uns.ftn.transport.dto.driver.DriverPageDTO;
+import rs.ac.uns.ftn.transport.dto.driver.DriverPasswordDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
 import rs.ac.uns.ftn.transport.dto.workinghours.WorkingHoursDTO;
 import rs.ac.uns.ftn.transport.dto.workinghours.WorkingHoursEndDTO;
 import rs.ac.uns.ftn.transport.dto.workinghours.WorkingHoursPageDTO;
 import rs.ac.uns.ftn.transport.dto.workinghours.WorkingHoursStartDTO;
 import rs.ac.uns.ftn.transport.mapper.DocumentDTOMapper;
-import rs.ac.uns.ftn.transport.mapper.DriverDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.driver.DriverDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.VehicleDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.driver.DriverPasswordDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.workinghours.WorkingHoursDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.workinghours.WorkingHoursStartDTOMapper;
@@ -27,6 +33,7 @@ import rs.ac.uns.ftn.transport.model.enumerations.DocumentType;
 import rs.ac.uns.ftn.transport.service.interfaces.*;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,6 +48,7 @@ public class DriverController {
     private final ILocationService locationService;
     private final IWorkingHoursService workingHoursService;
     private final IRideService rideService;
+    private final MessageSource messageSource;
 
 
     public DriverController(IDriverService driverService,
@@ -48,24 +56,25 @@ public class DriverController {
                             IVehicleService vehicleService,
                             ILocationService locationService,
                             IWorkingHoursService workingHoursService,
-                            IRideService rideService) {
+                            IRideService rideService,
+                            MessageSource messageSource) {
         this.driverService = driverService;
         this.documentService = documentService;
         this.vehicleService = vehicleService;
         this.locationService = locationService;
         this.workingHoursService = workingHoursService;
         this.rideService = rideService;
+        this.messageSource = messageSource;
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<DriverDTO> getDriver(@PathVariable Integer id) {
-        Driver driver = driverService.findOne(id);
-
-        if (driver == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> getDriver(@PathVariable Integer id) {
+        try {
+            Driver driver = driverService.findOne(id);
+            return new ResponseEntity<>(DriverDTOMapper.fromDrivertoDTO(driver), HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("driver.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
-
-        return new ResponseEntity<>(DriverDTOMapper.fromDrivertoDTO(driver), HttpStatus.OK);
     }
 
     @GetMapping
@@ -80,19 +89,23 @@ public class DriverController {
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<DriverDTO> saveDriver(@Valid @RequestBody Driver driver) throws ConstraintViolationException {
+    public ResponseEntity<?> saveDriver(@Valid @RequestBody DriverPasswordDTO dto) throws ConstraintViolationException {
         try {
-            driver = driverService.save(driver);
+            Driver driver = driverService.save(DriverPasswordDTOMapper.fromDTOtoDriver(dto));
+            return new ResponseEntity<>(DriverDTOMapper.fromDrivertoDTO(driver), HttpStatus.OK);
         } catch (DataIntegrityViolationException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(messageSource.getMessage("user.emailExists", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
-
-        return new ResponseEntity<>(DriverDTOMapper.fromDrivertoDTO(driver), HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
-    public ResponseEntity<DriverDTO> updateDriver(@PathVariable Integer id, @Valid @RequestBody DriverDTO driver) throws ConstraintViolationException {
-        Driver driverToUpdate = driverService.findOne(id);
+    public ResponseEntity<?> updateDriver(@PathVariable Integer id, @Valid @RequestBody DriverDTO driver) throws ConstraintViolationException {
+        Driver driverToUpdate;
+        try {
+            driverToUpdate = driverService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("driver.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
 
         driverToUpdate.setName(driver.getName());
         driverToUpdate.setSurname(driver.getSurname());
@@ -108,7 +121,7 @@ public class DriverController {
         try {
             driverToUpdate = driverService.save(driverToUpdate);
         } catch (DataIntegrityViolationException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(messageSource.getMessage("user.emailExists", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(DriverDTOMapper.fromDrivertoDTO(driverToUpdate), HttpStatus.OK);
     }

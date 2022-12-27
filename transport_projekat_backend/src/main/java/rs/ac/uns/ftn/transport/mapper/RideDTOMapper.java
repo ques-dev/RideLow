@@ -2,9 +2,7 @@ package rs.ac.uns.ftn.transport.mapper;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import rs.ac.uns.ftn.transport.dto.DriverDTO;
 import rs.ac.uns.ftn.transport.dto.RideDTO;
-import rs.ac.uns.ftn.transport.model.Driver;
 import rs.ac.uns.ftn.transport.model.Ride;
 
 public class RideDTOMapper {

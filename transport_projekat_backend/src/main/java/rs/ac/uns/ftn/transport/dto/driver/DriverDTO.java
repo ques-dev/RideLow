@@ -1,4 +1,4 @@
-package rs.ac.uns.ftn.transport.dto;
+package rs.ac.uns.ftn.transport.dto.driver;
 
 import jakarta.persistence.Basic;
 import jakarta.validation.constraints.Email;
@@ -14,25 +14,25 @@ import org.hibernate.validator.constraints.Length;
 public class DriverDTO {
     private Integer id;
 
-    @NotBlank
-    @Length(max = 100)
+    @Length(max = 100, message = "{maxLength}")
+    @NotBlank(message = "{required}")
     private String name;
 
-    @NotBlank
-    @Length(max = 100)
+    @Length(max = 100, message = "{maxLength}")
+    @NotBlank(message = "{required}")
     private String surname;
 
     private String profilePicture;
 
-    @Length(max = 18)
+    @Length(max = 18, message = "{maxLength}")
     private String telephoneNumber;
 
-    @NotBlank
-    @Email(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")
-    @Length(max = 100)
+    @Email(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", message = "{format}")
+    @Length(max = 100, message = "{maxLength}")
+    @NotBlank(message = "{required}")
     private String email;
 
-    @NotBlank
-    @Length(max = 100)
+    @Length(max = 100, message = "{maxLength}")
+    @NotBlank(message = "{required}")
     private String address;
 }

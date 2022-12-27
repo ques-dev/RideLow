@@ -1,17 +1,13 @@
 package rs.ac.uns.ftn.transport.controller;
 
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import rs.ac.uns.ftn.transport.dto.DriverDTO;
-import rs.ac.uns.ftn.transport.dto.DriverPageDTO;
 import rs.ac.uns.ftn.transport.dto.PanicDTO;
 import rs.ac.uns.ftn.transport.dto.PanicPageDTO;
-import rs.ac.uns.ftn.transport.mapper.DriverDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.PanicDTOMapper;
 import rs.ac.uns.ftn.transport.model.Panic;
 import rs.ac.uns.ftn.transport.service.interfaces.IPanicService;

@@ -1,9 +1,9 @@
-package rs.ac.uns.ftn.transport.mapper;
+package rs.ac.uns.ftn.transport.mapper.driver;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import rs.ac.uns.ftn.transport.dto.DriverDTO;
+import rs.ac.uns.ftn.transport.dto.driver.DriverDTO;
 import rs.ac.uns.ftn.transport.model.Driver;
 
 @Component
