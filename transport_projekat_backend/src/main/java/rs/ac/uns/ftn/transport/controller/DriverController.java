@@ -3,6 +3,7 @@ package rs.ac.uns.ftn.transport.controller;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
+import com.google.common.base.Strings;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -85,13 +86,17 @@ public class DriverController {
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
-    public ResponseEntity<DriverDTO> updateDriver(@PathVariable Integer id, @Valid @RequestBody Driver driver) throws ConstraintViolationException {
+    public ResponseEntity<DriverDTO> updateDriver(@PathVariable Integer id, @Valid @RequestBody DriverDTO driver) throws ConstraintViolationException {
         Driver driverToUpdate = driverService.findOne(id);
 
         driverToUpdate.setName(driver.getName());
         driverToUpdate.setSurname(driver.getSurname());
-        driverToUpdate.setProfilePicture(driver.getProfilePicture());
-        driverToUpdate.setTelephoneNumber(driver.getTelephoneNumber());
+        if (!Strings.isNullOrEmpty(driver.getProfilePicture())) {
+            driverToUpdate.setProfilePicture(driver.getProfilePicture());
+        }
+        if (!Strings.isNullOrEmpty(driver.getTelephoneNumber())) {
+            driverToUpdate.setTelephoneNumber(driver.getTelephoneNumber());
+        }
         driverToUpdate.setEmail(driver.getEmail());
         driverToUpdate.setAddress(driver.getAddress());
 

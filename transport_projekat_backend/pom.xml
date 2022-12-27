@@ -57,7 +57,12 @@
 			<artifactId>hibernate-validator</artifactId>
 			<version>8.0.0.Final</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>28.2-android</version>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>
