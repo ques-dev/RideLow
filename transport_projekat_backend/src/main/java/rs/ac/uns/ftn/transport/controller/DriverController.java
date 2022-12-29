@@ -136,7 +136,13 @@ public class DriverController {
     }
 
     @GetMapping(value = "/{id}/documents")
-    public ResponseEntity<Set<DocumentDTO>> getDocuments(@PathVariable Integer id) {
+    public ResponseEntity<?> getDocuments(@PathVariable Integer id) {
+        try {
+            driverService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("driver.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
+
         Set<Document> documents = documentService.findAllByDriver_Id(id);
 
         Set<DocumentDTO> documentDTOs = documents.stream()
@@ -148,6 +154,12 @@ public class DriverController {
     @DeleteMapping(value = "/document/{id}")
     @Transactional
     public ResponseEntity<String> deleteDocument(@PathVariable Integer id) {
+        try {
+            documentService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("document.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
+
         documentService.deleteById(id);
         return new ResponseEntity<>("Driver document deleted successfully", HttpStatus.NO_CONTENT);
     }

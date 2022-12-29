@@ -1,10 +1,13 @@
 package rs.ac.uns.ftn.transport.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.model.Document;
 import rs.ac.uns.ftn.transport.repository.DocumentRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IDocumentService;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -29,5 +32,13 @@ public class DocumentServiceImpl implements IDocumentService {
 
     public void deleteById(Integer id) {
         documentRepository.deleteById(id);
+    }
+
+    public Document findOne(Integer id) {
+        Optional<Document> found = documentRepository.findById(id);
+        if (found.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return found.get();
     }
 }

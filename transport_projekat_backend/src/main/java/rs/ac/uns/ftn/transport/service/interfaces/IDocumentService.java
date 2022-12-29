@@ -10,4 +10,5 @@ public interface IDocumentService {
 
     Integer deleteAllByDriver_Id(Integer id);
     void deleteById(Integer id);
+    Document findOne(Integer id);
 }
