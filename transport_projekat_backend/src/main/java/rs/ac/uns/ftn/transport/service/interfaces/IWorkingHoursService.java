@@ -6,9 +6,11 @@ import org.springframework.data.repository.query.Param;
 import rs.ac.uns.ftn.transport.model.WorkingHours;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 public interface IWorkingHoursService {
-    WorkingHours save(WorkingHours workingHours);
+    WorkingHours start(WorkingHours workingHours);
+    WorkingHours end(WorkingHours workingHours);
 
     WorkingHours findOne(Integer id);
     Page<WorkingHours> findAllByDriver_Id(Integer id, Pageable page);

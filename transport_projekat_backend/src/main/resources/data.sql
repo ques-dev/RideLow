@@ -30,7 +30,7 @@ INSERT INTO DOCUMENTS(DOCUMENT_IMAGE, NAME, DRIVER_ID) VALUES
                                                                ('U3dhZ2dlciByb2Nrcw=', 'VOZACKA_DOZVOLA', 2);
 
 INSERT INTO WORKING_HOURS(SHIFT_START, SHIFT_END, DRIVER_ID) VALUES
-                                                                     ('2019-08-24 14:15:22', '2019-08-24 14:15:22', 2);
+                                                                     ('2019-08-24 14:15:22', '2019-08-24 14:21:22', 2);
 
 --
 -- INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,PROFILE_PICTURE,SURNAME,TELEPHONE_NUMBER) VALUES

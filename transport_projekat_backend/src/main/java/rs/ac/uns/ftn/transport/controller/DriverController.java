@@ -34,6 +34,7 @@ import rs.ac.uns.ftn.transport.service.interfaces.*;
 
 import java.time.LocalDateTime;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -239,55 +240,89 @@ public class DriverController {
     }
 
     @PostMapping(value = "/{id}/working-hour", consumes = "application/json")
-    public ResponseEntity<WorkingHoursDTO> saveWorkingHours(@PathVariable Integer id, @Valid @RequestBody WorkingHoursStartDTO workingHoursDTO) throws ConstraintViolationException {
-        Driver driver = driverService.findOne(id);
+    public ResponseEntity<?> saveWorkingHours(@PathVariable Integer id, @Valid @RequestBody WorkingHoursStartDTO workingHoursDTO) throws ConstraintViolationException {
+        Driver driver;
+        try {
+            driver = driverService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("driver.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
 
-        if (driver == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (driver.getVehicle() == null) {
+            return new ResponseEntity<>(messageSource.getMessage("workingHour.start.vehicle.notFound", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
+
+        if (workingHoursDTO.getStart().isAfter(LocalDateTime.now())) {
+            return new ResponseEntity<>(messageSource.getMessage("workingHour.start.future", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
 
         WorkingHours workingHours = WorkingHoursStartDTOMapper.fromDTOToWorkingHoursStart(workingHoursDTO);
         workingHours.setDriver(driver);
         workingHours.setEnd(workingHours.getStart());
 
-        workingHours = workingHoursService.save(workingHours);
+        try {
+            workingHours = workingHoursService.start(workingHours);
+        } catch (ResponseStatusException e) {
+            if (Objects.equals(e.getReason(), "ongoing")) {
+                return new ResponseEntity<>(messageSource.getMessage("workingHour.start.ongoing", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(messageSource.getMessage("workingHour.start.limit", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
     }
 
     @GetMapping(value = "/working-hour/{workingHourId}")
-    public ResponseEntity<WorkingHoursDTO> getWorkingHour(@PathVariable Integer workingHourId) {
-        WorkingHours workingHours = workingHoursService.findOne(workingHourId);
-
-        if (workingHours == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> getWorkingHour(@PathVariable Integer workingHourId) {
+        WorkingHours workingHours;
+        try {
+            workingHours = workingHoursService.findOne(workingHourId);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("workingHour.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
     }
 
     @PutMapping(value = "/working-hour/{workingHourId}", consumes = "application/json")
-    public ResponseEntity<WorkingHoursDTO> updateWorkingHour(@PathVariable Integer workingHourId, @Valid @RequestBody WorkingHoursEndDTO workingHoursDTO) throws ConstraintViolationException {
-        WorkingHours workingHours = workingHoursService.findOne(workingHourId);
+    public ResponseEntity<?> updateWorkingHour(@PathVariable Integer workingHourId, @Valid @RequestBody WorkingHoursEndDTO workingHoursDTO) throws ConstraintViolationException {
+        WorkingHours workingHours;
+        try {
+            workingHours = workingHoursService.findOne(workingHourId);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("workingHour.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
 
-        if (workingHours == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (workingHoursDTO.getEnd().isBefore(workingHours.getStart())) {
+            return new ResponseEntity<>(messageSource.getMessage("workingHour.end.beforeStart", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
+
+        if (workingHoursDTO.getEnd().isAfter(LocalDateTime.now())) {
+            return new ResponseEntity<>(messageSource.getMessage("workingHour.end.future", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
+
+        if (workingHours.getDriver().getVehicle() == null) {
+            return new ResponseEntity<>(messageSource.getMessage("workingHour.end.vehicle.notFound", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
+
+        if (!workingHours.getStart().equals(workingHours.getEnd())) {
+            return new ResponseEntity<>(messageSource.getMessage("workingHour.end.notOngoing", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
 
         workingHours.setEnd(workingHoursDTO.getEnd());
 
-        workingHours = workingHoursService.save(workingHours);
+        workingHours = workingHoursService.end(workingHours);
         return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}/working-hour")
-    public ResponseEntity<WorkingHoursPageDTO> getWorkingHours(Pageable page,
+    public ResponseEntity<?> getWorkingHours(Pageable page,
                                                                @PathVariable Integer id,
                                                                @RequestParam(value = "from", required = false) LocalDateTime from,
                                                                @RequestParam(value = "to", required = false) LocalDateTime to) {
-        Driver driver = driverService.findOne(id);
-
-        if (driver == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            driverService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("driver.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
 
         Page<WorkingHours> workingHours;

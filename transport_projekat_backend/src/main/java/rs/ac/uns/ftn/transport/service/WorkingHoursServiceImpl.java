@@ -2,12 +2,18 @@ package rs.ac.uns.ftn.transport.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import rs.ac.uns.ftn.transport.WorkingHoursSpecification;
 import rs.ac.uns.ftn.transport.model.WorkingHours;
 import rs.ac.uns.ftn.transport.repository.WorkingHoursRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IWorkingHoursService;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class WorkingHoursServiceImpl implements IWorkingHoursService {
@@ -16,13 +22,49 @@ public class WorkingHoursServiceImpl implements IWorkingHoursService {
     public WorkingHoursServiceImpl(WorkingHoursRepository workingHoursRepository) {
         this.workingHoursRepository = workingHoursRepository;
     }
+    public WorkingHours start(WorkingHours workingHours) {
+        Optional<WorkingHours> inProgressShift = workingHoursRepository.findOne(WorkingHoursSpecification.startEqualsEnd(workingHours.getDriver().getId()));
+        if (inProgressShift.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ongoing");
+        }
 
-    public WorkingHours save(WorkingHours workingHours) {
+        Duration totalDuration = getDurationWorkedInPastDay(workingHours.getDriver().getId());
+
+        if (totalDuration.toHours() >= 8) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "limit");
+        }
+        return workingHoursRepository.save(workingHours);
+    }
+
+    private Duration getDurationWorkedInPastDay(Integer driverId) {
+        LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(1);
+        Set<WorkingHours> shiftsInPastDay = workingHoursRepository.findAllByDriver_IdAndEndIsAfter(driverId, oneDayAgo);
+
+        Duration totalDuration = Duration.ZERO;
+        for (WorkingHours shift : shiftsInPastDay) {
+            if (shift.getStart().isAfter(oneDayAgo)) {
+                totalDuration = totalDuration.plus(Duration.between(shift.getStart(), shift.getEnd()));
+            } else {
+                totalDuration = totalDuration.plus(Duration.between(oneDayAgo, shift.getEnd()));
+            }
+            // if the shift is ongoing, add the time since the start of the shift until right now
+            if (shift.getStart().equals(shift.getEnd())) {
+                totalDuration = totalDuration.plus(Duration.between(shift.getStart(), LocalDateTime.now()));
+            }
+        }
+        return totalDuration;
+    }
+
+    public WorkingHours end(WorkingHours workingHours) {
         return workingHoursRepository.save(workingHours);
     }
 
     public WorkingHours findOne(Integer id) {
-        return workingHoursRepository.findById(id).orElseGet(null);
+        Optional<WorkingHours> found = workingHoursRepository.findById(id);
+        if (found.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return found.get();
     }
 
     public Page<WorkingHours> findAllByDriver_Id(Integer id, Pageable page) {
