@@ -1,7 +1,9 @@
 package rs.ac.uns.ftn.transport.controller;
 
+import jakarta.mail.MessagingException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
+import org.modelmapper.internal.bytebuddy.utility.RandomString;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,14 +17,13 @@ import rs.ac.uns.ftn.transport.mapper.RideDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.UserDTOMapper;
 import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.model.enumerations.MessageType;
-import rs.ac.uns.ftn.transport.service.interfaces.IDriverService;
-import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
-import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
-import rs.ac.uns.ftn.transport.service.interfaces.IUserService;
+import rs.ac.uns.ftn.transport.service.interfaces.*;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 @CrossOrigin("http://localhost:4200")
@@ -35,17 +36,20 @@ public class UserController {
 
     private final IRideService rideService;
     private final MessageSource messageSource;
+    private final IMailService mailService;
 
     public UserController(IUserService userService,
                           IDriverService driverService,
                           IPassengerService passengerService,
                           IRideService rideService,
-                          MessageSource messageSource) {
+                          MessageSource messageSource,
+                          IMailService mailService) {
         this.rideService = rideService;
         this.passengerService = passengerService;
         this.driverService = driverService;
         this.userService = userService;
         this.messageSource = messageSource;
+        this.mailService = mailService;
     }
 
     @PutMapping(value = "/{id}/changePassword", consumes = "application/json")
@@ -66,6 +70,26 @@ public class UserController {
         userService.save(user);
 
         return new ResponseEntity<>("Password successfully changed!", HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping(value = "/{id}/resetPassword")
+    public ResponseEntity<?> resetPassword(@PathVariable Integer id) throws MessagingException, UnsupportedEncodingException {
+        User user;
+        try {
+            user = userService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("user.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
+
+        String token = String.valueOf(new Random().nextInt(900000) + 100000); // 6-digit random number
+
+        user.setResetPasswordToken(token);
+        user.setResetPasswordTokenExpiration(LocalDateTime.now().plusMinutes(10));
+        userService.save(user);
+
+        mailService.sendMail(user.getEmail(), token);
+
+        return new ResponseEntity<>("Email with reset code has been sent!", HttpStatus.NO_CONTENT);
     }
 
     @GetMapping(value = "/{id}/ride")

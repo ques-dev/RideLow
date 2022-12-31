@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import static jakarta.persistence.InheritanceType.JOINED;
@@ -54,6 +55,10 @@ public abstract class User {
     @OneToOne
     @JoinColumn(name = "userActivation_id", referencedColumnName = "id")
     private UserActivation userActivation;
+
+    private String resetPasswordToken;
+
+    private LocalDateTime resetPasswordTokenExpiration;
 
     @Override
     public boolean equals(Object o) {
