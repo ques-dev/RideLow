@@ -92,6 +92,28 @@ public class UserController {
         return new ResponseEntity<>("Email with reset code has been sent!", HttpStatus.NO_CONTENT);
     }
 
+    @PutMapping(value = "/{id}/resetPassword", consumes = "application/json")
+    public ResponseEntity<?> resetPassword(@PathVariable Integer id,
+                                            @Valid @RequestBody ResetPasswordDTO dto) throws ConstraintViolationException {
+        User user;
+        try {
+            user = userService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("user.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
+
+        if (user.getResetPasswordToken() == null || user.getResetPasswordTokenExpiration().isBefore(LocalDateTime.now()) || !user.getResetPasswordToken().equals(dto.getCode())) {
+            return new ResponseEntity<>(messageSource.getMessage("user.resetToken", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
+
+        user.setPassword(dto.getNew_password());
+        user.setResetPasswordToken(null);
+        user.setResetPasswordTokenExpiration(null);
+        userService.save(user);
+
+        return new ResponseEntity<>("Password successfully changed!", HttpStatus.NO_CONTENT);
+    }
+
     @GetMapping(value = "/{id}/ride")
     public ResponseEntity<RidePage2DTO> findRides(@PathVariable Integer id, Pageable page){
         Page<Ride> rides = rideService.findPassenger(id, (page));
