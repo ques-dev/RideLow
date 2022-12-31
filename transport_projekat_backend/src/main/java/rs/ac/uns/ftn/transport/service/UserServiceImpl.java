@@ -2,7 +2,9 @@ package rs.ac.uns.ftn.transport.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.MessageDTO;
 import rs.ac.uns.ftn.transport.dto.NoteDTO;
 import rs.ac.uns.ftn.transport.dto.NotePageDTO;
@@ -42,7 +44,11 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public User findOne(Integer id) {
-        return userRepository.findById(id).orElseGet(null);
+        Optional<User> found = userRepository.findById(id);
+        if (found.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return found.get();
     }
 
     @Override

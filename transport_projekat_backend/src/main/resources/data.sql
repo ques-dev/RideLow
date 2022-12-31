@@ -7,12 +7,12 @@ INSERT INTO USER_ACTIVATIONS(DATE_CREATED,MINUTES_VALID) VALUES
     (CURRENT_TIMESTAMP,25);
 
 INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,TELEPHONE_NUMBER,USER_ACTIVATION_ID) VALUES
-    ('Bulevar oslobođenja 74', 'imenko@mail.com', false, false, 'Radomir', 'neprobojna_lozinka', 'Radomirović', '065338295504',1);
+    ('Bulevar oslobođenja 74', 'imenko@mail.com', false, false, 'Radomir', 'test2Test', 'Radomirović', '065338295504',1);
 
 INSERT INTO PASSENGERS VALUES 1;
 
 INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,TELEPHONE_NUMBER) VALUES
-    ('Bulevar cara lazara 23','mail_inactive@mail.com',false,false,'Vujadin','neprobojna_lozinka2','Vujadinović','06388217512');
+    ('Bulevar cara lazara 23','mail_inactive@mail.com',false,false,'Vujadin','Test2test','Vujadinović','06388217512');
 
 
 INSERT INTO LOCATIONS (ADDRESS, LATITUDE, LONGITUDE) VALUES
@@ -34,6 +34,6 @@ INSERT INTO WORKING_HOURS(SHIFT_START, SHIFT_END, DRIVER_ID) VALUES
 
 --
 -- INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,TELEPHONE_NUMBER) VALUES
---     ('Bulevar Oslobođenja 23','driver@mail.com',true, false, 'Jovan', 'neprobojna_lozinka', 'Jovanović', '06533829');
+--     ('Bulevar Oslobođenja 23','driver@mail.com',true, false, 'Jovan', 'neprobojna_lozinka', 'Test2Test', '06533829');
 --
 -- INSERT INTO DRIVERS VALUES (3, 1);

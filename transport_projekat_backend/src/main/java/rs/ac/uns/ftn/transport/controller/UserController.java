@@ -1,10 +1,14 @@
 package rs.ac.uns.ftn.transport.controller;
 
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.*;
 import rs.ac.uns.ftn.transport.dto.ride.RidePage2DTO;
 import rs.ac.uns.ftn.transport.mapper.RideDTOMapper;
@@ -18,6 +22,7 @@ import rs.ac.uns.ftn.transport.service.interfaces.IUserService;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 @CrossOrigin("http://localhost:4200")
@@ -29,13 +34,38 @@ public class UserController {
     private final IPassengerService passengerService;
 
     private final IRideService rideService;
+    private final MessageSource messageSource;
 
-    public UserController(IUserService userService, IDriverService driverService, IPassengerService passengerService,
-                          IRideService rideService){
+    public UserController(IUserService userService,
+                          IDriverService driverService,
+                          IPassengerService passengerService,
+                          IRideService rideService,
+                          MessageSource messageSource) {
         this.rideService = rideService;
         this.passengerService = passengerService;
         this.driverService = driverService;
         this.userService = userService;
+        this.messageSource = messageSource;
+    }
+
+    @PutMapping(value = "/{id}/changePassword", consumes = "application/json")
+    public ResponseEntity<?> changePassword(@PathVariable Integer id,
+                                            @Valid @RequestBody ChangePasswordDTO dto) throws ConstraintViolationException {
+        User user;
+        try {
+            user = userService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("user.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
+
+        if (!dto.getOld_password().equals(user.getPassword())) {
+            return new ResponseEntity<>(messageSource.getMessage("user.passwordMatch", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
+
+        user.setPassword(dto.getNew_password());
+        userService.save(user);
+
+        return new ResponseEntity<>("Password successfully changed!", HttpStatus.NO_CONTENT);
     }
 
     @GetMapping(value = "/{id}/ride")
