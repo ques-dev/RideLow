@@ -1,6 +1,7 @@
 package rs.ac.uns.ftn.transport.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,8 @@ public class DocumentDTO {
     private Integer id;
 
     @Length(max = 100)
+    @Pattern(regexp = "Vozacka dozvola|Vozačka dozvola|Saobracajna dozvola|Saobraćajna dozvola",
+            flags = Pattern.Flag.CASE_INSENSITIVE, message = "{format}")
     @NotBlank
     private String name;
 
