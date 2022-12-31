@@ -99,8 +99,36 @@ public class DriverController {
 
     @PostMapping(consumes = "application/json")
     public ResponseEntity<?> saveDriver(@Valid @RequestBody DriverPasswordDTO dto) throws ConstraintViolationException {
+        Driver driver = DriverPasswordDTOMapper.fromDTOtoDriver(dto);
+
+        if (driver.getProfilePicture() != null) {
+            byte[] profilePicture;
+            try {
+                profilePicture = Base64.getDecoder().decode(driver.getProfilePicture());
+            } catch (IllegalArgumentException e) {
+                return new ResponseEntity<>(messageSource.getMessage("imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            }
+
+            if (profilePicture == null || profilePicture.length == 0) {
+                return new ResponseEntity<>(messageSource.getMessage("imageNull", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            }
+
+            try {
+                BufferedImage imageTest = ImageIO.read(new ByteArrayInputStream(profilePicture));
+                if (imageTest == null) {
+                    return new ResponseEntity<>(messageSource.getMessage("imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+                }
+            } catch (IOException e) {
+                return new ResponseEntity<>(messageSource.getMessage("imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            }
+
+            if (profilePicture.length > MAX_FILE_SIZE) {
+                return new ResponseEntity<>(messageSource.getMessage("imageSize", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            }
+        }
+
         try {
-            Driver driver = driverService.save(DriverPasswordDTOMapper.fromDTOtoDriver(dto));
+            driver = driverService.save(driver);
             return new ResponseEntity<>(DriverDTOMapper.fromDrivertoDTO(driver), HttpStatus.OK);
         } catch (DataIntegrityViolationException e) {
             return new ResponseEntity<>(messageSource.getMessage("user.emailExists", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
@@ -151,11 +179,11 @@ public class DriverController {
         }
 
         if (image == null || image.isEmpty()) {
-            return new ResponseEntity<>(messageSource.getMessage("document.imageNull", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(messageSource.getMessage("imageNull", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
 
         if (!Objects.requireNonNull(image.getContentType()).startsWith("image/")) {
-            return new ResponseEntity<>(messageSource.getMessage("document.imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(messageSource.getMessage("imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
 
         String imageString;
@@ -184,24 +212,24 @@ public class DriverController {
         try {
             image = Base64.getDecoder().decode(documentDTO.getDocumentImage());
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(messageSource.getMessage("document.imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(messageSource.getMessage("imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
 
         if (image == null || image.length == 0) {
-            return new ResponseEntity<>(messageSource.getMessage("document.imageNull", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(messageSource.getMessage("imageNull", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
 
         try {
             BufferedImage imageTest = ImageIO.read(new ByteArrayInputStream(image));
             if (imageTest == null) {
-                return new ResponseEntity<>(messageSource.getMessage("document.imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(messageSource.getMessage("imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
             }
         } catch (IOException e) {
-            return new ResponseEntity<>(messageSource.getMessage("document.imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(messageSource.getMessage("imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
 
         if (image.length > MAX_FILE_SIZE) {
-            return new ResponseEntity<>(messageSource.getMessage("document.imageSize", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(messageSource.getMessage("imageSize", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
 
         Document document = new Document(DocumentType.getEnum(documentDTO.getName()), documentDTO.getDocumentImage(), driver);

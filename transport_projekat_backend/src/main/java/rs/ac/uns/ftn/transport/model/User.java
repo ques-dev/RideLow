@@ -30,6 +30,7 @@ public abstract class User {
     private String surname;
 
     @Column (name = "profilePicture")
+    @Lob
     private String profilePicture;
 
     @Column (name = "telephoneNumber")
