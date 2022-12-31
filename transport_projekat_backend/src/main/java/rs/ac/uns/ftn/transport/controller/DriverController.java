@@ -1,9 +1,9 @@
 package rs.ac.uns.ftn.transport.controller;
 
+import com.google.common.base.Strings;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
-import com.google.common.base.Strings;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -11,8 +11,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import rs.ac.uns.ftn.transport.dto.*;
+import rs.ac.uns.ftn.transport.dto.RidePageDTO;
+import rs.ac.uns.ftn.transport.dto.VehicleDTO;
+import rs.ac.uns.ftn.transport.dto.DocumentDTO;
 import rs.ac.uns.ftn.transport.dto.driver.DriverDTO;
 import rs.ac.uns.ftn.transport.dto.driver.DriverPageDTO;
 import rs.ac.uns.ftn.transport.dto.driver.DriverPasswordDTO;
@@ -22,17 +25,22 @@ import rs.ac.uns.ftn.transport.dto.workinghours.WorkingHoursEndDTO;
 import rs.ac.uns.ftn.transport.dto.workinghours.WorkingHoursPageDTO;
 import rs.ac.uns.ftn.transport.dto.workinghours.WorkingHoursStartDTO;
 import rs.ac.uns.ftn.transport.mapper.DocumentDTOMapper;
-import rs.ac.uns.ftn.transport.mapper.driver.DriverDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.VehicleDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.driver.DriverDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.driver.DriverPasswordDTOMapper;
-import rs.ac.uns.ftn.transport.mapper.workinghours.WorkingHoursDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.workinghours.WorkingHoursDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.workinghours.WorkingHoursStartDTOMapper;
 import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.model.enumerations.DocumentType;
 import rs.ac.uns.ftn.transport.service.interfaces.*;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
@@ -49,6 +57,8 @@ public class DriverController {
     private final IWorkingHoursService workingHoursService;
     private final IRideService rideService;
     private final MessageSource messageSource;
+
+    private final int MAX_FILE_SIZE = 5 * 1024 * 1024;
 
     public DriverController(IDriverService driverService,
                             IDocumentService documentService,
@@ -125,9 +135,74 @@ public class DriverController {
         return new ResponseEntity<>(DriverDTOMapper.fromDrivertoDTO(driverToUpdate), HttpStatus.OK);
     }
 
+    @PostMapping(value = "/{id}/documents", consumes = "multipart/form-data")
+    public ResponseEntity<?> saveDocument(@PathVariable Integer id,
+                                          @RequestPart("documentImage") MultipartFile image,
+                                          @RequestPart("name") String type) throws ConstraintViolationException {
+        Driver driver;
+        try {
+            driver = driverService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("driver.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
+
+        if (type.length() > 100) {
+            return new ResponseEntity<>(messageSource.getMessage("document.nameTooLong", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
+
+        if (image == null || image.isEmpty()) {
+            return new ResponseEntity<>(messageSource.getMessage("document.imageNull", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
+
+        if (!Objects.requireNonNull(image.getContentType()).startsWith("image/")) {
+            return new ResponseEntity<>(messageSource.getMessage("document.imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
+
+        String imageString;
+        try {
+            imageString = Base64.getEncoder().encodeToString(image.getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Document document = new Document(DocumentType.getEnum(type), imageString, driver);
+
+        document = documentService.save(document);
+        return new ResponseEntity<>(DocumentDTOMapper.fromDocumenttoDTO(document), HttpStatus.OK);
+    }
+
     @PostMapping(value = "/{id}/documents", consumes = "application/json")
-    public ResponseEntity<DocumentDTO> saveDocument(@PathVariable Integer id, @Valid @RequestBody DocumentDTO documentDTO) throws ConstraintViolationException {
-        Driver driver = driverService.findOne(id);
+    public ResponseEntity<?> saveDocument(@PathVariable Integer id,
+                                          @Valid @RequestBody DocumentDTO documentDTO) throws ConstraintViolationException {
+        Driver driver;
+        try {
+            driver = driverService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("driver.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
+
+        byte[] image;
+        try {
+            image = Base64.getDecoder().decode(documentDTO.getDocumentImage());
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(messageSource.getMessage("document.imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
+
+        if (image == null || image.length == 0) {
+            return new ResponseEntity<>(messageSource.getMessage("document.imageNull", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            BufferedImage imageTest = ImageIO.read(new ByteArrayInputStream(image));
+            if (imageTest == null) {
+                return new ResponseEntity<>(messageSource.getMessage("document.imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            }
+        } catch (IOException e) {
+            return new ResponseEntity<>(messageSource.getMessage("document.imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
+
+        if (image.length > MAX_FILE_SIZE) {
+            return new ResponseEntity<>(messageSource.getMessage("document.imageSize", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
 
         Document document = new Document(DocumentType.getEnum(documentDTO.getName()), documentDTO.getDocumentImage(), driver);
 

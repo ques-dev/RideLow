@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import rs.ac.uns.ftn.transport.WorkingHoursSpecification;
+import rs.ac.uns.ftn.transport.specification.WorkingHoursSpecification;
 import rs.ac.uns.ftn.transport.model.WorkingHours;
 import rs.ac.uns.ftn.transport.repository.WorkingHoursRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IWorkingHoursService;

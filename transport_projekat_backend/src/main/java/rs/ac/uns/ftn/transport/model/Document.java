@@ -25,6 +25,7 @@ public class Document {
     private DocumentType name;
 
     @Column(name = "documentImage")
+    @Lob
     private String documentImage;
 
     @ManyToOne(fetch = FetchType.LAZY)

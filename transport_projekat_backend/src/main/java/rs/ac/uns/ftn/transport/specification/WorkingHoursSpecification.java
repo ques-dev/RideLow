@@ -1,4 +1,4 @@
-package rs.ac.uns.ftn.transport;
+package rs.ac.uns.ftn.transport.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import rs.ac.uns.ftn.transport.model.WorkingHours;

@@ -60,9 +60,14 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>28.2-android</version>
+            <version>31.1-android</version>
         </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.4</version>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>
