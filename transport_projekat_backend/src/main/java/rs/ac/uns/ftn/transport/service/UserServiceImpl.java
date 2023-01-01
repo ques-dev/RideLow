@@ -119,4 +119,8 @@ public class UserServiceImpl implements IUserService {
         Set<NoteDTO> noteDTOS = notes.stream().map(NoteDTOMapper::fromNotetoDTO).collect(Collectors.toSet());
         return new NotePageDTO((long) noteDTOS.size(), noteDTOS);
     }
+
+    public User findByEmail(String email){
+        return userRepository.findByEmail(email);
+    }
 }

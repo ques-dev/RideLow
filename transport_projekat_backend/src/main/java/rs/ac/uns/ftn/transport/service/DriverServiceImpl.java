@@ -35,8 +35,4 @@ public class DriverServiceImpl implements IDriverService {
     public Driver save(Driver driver) {
         return driverRepository.save(driver);
     }
-
-    public Driver findByEmail(String email) {
-        return driverRepository.findByEmail(email);
-    }
 }

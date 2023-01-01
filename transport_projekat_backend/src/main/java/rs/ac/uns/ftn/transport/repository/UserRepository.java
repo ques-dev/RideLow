@@ -7,4 +7,6 @@ import rs.ac.uns.ftn.transport.model.User;
 public interface UserRepository extends JpaRepository<User,Integer> {
     @Query("select u from User u where u.email = ?1 and u.password = ?2")
     User findByLogin(String email, String password);
+
+    User findByEmail(String emial);
 }

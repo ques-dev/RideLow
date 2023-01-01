@@ -59,6 +59,7 @@ public class DriverController {
     private final MessageSource messageSource;
     private final IImageService imageService;
     private final IDriverEditRequestService driverEditRequestService;
+    private final IUserService userService;
 
     public DriverController(IDriverService driverService,
                             IDocumentService documentService,
@@ -68,7 +69,8 @@ public class DriverController {
                             IRideService rideService,
                             MessageSource messageSource,
                             IImageService imageService,
-                            IDriverEditRequestService driverEditRequestService) {
+                            IDriverEditRequestService driverEditRequestService,
+                            IUserService userService) {
         this.driverService = driverService;
         this.documentService = documentService;
         this.vehicleService = vehicleService;
@@ -78,6 +80,7 @@ public class DriverController {
         this.messageSource = messageSource;
         this.imageService = imageService;
         this.driverEditRequestService = driverEditRequestService;
+        this.userService = userService;
     }
 
     @GetMapping(value = "/{id}")
@@ -486,8 +489,8 @@ public class DriverController {
         }
 
         // check if email is already taken
-        Driver driverWithSameEmail = driverService.findByEmail(request.getEmail());
-        if (driverWithSameEmail != null && !Objects.equals(driverWithSameEmail.getId(), request.getDriverId())) {
+        User user = userService.findByEmail(request.getEmail());
+        if (user != null && !user.getId().equals(actualDriver.getId())) {
             return new ResponseEntity<>(messageSource.getMessage("user.emailExists", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
 

@@ -30,4 +30,6 @@ public interface IUserService {
     Note saveNote(Integer id, Note note);
 
     NotePageDTO findNotes(Integer id, Pageable page);
+
+    User findByEmail(String email);
 }
