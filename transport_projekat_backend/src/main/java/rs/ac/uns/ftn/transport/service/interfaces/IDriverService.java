@@ -8,4 +8,6 @@ public interface IDriverService {
     Page<Driver> findAll(Pageable page);
     Driver findOne(Integer id);
     Driver save(Driver driver);
+
+    Driver findByEmail(String email);
 }

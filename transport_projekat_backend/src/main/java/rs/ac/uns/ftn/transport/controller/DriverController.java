@@ -58,6 +58,7 @@ public class DriverController {
     private final IRideService rideService;
     private final MessageSource messageSource;
     private final IImageService imageService;
+    private final IDriverEditRequestService driverEditRequestService;
 
     public DriverController(IDriverService driverService,
                             IDocumentService documentService,
@@ -66,7 +67,8 @@ public class DriverController {
                             IWorkingHoursService workingHoursService,
                             IRideService rideService,
                             MessageSource messageSource,
-                            IImageService imageService) {
+                            IImageService imageService,
+                            IDriverEditRequestService driverEditRequestService) {
         this.driverService = driverService;
         this.documentService = documentService;
         this.vehicleService = vehicleService;
@@ -75,6 +77,7 @@ public class DriverController {
         this.rideService = rideService;
         this.messageSource = messageSource;
         this.imageService = imageService;
+        this.driverEditRequestService = driverEditRequestService;
     }
 
     @GetMapping(value = "/{id}")
@@ -461,5 +464,50 @@ public class DriverController {
                 .collect(Collectors.toSet());
 
         return new ResponseEntity<>(new RidePageDTO(rides.getTotalElements(), rideDTOs), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/edit-request", consumes = "application/json")
+    public ResponseEntity<?> saveDriverEditRequest(@Valid @RequestBody DriverEditRequest request) throws ConstraintViolationException {
+        Driver actualDriver;
+        try {
+            actualDriver = driverService.findOne(request.getDriverId());
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("driver.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
+
+        if (actualDriver.getName().equals(request.getName()) &&
+                actualDriver.getSurname().equals(request.getSurname()) &&
+                (request.getProfilePicture() == null ||
+                        actualDriver.getProfilePicture().equals(request.getProfilePicture())) &&
+                actualDriver.getTelephoneNumber().equals(request.getTelephoneNumber()) &&
+                actualDriver.getEmail().equals(request.getEmail()) &&
+                actualDriver.getAddress().equals(request.getAddress())) {
+            return new ResponseEntity<>(messageSource.getMessage("driver.editRequest.noChange", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
+
+        // check if email is already taken
+        Driver driverWithSameEmail = driverService.findByEmail(request.getEmail());
+        if (driverWithSameEmail != null && !Objects.equals(driverWithSameEmail.getId(), request.getDriverId())) {
+            return new ResponseEntity<>(messageSource.getMessage("user.emailExists", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
+
+        // validate profile picture
+        if (request.getProfilePicture() != null) {
+            ResponseEntity<String> invalidProfilePicture = imageService.decodeAndValidateImage(request.getProfilePicture());
+            if (invalidProfilePicture != null) {
+                return invalidProfilePicture;
+            }
+        }
+
+        request.setReviewed(false);
+        request.setApproved(false);
+        request.setDateOfCreation(LocalDateTime.now());
+
+        DriverEditRequest existingRequest = driverEditRequestService.findByDriverId(request.getDriverId());
+        if (existingRequest != null) {
+            request.setId(existingRequest.getId());
+        }
+
+        return new ResponseEntity<>(driverEditRequestService.save(request), HttpStatus.OK);
     }
 }

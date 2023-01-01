@@ -56,8 +56,10 @@ public abstract class User {
     @JoinColumn(name = "userActivation_id", referencedColumnName = "id")
     private UserActivation userActivation;
 
+    @Column (name = "resetPasswordToken")
     private String resetPasswordToken;
 
+    @Column (name = "resetPasswordTokenExpiration")
     private LocalDateTime resetPasswordTokenExpiration;
 
     @Override
