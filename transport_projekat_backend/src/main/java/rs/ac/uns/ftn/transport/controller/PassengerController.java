@@ -16,6 +16,7 @@ import rs.ac.uns.ftn.transport.dto.passenger.PassengerDTO;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerCreatedDTO;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerPageDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
+import rs.ac.uns.ftn.transport.mapper.driver.DriverDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.passenger.PassengerCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.passenger.PassengerDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
@@ -71,14 +72,15 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<PassengerCreatedDTO> getPassenger(@PathVariable Integer id)
+    public ResponseEntity<?> getPassenger(@PathVariable Integer id)
     {
-        Passenger retrieved = passengerService.findOne(id);
-        if (retrieved == null)
-        {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            Passenger retrieved = passengerService.findOne(id);
+            return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(retrieved), HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("passenger.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
-        return  new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(retrieved),HttpStatus.OK);
+
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")

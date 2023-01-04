@@ -3,7 +3,9 @@ package rs.ac.uns.ftn.transport.service;
 import jakarta.mail.MessagingException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.model.UserActivation;
@@ -16,6 +18,7 @@ import rs.ac.uns.ftn.transport.service.interfaces.IUserActivationService;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 @Service
@@ -55,8 +58,12 @@ public class PassengerServiceImpl implements IPassengerService {
 
     @Override
     public Passenger findOne(Integer id) {
-        System.out.println(id);
-        return passengerRepository.findById(id).orElseGet(null);
+        Optional<Passenger> passenger = passengerRepository.findById(id);
+        if(passenger.isEmpty() || !passenger.get().getIsActivated())
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return passenger.get();
     }
 
     public Page<Passenger> findAll(Pageable page) {
