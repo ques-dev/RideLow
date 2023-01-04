@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerDTO;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerWithoutIdPasswordDTO;
 
 import java.util.Objects;
 import java.util.Set;
@@ -42,7 +43,7 @@ public class Passenger extends User{
         return getClass().hashCode();
     }
 
-    public void update(PassengerDTO newInfo)
+    public void update(PassengerWithoutIdPasswordDTO newInfo)
     {
         this.setName(newInfo.getName());
         this.setSurname(newInfo.getSurname());
@@ -50,6 +51,5 @@ public class Passenger extends User{
         this.setAddress(newInfo.getAddress());
         this.setTelephoneNumber(newInfo.getTelephoneNumber());
         this.setEmail(newInfo.getEmail());
-        this.setPassword(newInfo.getPassword());
     }
 }

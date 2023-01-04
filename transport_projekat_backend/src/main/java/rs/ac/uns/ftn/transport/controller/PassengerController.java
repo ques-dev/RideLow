@@ -15,6 +15,7 @@ import rs.ac.uns.ftn.transport.dto.RidePageDTO;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerDTO;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerCreatedDTO;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerPageDTO;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerWithoutIdPasswordDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
 import rs.ac.uns.ftn.transport.mapper.driver.DriverDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.passenger.PassengerCreatedDTOMapper;
@@ -84,13 +85,28 @@ public class PassengerController {
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
-    public ResponseEntity<PassengerCreatedDTO> updatePassenger(@PathVariable Integer id, @RequestBody PassengerDTO newInfo)
+    public ResponseEntity<?> updatePassenger(@PathVariable Integer id, @Valid @RequestBody PassengerWithoutIdPasswordDTO newInfo)
     {
-        Passenger retrieved = passengerService.findOne(id);
-        if(retrieved == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        retrieved.update(newInfo);
-        passengerService.update(retrieved);
-        return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(retrieved),HttpStatus.OK);
+        Passenger retrieved;
+        try {
+            retrieved = passengerService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("passenger.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
+        if (newInfo.getProfilePicture() != null) {
+            ResponseEntity<String> invalidProfilePicture = imageService.decodeAndValidateImage(newInfo.getProfilePicture());
+            if (invalidProfilePicture != null) {
+                return invalidProfilePicture;
+            }
+        }
+        try {
+            retrieved.update(newInfo);
+            passengerService.update(retrieved);
+            return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(retrieved), HttpStatus.OK);
+        }
+        catch(DataIntegrityViolationException ex){
+            return new ResponseEntity<>(messageSource.getMessage("user.emailExists", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping

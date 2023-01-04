@@ -53,7 +53,12 @@ public class PassengerServiceImpl implements IPassengerService {
 
     @Override
     public Passenger update(Passenger passenger) {
-        return passengerRepository.save(passenger);
+        try{
+            return passengerRepository.save(passenger);
+        }
+        catch(DataIntegrityViolationException ex) {
+            throw ex;
+        }
     }
 
     @Override
