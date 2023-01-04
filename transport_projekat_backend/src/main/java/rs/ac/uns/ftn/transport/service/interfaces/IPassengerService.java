@@ -17,5 +17,9 @@ public interface IPassengerService {
     Passenger update(Passenger passenger);
     Passenger findOne(Integer id);
     Page<Passenger> findAll(Pageable page);
-    Page<Ride> findRidesBetweenTimeRange(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page);
+
+    Page<Ride> findAllByPassenger_Id(Integer id, Pageable page);
+    Page<Ride> findAllByPassenger_IdAndStartTimeIsAfterAndEndTimeIsBefore(Integer id, LocalDateTime start, LocalDateTime end, Pageable page);
+    Page<Ride> findAllByPassenger_IdAndStartTimeIsAfter(Integer id, LocalDateTime start, Pageable page);
+    Page<Ride> findAllByPassenger_IdAndEndTimeIsBefore(Integer id, LocalDateTime end, Pageable page);
 }

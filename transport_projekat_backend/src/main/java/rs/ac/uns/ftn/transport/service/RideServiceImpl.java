@@ -12,7 +12,6 @@ import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 
 @Service
 public class RideServiceImpl implements IRideService {
@@ -54,11 +53,6 @@ public class RideServiceImpl implements IRideService {
     }
 
     @Override
-    public Page<Ride> findBetweenDateRange(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page) {
-        return rideRepository.findRidesBetweenDateRange(passengerId,start,end,page);
-    }
-
-    @Override
     public Page<Ride> findPassenger(Integer passengerId, Pageable page) {
         return rideRepository.findPassenger(passengerId, page);
     }
@@ -82,6 +76,26 @@ public class RideServiceImpl implements IRideService {
 
     public Page<Ride> findAllByDriver_IdAndEndTimeIsBefore(Integer id, LocalDateTime end, Pageable page) {
         return rideRepository.findAllByDriver_IdAndEndTimeIsBefore(id, end, page);
+    }
+
+    @Override
+    public Page<Ride> findAllByPassenger_Id(Integer id, Pageable page) {
+        return rideRepository.findAllByPassengers_Id(id, page);
+    }
+
+    @Override
+    public Page<Ride> findAllByPassenger_IdAndStartTimeIsAfterAndEndTimeIsBefore(Integer id, LocalDateTime start, LocalDateTime end, Pageable page) {
+        return rideRepository.findAllByPassengers_IdAndStartTimeIsAfterAndEndTimeIsBefore(id, start, end, page);
+    }
+
+    @Override
+    public Page<Ride> findAllByPassenger_IdAndStartTimeIsAfter(Integer id, LocalDateTime start, Pageable page) {
+        return rideRepository.findAllByPassengers_IdAndStartTimeIsAfter(id, start,page);
+    }
+
+    @Override
+    public Page<Ride> findAllByPassenger_IdAndEndTimeIsBefore(Integer id, LocalDateTime end, Pageable page) {
+        return rideRepository.findAllByPassengers_IdAndEndTimeIsBefore(id, end, page);
     }
 
     @Override

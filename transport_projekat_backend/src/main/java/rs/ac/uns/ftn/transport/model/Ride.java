@@ -21,10 +21,10 @@ public class Ride {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "StartTime", columnDefinition = "TIMESTAMP")
+    @Column(name = "StartTime")
     private LocalDateTime startTime;
 
-    @Column (name = "EndTime", columnDefinition = "TIMESTAMP")
+    @Column (name = "EndTime")
     private LocalDateTime endTime;
 
     @Column (name = "TotalPrice")

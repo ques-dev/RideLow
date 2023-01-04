@@ -9,6 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.model.UserActivation;
+import rs.ac.uns.ftn.transport.model.WorkingHours;
 import rs.ac.uns.ftn.transport.repository.PassengerRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IMailService;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
@@ -76,7 +77,23 @@ public class PassengerServiceImpl implements IPassengerService {
     }
 
     @Override
-    public Page<Ride> findRidesBetweenTimeRange(Integer passengerId, LocalDateTime start, LocalDateTime end, Pageable page) {
-        return rideService.findBetweenDateRange(passengerId,start,end, page);
+    public Page<Ride> findAllByPassenger_Id(Integer id, Pageable page) {
+        return rideService.findAllByPassenger_Id(id, page);
     }
+
+    @Override
+    public Page<Ride> findAllByPassenger_IdAndStartTimeIsAfterAndEndTimeIsBefore(Integer id, LocalDateTime start, LocalDateTime end, Pageable page) {
+        return rideService.findAllByPassenger_IdAndStartTimeIsAfterAndEndTimeIsBefore(id, start, end, page);
+    }
+
+    @Override
+    public Page<Ride> findAllByPassenger_IdAndStartTimeIsAfter(Integer id, LocalDateTime start, Pageable page) {
+        return rideService.findAllByPassenger_IdAndStartTimeIsAfter(id,start,page);
+    }
+
+    @Override
+    public Page<Ride> findAllByPassenger_IdAndEndTimeIsBefore(Integer id, LocalDateTime end, Pageable page) {
+        return rideService.findAllByPassenger_IdAndEndTimeIsBefore(id,end,page);
+    }
+
 }

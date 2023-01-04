@@ -17,7 +17,6 @@ import rs.ac.uns.ftn.transport.dto.passenger.PassengerCreatedDTO;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerPageDTO;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerWithoutIdPasswordDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
-import rs.ac.uns.ftn.transport.mapper.driver.DriverDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.passenger.PassengerCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.passenger.PassengerDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
@@ -30,6 +29,7 @@ import rs.ac.uns.ftn.transport.service.interfaces.IUserActivationService;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -147,15 +147,29 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/{id}/ride")
-    public ResponseEntity<RidePageDTO> findRidesBetweenTimeSpan(Pageable page,
+    public ResponseEntity<?> findRidesBetweenTimeSpan(Pageable page,
                                                                 @PathVariable Integer id,
                                                                 @RequestParam(required = false) LocalDateTime from,
-                                                                @RequestParam(required = false) LocalDateTime to)
+                                                                @RequestParam(required = false) LocalDateTime to
+                                                                )
     {
-        Page<Ride> retrieved = passengerService.findRidesBetweenTimeRange(id,from,to, page);
-        Set<RideCreatedDTO> rideDTOs = retrieved.stream()
-                .map(RideCreatedDTOMapper:: fromRideToDTO)
-                .collect(Collectors.toSet());
-        return new ResponseEntity<>(new RidePageDTO(retrieved.getTotalElements(),rideDTOs),HttpStatus.OK);
+        try {
+            passengerService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("passenger.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
+        Page<Ride> rides;
+        if (from == null && to == null) {
+            rides = passengerService.findAllByPassenger_Id(id, page);
+        } else if (from != null && to == null) {
+            rides = passengerService.findAllByPassenger_IdAndStartTimeIsAfter(id, from, page);
+        } else if (from == null) {
+            rides = passengerService.findAllByPassenger_IdAndEndTimeIsBefore(id, to, page);
+        } else {
+            rides = passengerService.findAllByPassenger_IdAndStartTimeIsAfterAndEndTimeIsBefore(id, from, to, page);
+        }
+        Set<RideCreatedDTO> rideDTOs = rides.stream()
+                .map(RideCreatedDTOMapper:: fromRideToDTO).collect(Collectors.toSet());
+        return new ResponseEntity<>(new RidePageDTO(rides.getTotalElements(),rideDTOs),HttpStatus.OK);
     }
 }
