@@ -52,10 +52,6 @@ public abstract class User {
     @Column (name = "isBlocked")
     private Boolean isBlocked;
 
-    @OneToOne
-    @JoinColumn(name = "userActivation_id", referencedColumnName = "id")
-    private UserActivation userActivation;
-
     @Column (name = "resetPasswordToken")
     private String resetPasswordToken;
 

@@ -22,7 +22,8 @@ public class UserActivation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(mappedBy = "userActivation")
+    @OneToOne()
+    @JoinColumn(name="user_id",referencedColumnName = "id")
     private User user;
 
     @Column(name = "dateCreated")
@@ -48,5 +49,11 @@ public class UserActivation {
         LocalDateTime expiryDate = dateCreated.plus(minutesValid,ChronoUnit.MINUTES);
         if (expiryDate.isBefore(LocalDateTime.now())) return true;
         return false;
+    }
+
+    public UserActivation(User user) {
+        this.dateCreated = LocalDateTime.now();
+        this.minutesValid = 25;
+        this.user = user;
     }
 }

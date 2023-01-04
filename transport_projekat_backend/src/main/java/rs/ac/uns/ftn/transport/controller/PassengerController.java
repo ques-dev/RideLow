@@ -1,5 +1,9 @@
 package rs.ac.uns.ftn.transport.controller;
 
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
+import org.springframework.context.MessageSource;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -16,12 +20,12 @@ import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.model.UserActivation;
+import rs.ac.uns.ftn.transport.service.interfaces.IImageService;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
 import rs.ac.uns.ftn.transport.service.interfaces.IUserActivationService;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,17 +36,33 @@ public class PassengerController {
 
     private final IPassengerService passengerService;
     private final IUserActivationService userActivationService;
+    private final IImageService imageService;
+    private final MessageSource messageSource;
 
-    public PassengerController(IPassengerService passengerService,IUserActivationService userActivationService) {
+    public PassengerController(IPassengerService passengerService, IUserActivationService userActivationService, IImageService imageService, MessageSource messageSource) {
         this.passengerService = passengerService;
         this.userActivationService = userActivationService;
+        this.imageService = imageService;
+        this.messageSource = messageSource;
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<PassengerCreatedDTO> savePassenger(@RequestBody PassengerDTO passenger)
+    public ResponseEntity<?> savePassenger(@Valid @RequestBody PassengerDTO passenger) throws ConstraintViolationException
     {
-        Passenger created = passengerService.save(PassengerDTOMapper.fromDTOtoPassenger(passenger));
-        return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(created), HttpStatus.OK);
+        Passenger created = PassengerDTOMapper.fromDTOtoPassenger(passenger);
+        if (created.getProfilePicture() != null) {
+            ResponseEntity<String> invalidProfilePicture = imageService.decodeAndValidateImage(created.getProfilePicture());
+            if (invalidProfilePicture != null) {
+                return invalidProfilePicture;
+            }
+        }
+
+        try {
+            created = passengerService.save(created);
+            return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(created), HttpStatus.OK);
+        } catch (DataIntegrityViolationException e) {
+            return new ResponseEntity<>(messageSource.getMessage("user.emailExists", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping(value = "/{id}")

@@ -18,4 +18,7 @@ public class UserActivationServiceImpl implements IUserActivationService {
     public UserActivation findOne(Integer id) {
         return userActivationRepository.findById(id).orElseGet(null);
     }
+
+    @Override
+    public UserActivation save(UserActivation activation) {return userActivationRepository.save(activation); }
 }
