@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.transport.controller;
 
+import jakarta.mail.MessagingException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.RidePageDTO;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerDTO;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerCreatedDTO;
@@ -24,6 +26,7 @@ import rs.ac.uns.ftn.transport.service.interfaces.IImageService;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
 import rs.ac.uns.ftn.transport.service.interfaces.IUserActivationService;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Set;
@@ -38,6 +41,7 @@ public class PassengerController {
     private final IUserActivationService userActivationService;
     private final IImageService imageService;
     private final MessageSource messageSource;
+
 
     public PassengerController(IPassengerService passengerService, IUserActivationService userActivationService, IImageService imageService, MessageSource messageSource) {
         this.passengerService = passengerService;
@@ -56,12 +60,13 @@ public class PassengerController {
                 return invalidProfilePicture;
             }
         }
-
         try {
             created = passengerService.save(created);
             return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(created), HttpStatus.OK);
         } catch (DataIntegrityViolationException e) {
             return new ResponseEntity<>(messageSource.getMessage("user.emailExists", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        } catch (MessagingException | UnsupportedEncodingException ex) {
+            return new ResponseEntity<>(messageSource.getMessage("mail.activationError", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -82,7 +87,7 @@ public class PassengerController {
         Passenger retrieved = passengerService.findOne(id);
         if(retrieved == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         retrieved.update(newInfo);
-        passengerService.save(retrieved);
+        passengerService.update(retrieved);
         return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(retrieved),HttpStatus.OK);
     }
 
@@ -100,17 +105,27 @@ public class PassengerController {
     @GetMapping(value = "/activate/{activationId}")
     public ResponseEntity<String> activatePassenger(@PathVariable Integer activationId)
     {
-        UserActivation activation = userActivationService.findOne(activationId);
-        if(activation.checkIfExpired()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            UserActivation activation = userActivationService.findOne(activationId);
+            if (activation.checkIfExpired()) {
+                userActivationService.delete(activation);
+                UserActivation renewed = new UserActivation(activation.getUser());
+                userActivationService.save(renewed);
+                return new ResponseEntity<>(messageSource.getMessage("activation.expired", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            }
+            Passenger toActivate = (Passenger) activation.getUser();
+            if (toActivate.getIsActivated()) {
+                return new ResponseEntity<>(messageSource.getMessage("activation.alreadyActivated", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            }
+            toActivate.setIsActivated(true);
+            passengerService.update(toActivate);
+            return new ResponseEntity<>("Successful account activation!", HttpStatus.OK);
         }
-        Passenger toActivate = (Passenger) activation.getUser();
-        if(toActivate.getIsActivated()) {
-            return new ResponseEntity<>("Account has already been activated.",HttpStatus.BAD_REQUEST);
+        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(messageSource.getMessage("activation.nonExisting", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        } catch (MessagingException | UnsupportedEncodingException ex) {
+            return new ResponseEntity<>(messageSource.getMessage("mail.activationError", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
         }
-        toActivate.setIsActivated(true);
-        passengerService.save(toActivate);
-        return new ResponseEntity<>("Successful account activation.",HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}/ride")

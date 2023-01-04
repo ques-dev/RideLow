@@ -53,7 +53,7 @@ public class UserActivation {
 
     public UserActivation(User user) {
         this.dateCreated = LocalDateTime.now();
-        this.minutesValid = 25;
+        this.minutesValid = 3;
         this.user = user;
     }
 }

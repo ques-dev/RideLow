@@ -28,6 +28,7 @@ public class Passenger extends User{
     @ToString.Exclude
     private Set<Route> favorites;
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
