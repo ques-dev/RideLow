@@ -187,12 +187,18 @@ public class RideController {
     }
 
     @PutMapping(value = "/{id}/cancel")
-    public ResponseEntity<RideCreatedDTO> cancelRideWithExplanation(@PathVariable Integer id ,
-                                                                    @RequestBody RejectionReasonDTO explanation)
+    public ResponseEntity<?> cancelRideWithExplanation(@PathVariable Integer id ,
+                                                                    @Valid @RequestBody RejectionReasonDTO explanation)
     {
-        Rejection rejection = RejectionReasonDTOMapper.fromDTOtoRejection(explanation);
-        Ride rejected = rideService.cancelWithExplanation(id,rejection);
-        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(rejected),HttpStatus.OK);
+        try {
+            Rejection rejection = RejectionReasonDTOMapper.fromDTOtoRejection(explanation);
+            Ride rejected = rideService.cancelWithExplanation(id,rejection);
+            return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(rejected),HttpStatus.OK);
+        }
+        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+        }
+
     }
 
 }

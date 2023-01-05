@@ -186,13 +186,21 @@ public class RideServiceImpl implements IRideService {
 
     @Override
     public Ride cancelWithExplanation(Integer rideId, Rejection explanation) {
-        Ride toReject = rideRepository.findById(rideId).orElseGet(null);
-        toReject.setStatus(RideStatus.REJECTED);
-        explanation.setRide(toReject);
+        Optional<Ride> toReject = rideRepository.findById(rideId);
+        if(toReject.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,messageSource.getMessage("ride.notFound", null, Locale.getDefault()));
+        }
+        Ride rejected = toReject.get();
+        if(rejected.getStatus() != RideStatus.PENDING) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, messageSource.getMessage("accepting.invalidStatus", null, Locale.getDefault()));
+        }
+        rejected.setStatus(RideStatus.REJECTED);
+        explanation.setRide(rejected);
         explanation.setTimeOfRejection(LocalDateTime.now());
-        toReject.setRejection(explanation);
-        rideRepository.save(toReject);
-        return toReject;
+        rejected.setRejection(explanation);
+        rideRepository.save(rejected);
+        return rejected;
+
     }
 
     public List<Ride> getActiveRides() {
