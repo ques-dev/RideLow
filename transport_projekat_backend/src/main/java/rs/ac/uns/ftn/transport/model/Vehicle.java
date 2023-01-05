@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.transport.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -25,6 +26,7 @@ public class Vehicle {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicleType")
     @ToString.Exclude
+    @JsonIgnore
     private VehicleType vehicleType;
 
     @Column(name = "model")
@@ -36,6 +38,7 @@ public class Vehicle {
     @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
     @JoinColumn(name = "currentLocation")
     @ToString.Exclude
+    @JsonIgnore
     private Location currentLocation;
 
     @Column(name = "passengerSeats")
