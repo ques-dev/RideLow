@@ -107,7 +107,7 @@ public class RideController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<?> getRideDetails(@Valid @PathVariable Integer id)
+    public ResponseEntity<?> getRideDetails(@PathVariable Integer id)
     {
         try {
             Ride active = rideService.findActiveForPassenger(id);
@@ -119,10 +119,15 @@ public class RideController {
     }
 
     @PutMapping(value = "/{id}/withdraw") 
-    public ResponseEntity<RideCreatedDTO> cancelRide(@PathVariable Integer id)
+    public ResponseEntity<?> cancelRide(@PathVariable Integer id)
     {
-        Ride toCancel = rideService.cancelRide(id);
-        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toCancel),HttpStatus.OK);
+        try {
+            Ride toCancel = rideService.cancelRide(id);
+            return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toCancel),HttpStatus.OK);
+        }
+        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+        }
     }
 
     @PutMapping(value = "/{id}/panic", consumes = "application/json")

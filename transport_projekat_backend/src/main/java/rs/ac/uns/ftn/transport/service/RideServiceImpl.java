@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.transport.service;
 
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -24,11 +26,13 @@ public class RideServiceImpl implements IRideService {
 
     private final RideRepository rideRepository;
     private final DriverRepository driverRepository;
+    private final MessageSource messageSource;
 
     public RideServiceImpl(RideRepository rideRepository,
-                           DriverRepository driverRepository) {
+                           DriverRepository driverRepository, MessageSource messageSource) {
         this.rideRepository = rideRepository;
         this.driverRepository = driverRepository;
+        this.messageSource = messageSource;
     }
 
     @Override
@@ -122,10 +126,17 @@ public class RideServiceImpl implements IRideService {
 
     @Override
     public Ride cancelRide(Integer id) {
-        Ride toCancel = rideRepository.findById(id).orElse(null);
-        toCancel.setStatus(RideStatus.CANCELLED);
-        rideRepository.save(toCancel);
-        return toCancel;
+        Optional<Ride> toCancel = rideRepository.findById(id);
+        if(toCancel.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,messageSource.getMessage("ride.notFound", null, Locale.getDefault()));
+        }
+        Ride cancelled = toCancel.get();
+        if(cancelled.getStatus() != RideStatus.PENDING && cancelled.getStatus() != RideStatus.ACCEPTED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, messageSource.getMessage("cancellation.invalidStatus", null, Locale.getDefault()));
+        }
+        cancelled.setStatus(RideStatus.CANCELLED);
+        rideRepository.save(cancelled);
+        return cancelled;
     }
 
     @Override

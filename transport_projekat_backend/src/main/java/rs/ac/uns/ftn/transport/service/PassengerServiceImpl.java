@@ -9,9 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.model.UserActivation;
-import rs.ac.uns.ftn.transport.model.WorkingHours;
 import rs.ac.uns.ftn.transport.repository.PassengerRepository;
-import rs.ac.uns.ftn.transport.service.interfaces.IMailService;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
 import org.springframework.data.domain.Pageable;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
@@ -28,13 +26,13 @@ public class PassengerServiceImpl implements IPassengerService {
     private final PassengerRepository passengerRepository;
     private final IRideService rideService;
     private final IUserActivationService activationService;
-    private final IMailService mailService;
 
-    public PassengerServiceImpl(PassengerRepository passengerRepository, IRideService rideService, IUserActivationService activationService, IMailService mailService) {
+    public PassengerServiceImpl(PassengerRepository passengerRepository,
+                                IRideService rideService,
+                                IUserActivationService activationService) {
         this.passengerRepository = passengerRepository;
         this.rideService = rideService;
         this.activationService = activationService;
-        this.mailService = mailService;
     }
 
     @Override
@@ -95,5 +93,4 @@ public class PassengerServiceImpl implements IPassengerService {
     public Page<Ride> findAllByPassenger_IdAndEndTimeIsBefore(Integer id, LocalDateTime end, Pageable page) {
         return rideService.findAllByPassenger_IdAndEndTimeIsBefore(id,end,page);
     }
-
 }

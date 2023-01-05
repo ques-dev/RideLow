@@ -1,7 +1,6 @@
 package rs.ac.uns.ftn.transport.controller;
 
 import jakarta.mail.MessagingException;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -46,7 +45,10 @@ public class PassengerController {
     private final MessageSource messageSource;
 
 
-    public PassengerController(IPassengerService passengerService, IUserActivationService userActivationService, IImageService imageService, MessageSource messageSource) {
+    public PassengerController(IPassengerService passengerService,
+                               IUserActivationService userActivationService,
+                               IImageService imageService,
+                               MessageSource messageSource) {
         this.passengerService = passengerService;
         this.userActivationService = userActivationService;
         this.imageService = imageService;
@@ -54,7 +56,7 @@ public class PassengerController {
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<?> savePassenger(@Valid @RequestBody PassengerDTO passenger) throws ConstraintViolationException
+    public ResponseEntity<?> savePassenger(@Valid @RequestBody PassengerDTO passenger)
     {
         Passenger created = PassengerDTOMapper.fromDTOtoPassenger(passenger);
         if (created.getProfilePicture() != null) {
