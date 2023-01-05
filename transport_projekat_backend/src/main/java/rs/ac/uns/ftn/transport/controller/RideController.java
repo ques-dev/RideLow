@@ -157,10 +157,15 @@ public class RideController {
     }
 
     @PutMapping(value = "/{id}/accept")
-    public ResponseEntity<RideCreatedDTO> acceptRide(@PathVariable Integer id)
+    public ResponseEntity<?> acceptRide(@PathVariable Integer id)
     {
-        Ride toAccept = rideService.acceptRide(id);
-        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toAccept),HttpStatus.OK);
+        try {
+            Ride toStart = rideService.acceptRide(id);
+            return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toStart),HttpStatus.OK);
+        }
+        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+        }
     }
 
     @PutMapping(value = "/{id}/end")

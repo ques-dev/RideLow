@@ -51,7 +51,7 @@ public class RideServiceImpl implements IRideService {
         r.setRide(ride);
         ride.setRejection(r);
         ride.setTotalCost(1234.0);
-        ride.setStatus(RideStatus.ACTIVE);
+        ride.setStatus(RideStatus.PENDING);
         return rideRepository.save(ride);
     }
 
@@ -141,10 +141,17 @@ public class RideServiceImpl implements IRideService {
 
     @Override
     public Ride acceptRide(Integer id) {
-        Ride toAccept = rideRepository.findById(id).orElse(null);
-        toAccept.setStatus(RideStatus.ACCEPTED);
-        rideRepository.save(toAccept);
-        return toAccept;
+        Optional<Ride> toAccept = rideRepository.findById(id);
+        if(toAccept.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,messageSource.getMessage("ride.notFound", null, Locale.getDefault()));
+        }
+        Ride accepted = toAccept.get();
+        if(accepted.getStatus() != RideStatus.PENDING) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, messageSource.getMessage("accepting.invalidStatus", null, Locale.getDefault()));
+        }
+        accepted.setStatus(RideStatus.ACCEPTED);
+        rideRepository.save(accepted);
+        return accepted;
     }
 
     @Override
