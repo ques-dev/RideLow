@@ -1,5 +1,5 @@
 package rs.ac.uns.ftn.transport.model.enumerations;
 
 public enum RideStatus {
-    PENDING,ACCEPTED,CANCELLED,REJECTED,STARTED,ACTIVE,FINISHED
+    PENDING,ACCEPTED,CANCELLED,REJECTED,ACTIVE,FINISHED
 }

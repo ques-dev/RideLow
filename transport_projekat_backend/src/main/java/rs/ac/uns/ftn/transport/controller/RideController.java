@@ -169,15 +169,21 @@ public class RideController {
     }
 
     @PutMapping(value = "/{id}/end")
-    public ResponseEntity<RideCreatedDTO> endRide(@PathVariable Integer id)
+    public ResponseEntity<?> endRide(@PathVariable Integer id)
     {
-        Ride ride = rideService.endRide(id);
-        VehicleSimulationDTO vehicle = new VehicleSimulationDTO(ride.getDriver().getVehicle());
-        OutgoingRideSimulationDTO rideDTO = new OutgoingRideSimulationDTO();
-        rideDTO.setId(ride.getId());
-        rideDTO.setVehicle(vehicle);
-        this.simpMessagingTemplate.convertAndSend("/map-updates/ended-ride", rideDTO);
-        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(ride),HttpStatus.OK);
+        try {
+            Ride ride = rideService.endRide(id);
+            VehicleSimulationDTO vehicle = new VehicleSimulationDTO(ride.getDriver().getVehicle());
+            OutgoingRideSimulationDTO rideDTO = new OutgoingRideSimulationDTO();
+            rideDTO.setId(ride.getId());
+            rideDTO.setVehicle(vehicle);
+            this.simpMessagingTemplate.convertAndSend("/map-updates/ended-ride", rideDTO);
+            return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(ride),HttpStatus.OK);
+        }
+        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+        }
+
     }
 
     @PutMapping(value = "/{id}/cancel")

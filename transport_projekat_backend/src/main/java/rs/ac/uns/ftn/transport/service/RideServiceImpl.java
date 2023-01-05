@@ -156,10 +156,17 @@ public class RideServiceImpl implements IRideService {
 
     @Override
     public Ride endRide(Integer id) {
-        Ride toEnd = rideRepository.findById(id).orElse(null);
-        toEnd.setStatus(RideStatus.FINISHED);
-        rideRepository.save(toEnd);
-        return toEnd;
+        Optional<Ride> toEnd = rideRepository.findById(id);
+        if(toEnd.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,messageSource.getMessage("ride.notFound", null, Locale.getDefault()));
+        }
+        Ride ended = toEnd.get();
+        if(ended.getStatus() != RideStatus.ACTIVE) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, messageSource.getMessage("ending.invalidStatus", null, Locale.getDefault()));
+        }
+        ended.setStatus(RideStatus.FINISHED);
+        rideRepository.save(ended);
+        return ended;
     }
 
     @Override
@@ -172,7 +179,7 @@ public class RideServiceImpl implements IRideService {
         if(started.getStatus() != RideStatus.ACCEPTED) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, messageSource.getMessage("starting.invalidStatus", null, Locale.getDefault()));
         }
-        started.setStatus(RideStatus.STARTED);
+        started.setStatus(RideStatus.ACTIVE);
         rideRepository.save(started);
         return started;
     }
