@@ -109,7 +109,7 @@ public class DriverController {
         Driver driver = DriverPasswordDTOMapper.fromDTOtoDriver(dto);
 
         if (driver.getProfilePicture() != null) {
-            ResponseEntity<String> invalidProfilePicture = imageService.decodeAndValidateImage(driver.getProfilePicture());
+            ResponseEntity<ResponseMessage> invalidProfilePicture = imageService.decodeAndValidateImage(driver.getProfilePicture());
             if (invalidProfilePicture != null) {
                 return invalidProfilePicture;
             }
@@ -136,7 +136,7 @@ public class DriverController {
         driverToUpdate.setSurname(driver.getSurname());
         if (!Strings.isNullOrEmpty(driver.getProfilePicture())) {
 
-            ResponseEntity<String> invalidProfilePicture = imageService.decodeAndValidateImage(driver.getProfilePicture());
+            ResponseEntity<ResponseMessage> invalidProfilePicture = imageService.decodeAndValidateImage(driver.getProfilePicture());
             if (invalidProfilePicture != null) {
                 return invalidProfilePicture;
             }
@@ -202,7 +202,7 @@ public class DriverController {
             return new ResponseEntity<>(messageSource.getMessage("driver.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
 
-        ResponseEntity<String> invalidImage = imageService.decodeAndValidateImage(documentDTO.getDocumentImage());
+        ResponseEntity<ResponseMessage> invalidImage = imageService.decodeAndValidateImage(documentDTO.getDocumentImage());
         if (invalidImage != null) {
             return invalidImage;
         }
@@ -496,7 +496,7 @@ public class DriverController {
 
         // validate profile picture
         if (request.getProfilePicture() != null) {
-            ResponseEntity<String> invalidProfilePicture = imageService.decodeAndValidateImage(request.getProfilePicture());
+            ResponseEntity<ResponseMessage> invalidProfilePicture = imageService.decodeAndValidateImage(request.getProfilePicture());
             if (invalidProfilePicture != null) {
                 return invalidProfilePicture;
             }
