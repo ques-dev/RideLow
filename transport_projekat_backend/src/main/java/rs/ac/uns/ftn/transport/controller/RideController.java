@@ -198,8 +198,9 @@ public class RideController {
         catch(ResponseStatusException ex) {
             return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
         }
-
     }
+
+    
 
 }
 
