@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.transport.controller;
 
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import rs.ac.uns.ftn.transport.dto.PanicDTO;
 import rs.ac.uns.ftn.transport.dto.RejectionReasonDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleSimulationDTO;
 import rs.ac.uns.ftn.transport.dto.panic.ExtendedPanicDTO;
+import rs.ac.uns.ftn.transport.dto.panic.PanicReasonDTO;
 import rs.ac.uns.ftn.transport.dto.ride.OutgoingRideSimulationDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreationDTO;
@@ -131,10 +133,16 @@ public class RideController {
     }
 
     @PutMapping(value = "/{id}/panic", consumes = "application/json")
-    public ResponseEntity<ExtendedPanicDTO> panic(@PathVariable Integer id, @RequestBody PanicDTO panic)
+    public ResponseEntity<?> panic(@PathVariable Integer id, @Valid @RequestBody PanicReasonDTO panic)
     {
-        Panic retrieved = panicService.save(PanicReasonDTOMapper.fromDTOtoPanic(panic),id);
-        return new ResponseEntity<>(ExtendedPanicDTOMapper.fromPanicToDTO(retrieved),HttpStatus.OK);
+        try{
+            Panic retrieved = panicService.save(PanicReasonDTOMapper.fromDTOtoPanic(panic),id);
+            return new ResponseEntity<>(ExtendedPanicDTOMapper.fromPanicToDTO(retrieved),HttpStatus.OK);
+        }
+        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("ride.notFound", null, Locale.getDefault())), HttpStatus.NOT_FOUND);
+        }
+
     }
 
     @PutMapping(value = "/{id}/accept")

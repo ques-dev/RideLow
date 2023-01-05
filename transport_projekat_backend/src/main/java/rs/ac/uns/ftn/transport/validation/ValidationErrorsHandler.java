@@ -23,7 +23,7 @@ import java.util.List;
 public class ValidationErrorsHandler {
     @ExceptionHandler({MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ResponseEntity<ResponseMessage> handleConstraintViolationException(MethodArgumentNotValidException e) {
+    protected ResponseEntity<?> handleConstraintViolationException(MethodArgumentNotValidException e) {
         List<ObjectError> errorList = e.getBindingResult().getAllErrors();
         StringBuilder sb = new StringBuilder("");
 
@@ -34,7 +34,7 @@ public class ValidationErrorsHandler {
             sb.append(error.getDefaultMessage()).append("\n");
         }
 
-        return new ResponseEntity<>(new ResponseMessage(sb.toString()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(sb.toString(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({SizeLimitExceededException.class})

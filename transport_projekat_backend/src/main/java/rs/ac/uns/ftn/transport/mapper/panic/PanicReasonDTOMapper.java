@@ -15,7 +15,7 @@ public class PanicReasonDTOMapper {
     @Autowired
     public PanicReasonDTOMapper(ModelMapper modelMapper){this.modelMapper = modelMapper;}
 
-    public static Panic fromDTOtoPanic(PanicDTO dto) {return modelMapper.map(dto,  Panic.class);}
+    public static Panic fromDTOtoPanic(PanicReasonDTO dto) {return modelMapper.map(dto,  Panic.class);}
 
     public static PanicReasonDTO fromPanicToDTO(Panic dto) {return modelMapper.map(dto, PanicReasonDTO.class);}
 }
