@@ -62,7 +62,11 @@ public class RideServiceImpl implements IRideService {
 
     @Override
     public Ride findActiveForPassenger(Integer passengerId) {
-        return rideRepository.findByPassengers_IdAndStatus(passengerId, RideStatus.ACTIVE);
+        Optional<Ride> active = rideRepository.findByPassengers_IdAndStatus(passengerId,RideStatus.ACTIVE);
+        if(active.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return active.get();
     }
 
     @Override

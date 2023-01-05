@@ -94,14 +94,15 @@ public class RideController {
     }
 
     @GetMapping(value = "/passenger/{passengerId}/active")
-    public ResponseEntity<RideCreatedDTO> getActiveForPassenger(@PathVariable Integer passengerId)
+    public ResponseEntity<?> getActiveForPassenger(@PathVariable Integer passengerId)
     {
-        Ride active = rideService.findActiveForPassenger(passengerId);
-        if(active == null)
-        {
-            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            Ride active = rideService.findActiveForPassenger(passengerId);
+            return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(active),HttpStatus.OK);
         }
-        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(active),HttpStatus.OK);
+        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("activeRide.notFound", null, Locale.getDefault())), HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping(value = "/{id}")

@@ -20,7 +20,7 @@ public interface RideRepository extends JpaRepository<Ride,Integer> {
 
     Optional<Ride> findByDriver_IdAndStatus(Integer driverId, RideStatus status);
 
-    Ride findByPassengers_IdAndStatus(Integer passengerId, RideStatus status);
+    Optional<Ride> findByPassengers_IdAndStatus(Integer passengerId, RideStatus status);
 
     Page<Ride> findAllByDriver_Id(@Param("id") Integer id, Pageable page);
     Page<Ride> findAllByDriver_IdAndStartTimeIsAfterAndEndTimeIsBefore(@Param("id") Integer id, @Param("from") LocalDateTime start, @Param("to") LocalDateTime end, Pageable page);

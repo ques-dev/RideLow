@@ -5,7 +5,7 @@ INSERT INTO VEHICLE_TYPES (NAME, PRICE_PER_KM) VALUES
 
 
 INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,TELEPHONE_NUMBER) VALUES
-    ('Bulevar oslobođenja 74', 'imenko@mail.com', false, false, 'Radomir', 'test2Test', 'Radomirović', '065338295504');
+    ('Bulevar oslobođenja 74', 'imenko@mail.com', true, false, 'Radomir', 'test2Test', 'Radomirović', '065338295504');
 
 INSERT INTO PASSENGERS VALUES 1;
 
