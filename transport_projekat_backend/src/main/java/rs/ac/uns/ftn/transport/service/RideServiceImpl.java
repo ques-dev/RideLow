@@ -76,7 +76,12 @@ public class RideServiceImpl implements IRideService {
 
     @Override
     public Ride findOne(Integer id) {
-        return rideRepository.findById(id).orElseGet(null);
+
+        Optional<Ride> active = rideRepository.findById(id);
+        if(active.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return active.get();
     }
 
     public Page<Ride> findAllByDriver_Id(Integer id, Pageable page) {

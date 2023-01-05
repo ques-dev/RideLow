@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.transport.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -106,14 +107,15 @@ public class RideController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<RideCreatedDTO> getRideDetails(@PathVariable Integer id)
+    public ResponseEntity<?> getRideDetails(@Valid @PathVariable Integer id)
     {
-        Ride ride = rideService.findOne(id);
-        if(ride == null)
-        {
-            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            Ride active = rideService.findActiveForPassenger(id);
+            return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(active),HttpStatus.OK);
         }
-        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(ride),HttpStatus.OK);
+        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("ride.notFound", null, Locale.getDefault())), HttpStatus.NOT_FOUND);
+        }
     }
 
     @PutMapping(value = "/{id}/withdraw") 
