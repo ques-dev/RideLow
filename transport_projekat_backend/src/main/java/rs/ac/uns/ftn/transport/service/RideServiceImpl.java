@@ -2,7 +2,9 @@ package rs.ac.uns.ftn.transport.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.ride.IncomingRideSimulationDTO;
 import rs.ac.uns.ftn.transport.model.Driver;
 import rs.ac.uns.ftn.transport.model.Rejection;
@@ -15,6 +17,7 @@ import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RideServiceImpl implements IRideService {
@@ -50,7 +53,11 @@ public class RideServiceImpl implements IRideService {
 
     @Override
     public Ride findActiveForDriver(Integer driverId) {
-        return rideRepository.findByDriver_IdAndStatus(driverId, RideStatus.ACTIVE);
+        Optional<Ride> active = rideRepository.findByDriver_IdAndStatus(driverId,RideStatus.ACTIVE);
+        if(active.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return active.get();
     }
 
     @Override

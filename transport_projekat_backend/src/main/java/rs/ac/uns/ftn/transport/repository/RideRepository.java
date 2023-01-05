@@ -10,6 +10,7 @@ import rs.ac.uns.ftn.transport.model.enumerations.RideStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface RideRepository extends JpaRepository<Ride,Integer> {
 
@@ -17,7 +18,7 @@ public interface RideRepository extends JpaRepository<Ride,Integer> {
             "WHERE pass.id = ?1")
     Page<Ride> findPassenger(Integer passengerId, Pageable page);
 
-    Ride findByDriver_IdAndStatus(Integer driverId, RideStatus status);
+    Optional<Ride> findByDriver_IdAndStatus(Integer driverId, RideStatus status);
 
     Ride findByPassengers_IdAndStatus(Integer passengerId, RideStatus status);
 

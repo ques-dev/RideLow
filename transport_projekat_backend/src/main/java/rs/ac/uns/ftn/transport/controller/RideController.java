@@ -1,9 +1,11 @@
 package rs.ac.uns.ftn.transport.controller;
 
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.PanicDTO;
 import rs.ac.uns.ftn.transport.dto.RejectionReasonDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleSimulationDTO;
@@ -19,12 +21,14 @@ import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreationDTOMapper;
 import rs.ac.uns.ftn.transport.model.Panic;
 import rs.ac.uns.ftn.transport.model.Rejection;
+import rs.ac.uns.ftn.transport.model.ResponseMessage;
 import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.service.interfaces.IPanicService;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -34,11 +38,13 @@ public class RideController {
     private final IRideService rideService;
     private final IPanicService panicService;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final MessageSource messageSource;
 
-    public RideController(IRideService rideService, IPanicService panicService, SimpMessagingTemplate simpMessagingTemplate) {
+    public RideController(IRideService rideService, IPanicService panicService, SimpMessagingTemplate simpMessagingTemplate, MessageSource messageSource) {
         this.rideService = rideService;
         this.panicService = panicService;
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.messageSource = messageSource;
     }
 
     @PostMapping(consumes = "application/json")
@@ -76,14 +82,15 @@ public class RideController {
     }
 
     @GetMapping(value = "/driver/{driverId}/active")
-    public ResponseEntity<RideCreatedDTO> getActiveForDriver(@PathVariable Integer driverId)
+    public ResponseEntity<?> getActiveForDriver(@PathVariable Integer driverId)
     {
-        Ride active = rideService.findActiveForDriver(driverId);
-        if(active == null)
-        {
-            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            Ride active = rideService.findActiveForDriver(driverId);
+            return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(active),HttpStatus.OK);
         }
-        return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(active),HttpStatus.OK);
+        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("activeRide.notFound", null, Locale.getDefault())), HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping(value = "/passenger/{passengerId}/active")
