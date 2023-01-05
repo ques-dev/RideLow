@@ -3,24 +3,29 @@ package rs.ac.uns.ftn.transport.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import rs.ac.uns.ftn.transport.dto.ride.IncomingRideSimulationDTO;
 import rs.ac.uns.ftn.transport.model.Driver;
 import rs.ac.uns.ftn.transport.model.Rejection;
 import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.model.enumerations.RideStatus;
+import rs.ac.uns.ftn.transport.repository.DriverRepository;
 import rs.ac.uns.ftn.transport.repository.RideRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
+import java.util.List;
 
 @Service
 public class RideServiceImpl implements IRideService {
 
     private final RideRepository rideRepository;
+    private final DriverRepository driverRepository;
 
-    public RideServiceImpl(RideRepository rideRepository) {
+    public RideServiceImpl(RideRepository rideRepository,
+                           DriverRepository driverRepository) {
         this.rideRepository = rideRepository;
+        this.driverRepository = driverRepository;
     }
 
     @Override
@@ -117,5 +122,25 @@ public class RideServiceImpl implements IRideService {
         toReject.setRejection(explanation);
         rideRepository.save(toReject);
         return toReject;
+    }
+
+    public List<Ride> getActiveRides() {
+        return rideRepository.findByStatus(RideStatus.ACTIVE);
+    }
+
+    public Ride saveForSimulation(IncomingRideSimulationDTO dto) {
+        Ride ride = new Ride();
+        ride.setEstimatedTimeInMinutes(5);
+        ride.setStartTime(LocalDateTime.now());
+        ride.setEndTime(LocalDateTime.now().plus(5, ChronoUnit.MINUTES));
+        Driver driver = driverRepository.findById(dto.getDriverId()).orElseGet(null);
+        driver.getVehicle().getCurrentLocation().setLatitude(dto.getLatitude());
+        driver.getVehicle().getCurrentLocation().setLongitude(dto.getLongitude());
+        ride.setDriver(driver);
+        ride.setRejection(null);
+        ride.setTotalCost(1234.0);
+        ride.setStatus(RideStatus.ACTIVE);
+        ride.setVehicleType(driver.getVehicle().getVehicleType());
+        return rideRepository.save(ride);
     }
 }

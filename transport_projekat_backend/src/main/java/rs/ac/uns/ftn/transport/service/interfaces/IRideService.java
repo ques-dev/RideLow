@@ -2,9 +2,11 @@ package rs.ac.uns.ftn.transport.service.interfaces;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import rs.ac.uns.ftn.transport.dto.ride.IncomingRideSimulationDTO;
 import rs.ac.uns.ftn.transport.model.Rejection;
 import rs.ac.uns.ftn.transport.model.Ride;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface IRideService {
 
@@ -25,6 +27,7 @@ public interface IRideService {
     Ride endRide(Integer id);
 
     Ride cancelWithExplanation(Integer rideId, Rejection explanation);
+    List<Ride> getActiveRides();
 
-
+    Ride saveForSimulation(IncomingRideSimulationDTO dto);
 }

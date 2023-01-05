@@ -92,6 +92,9 @@
           <element id="library" level="project" name="Maven: org.springframework:spring-context-support:6.0.2" />
           <element id="library" level="project" name="Maven: org.eclipse.angus:jakarta.mail:1.0.0" />
           <element id="library" level="project" name="Maven: org.eclipse.angus:angus-activation:1.0.0" />
+          <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot-starter-websocket:3.0.0" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-messaging:6.0.2" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-websocket:6.0.2" />
         </element>
       </element>
       <element id="directory" name="META-INF">

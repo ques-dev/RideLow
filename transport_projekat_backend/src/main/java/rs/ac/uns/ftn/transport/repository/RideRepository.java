@@ -9,6 +9,7 @@ import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.model.enumerations.RideStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface RideRepository extends JpaRepository<Ride,Integer> {
 
@@ -28,6 +29,7 @@ public interface RideRepository extends JpaRepository<Ride,Integer> {
     Page<Ride> findAllByDriver_IdAndStartTimeIsAfter(@Param("id") Integer id, @Param("from") LocalDateTime start, Pageable page);
     Page<Ride> findAllByDriver_IdAndEndTimeIsBefore(@Param("id") Integer id, @Param("to") LocalDateTime end, Pageable page);
 
+    List<Ride> findByStatus(RideStatus status);
 }
 
 

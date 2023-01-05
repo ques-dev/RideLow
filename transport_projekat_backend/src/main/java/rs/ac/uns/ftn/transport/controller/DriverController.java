@@ -10,9 +10,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import rs.ac.uns.ftn.transport.dto.LocationDTO;
 import rs.ac.uns.ftn.transport.dto.RidePageDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleDTO;
 import rs.ac.uns.ftn.transport.dto.DocumentDTO;
@@ -46,7 +48,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin("*")
 @RestController
 @RequestMapping(value="api/driver")
 public class DriverController {

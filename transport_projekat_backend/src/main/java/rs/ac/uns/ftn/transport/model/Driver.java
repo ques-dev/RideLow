@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.transport.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -18,15 +19,18 @@ public class Driver extends User{
 
     @OneToMany(mappedBy = "driver", fetch = FetchType.LAZY)
     @ToString.Exclude
+    @JsonIgnore
     private Set<Document> documents;
 
     @OneToMany(mappedBy = "driver", fetch = FetchType.LAZY)
     @ToString.Exclude
+    @JsonIgnore
     private Set<Ride> rides;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "VehicleId")
     @ToString.Exclude
+    @JsonIgnore
     private Vehicle vehicle;
 
     @Override

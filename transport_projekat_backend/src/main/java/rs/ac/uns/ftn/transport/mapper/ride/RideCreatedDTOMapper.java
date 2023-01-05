@@ -28,7 +28,6 @@ public class RideCreatedDTOMapper {
     }
 
     public static RideCreatedDTO fromRideToDTO(Ride model) {
-
         String vehicleType = model.getVehicleType().getName();
         RideCreatedDTO rideDTO = modelMapper.map(model,RideCreatedDTO.class);
         rideDTO.setVehicleType(vehicleType);
