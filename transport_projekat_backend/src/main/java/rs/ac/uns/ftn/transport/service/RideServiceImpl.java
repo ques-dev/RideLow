@@ -156,6 +156,21 @@ public class RideServiceImpl implements IRideService {
     }
 
     @Override
+    public Ride startRide(Integer id) {
+        Optional<Ride> toStart = rideRepository.findById(id);
+        if(toStart.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,messageSource.getMessage("ride.notFound", null, Locale.getDefault()));
+        }
+        Ride started = toStart.get();
+        if(started.getStatus() != RideStatus.ACCEPTED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, messageSource.getMessage("starting.invalidStatus", null, Locale.getDefault()));
+        }
+        started.setStatus(RideStatus.STARTED);
+        rideRepository.save(started);
+        return started;
+    }
+
+    @Override
     public Ride cancelWithExplanation(Integer rideId, Rejection explanation) {
         Ride toReject = rideRepository.findById(rideId).orElseGet(null);
         toReject.setStatus(RideStatus.REJECTED);

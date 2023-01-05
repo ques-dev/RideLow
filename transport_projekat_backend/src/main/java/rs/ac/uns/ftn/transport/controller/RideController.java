@@ -142,7 +142,18 @@ public class RideController {
         catch(ResponseStatusException ex) {
             return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("ride.notFound", null, Locale.getDefault())), HttpStatus.NOT_FOUND);
         }
+    }
 
+    @PutMapping(value = "/{id}/start")
+    public ResponseEntity<?> startRide(@PathVariable Integer id)
+    {
+        try {
+            Ride toStart = rideService.startRide(id);
+            return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toStart),HttpStatus.OK);
+        }
+        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+        }
     }
 
     @PutMapping(value = "/{id}/accept")
