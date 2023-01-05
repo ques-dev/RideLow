@@ -46,7 +46,6 @@ public class RideController {
     {
         Ride ride = rideService.save(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO));
         RideCreatedDTO rideCreatedDTO = RideCreatedDTOMapper.fromRideToDTO(ride);
-        this.simpMessagingTemplate.convertAndSend("/map-updates/new-ride", rideCreatedDTO);
         return new ResponseEntity<>(rideCreatedDTO, HttpStatus.OK);
     }
 
