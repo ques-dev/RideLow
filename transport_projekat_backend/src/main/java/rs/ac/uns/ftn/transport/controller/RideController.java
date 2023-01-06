@@ -10,12 +10,10 @@ import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.RejectionReasonDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleSimulationDTO;
 import rs.ac.uns.ftn.transport.dto.panic.PanicReasonDTO;
-import rs.ac.uns.ftn.transport.dto.passenger.PassengerCreatedDTO;
 import rs.ac.uns.ftn.transport.dto.ride.*;
 import rs.ac.uns.ftn.transport.mapper.RejectionReasonDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.ExtendedPanicDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.PanicReasonDTOMapper;
-import rs.ac.uns.ftn.transport.mapper.passenger.PassengerCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.FavoriteRideDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.FavoriteRideWithoutIdDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
@@ -226,6 +224,17 @@ public class RideController {
                 .map(FavoriteRideDTOMapper:: fromFavoriteRideToDTO)
                 .collect(Collectors.toSet());
         return new ResponseEntity<>(favoriteDTOs,HttpStatus.OK);
+
+    }
+
+    @DeleteMapping(value = "/favorites/{id}")
+    public ResponseEntity<?> deleteFavorite(@PathVariable Integer id) {
+        try {
+            this.favoriteRideService.delete(id);
+            return new ResponseEntity<>("Successful deletion of favorite location!",HttpStatus.NO_CONTENT);
+        } catch (ResponseStatusException ex) {
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+        }
 
     }
 

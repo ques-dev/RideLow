@@ -23,7 +23,7 @@ public class FavoriteRide {
     @Column(name="FavoriteName")
     private String favoriteName;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST})
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     @JoinTable(name = "Favorite_route", joinColumns = @JoinColumn(name = "FavoriteId", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "RouteId", referencedColumnName = "id"))
     @ToString.Exclude
     private Set<Route> locations;

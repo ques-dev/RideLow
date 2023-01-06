@@ -4,7 +4,6 @@ package rs.ac.uns.ftn.transport.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
-import rs.ac.uns.ftn.transport.dto.passenger.PassengerDTO;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerWithoutIdPasswordDTO;
 
 import java.util.Objects;
@@ -24,7 +23,7 @@ public class Passenger extends User{
     @ToString.Exclude
     private Set<Ride> rides;
 
-    @ManyToMany()
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinTable(name = "passenger_FavoriteRide", joinColumns = @JoinColumn(name = "PassengerId", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "FavoriteRideId", referencedColumnName = "id"))
     @ToString.Exclude
     private Set<FavoriteRide> favorites;

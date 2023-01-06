@@ -11,6 +11,7 @@ import rs.ac.uns.ftn.transport.repository.PassengerRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IFavoriteRideService;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -44,7 +45,15 @@ public class FavoriteRideServiceImpl implements IFavoriteRideService {
 
     @Override
     public void delete(Integer id) {
-        this.favRideRepository.deleteById(id);
+        Optional<FavoriteRide> favorite = this.favRideRepository.findById(id);
+        if(favorite.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,messageSource.getMessage("favorite.notFound", null, Locale.getDefault()));
+        }
+        //TODO Get user from token and delete favorite by id
+        Passenger passenger = this.passengerRepository.findById(1).get();
+        passenger.getFavorites().removeIf(fav -> fav.getId() == id);
+        this.passengerRepository.save(passenger);
+        //this.favRideRepository.deleteById(id);
     }
 
     @Override
