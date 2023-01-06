@@ -1,6 +1,5 @@
 package rs.ac.uns.ftn.transport.controller;
 
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -8,24 +7,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import rs.ac.uns.ftn.transport.dto.PanicDTO;
 import rs.ac.uns.ftn.transport.dto.RejectionReasonDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleSimulationDTO;
-import rs.ac.uns.ftn.transport.dto.panic.ExtendedPanicDTO;
 import rs.ac.uns.ftn.transport.dto.panic.PanicReasonDTO;
-import rs.ac.uns.ftn.transport.dto.ride.OutgoingRideSimulationDTO;
-import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
-import rs.ac.uns.ftn.transport.dto.ride.RideCreationDTO;
-import rs.ac.uns.ftn.transport.dto.ride.IncomingRideSimulationDTO;
+import rs.ac.uns.ftn.transport.dto.ride.*;
 import rs.ac.uns.ftn.transport.mapper.RejectionReasonDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.ExtendedPanicDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.PanicReasonDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.ride.FavoriteRideDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.ride.FavoriteRideWithoutIdDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreationDTOMapper;
-import rs.ac.uns.ftn.transport.model.Panic;
-import rs.ac.uns.ftn.transport.model.Rejection;
-import rs.ac.uns.ftn.transport.model.ResponseMessage;
-import rs.ac.uns.ftn.transport.model.Ride;
+import rs.ac.uns.ftn.transport.model.*;
+import rs.ac.uns.ftn.transport.service.interfaces.IFavoriteRideService;
 import rs.ac.uns.ftn.transport.service.interfaces.IPanicService;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 
@@ -42,16 +36,22 @@ public class RideController {
     private final IPanicService panicService;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final MessageSource messageSource;
+    private final IFavoriteRideService favoriteRideService;
 
-    public RideController(IRideService rideService, IPanicService panicService, SimpMessagingTemplate simpMessagingTemplate, MessageSource messageSource) {
+    public RideController(IRideService rideService,
+                          IPanicService panicService,
+                          SimpMessagingTemplate simpMessagingTemplate,
+                          MessageSource messageSource,
+                          IFavoriteRideService favoriteRideService) {
         this.rideService = rideService;
         this.panicService = panicService;
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.messageSource = messageSource;
+        this.favoriteRideService = favoriteRideService;
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<RideCreatedDTO> createRide(@RequestBody RideCreationDTO rideCreationDTO)
+    public ResponseEntity<RideCreatedDTO> createRide(@Valid @RequestBody RideCreationDTO rideCreationDTO)
     {
         Ride ride = rideService.save(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO));
         RideCreatedDTO rideCreatedDTO = RideCreatedDTOMapper.fromRideToDTO(ride);
@@ -200,7 +200,19 @@ public class RideController {
         }
     }
 
-    
+    @PostMapping(value="/favorites", consumes = "application/json")
+    public ResponseEntity<?> createFavoriteRide(@Valid @RequestBody FavoriteRideWithoutIdDTO favoriteRideDTO)
+    {
+        try{
+
+            FavoriteRide ride = favoriteRideService.save(FavoriteRideWithoutIdDTOMapper.fromDTOtoFavoriteRide(favoriteRideDTO));
+            FavoriteRideDTO favoriteRideCreatedDTO = FavoriteRideDTOMapper.fromFavoriteRideToDTO(ride);
+            return new ResponseEntity<>(favoriteRideCreatedDTO, HttpStatus.OK);
+        }
+        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+        }
+    }
 
 }
 

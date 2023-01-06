@@ -8,7 +8,6 @@ import java.util.Set;
 
 @Data
 public class FavoriteRideDTO extends FavoriteRideWithoutIdDTO {
-
     private Integer id;
 
 }

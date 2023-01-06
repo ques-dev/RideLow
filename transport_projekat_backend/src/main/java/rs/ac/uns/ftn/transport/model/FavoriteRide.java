@@ -2,7 +2,10 @@ package rs.ac.uns.ftn.transport.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Hibernate;
+import rs.ac.uns.ftn.transport.service.StaticVehicleServiceImpl;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -20,10 +23,10 @@ public class FavoriteRide {
     @Column(name="FavoriteName")
     private String favoriteName;
 
-    @ManyToMany()
+    @ManyToMany(cascade = {CascadeType.PERSIST})
     @JoinTable(name = "Favorite_route", joinColumns = @JoinColumn(name = "FavoriteId", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "RouteId", referencedColumnName = "id"))
     @ToString.Exclude
-    private Set<Location> locations;
+    private Set<Route> locations;
 
     @ManyToMany()
     @ToString.Exclude
@@ -39,5 +42,24 @@ public class FavoriteRide {
     @JoinColumn(name = "VehicleType")
     @ToString.Exclude
     private VehicleType vehicleType;
+
+    public void setVehicleTypeByName(String name)
+    {
+        VehicleType byName = StaticVehicleServiceImpl.findByName(name);
+        this.vehicleType = byName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        FavoriteRide ride = (FavoriteRide) o;
+        return id != null && Objects.equals(id, ride.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 
 }

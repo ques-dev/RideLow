@@ -10,6 +10,4 @@ import rs.ac.uns.ftn.transport.model.Ride;
 
 public interface PassengerRepository extends JpaRepository<Passenger,Integer> {
 
-
-
 }

@@ -13,7 +13,7 @@ public class VehicleTypeServiceImpl implements IVehicleTypeService {
         this.vehicleTypeRepository = vehicleTypeRepository;
     }
 
-    public VehicleType findByName(String name) {
+    public  VehicleType findByName(String name) {
         return vehicleTypeRepository.findByName(name);
     }
 }

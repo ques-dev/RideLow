@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 import rs.ac.uns.ftn.transport.model.enumerations.RideStatus;
+import rs.ac.uns.ftn.transport.service.StaticVehicleServiceImpl;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
@@ -68,19 +70,16 @@ public class Ride {
     @Column(name = "TransportsPet")
     private Boolean petTransport;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "VehicleType")
     @ToString.Exclude
     private VehicleType vehicleType;
     
 
-    public void setVehicleTypeName(String name)
+    public void setVehicleTypeByName(String name)
     {
-        if(this.vehicleType == null)
-        {
-            this.vehicleType = new VehicleType();
-        }
-        this.vehicleType.setName(name);
+        VehicleType byName = StaticVehicleServiceImpl.findByName(name);
+        this.vehicleType = byName;
     }
     @Override
     public boolean equals(Object o) {

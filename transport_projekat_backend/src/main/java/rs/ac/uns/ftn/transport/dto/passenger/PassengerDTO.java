@@ -13,10 +13,10 @@ import org.hibernate.validator.constraints.Length;
 @AllArgsConstructor
 public class PassengerDTO {
 
-    @Length(max = 100, message = "{maxLength}")
+    @Length(max = 255, message = "{maxLength}")
     @NotBlank(message = "{required}")
     private String name;
-    @Length(max = 100, message = "{maxLength}")
+    @Length(max = 255, message = "{maxLength}")
     @NotBlank(message = "{required}")
     private String surname;
 
@@ -28,10 +28,10 @@ public class PassengerDTO {
     @NotBlank(message = "{required}")
     private String telephoneNumber;
     @Email(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", message = "{format}")
-    @Length(max = 100, message = "{maxLength}")
+    @Length(max = 255, message = "{maxLength}")
     @NotBlank(message = "{required}")
     private String email;
-    @Length(max = 100, message = "{maxLength}")
+    @Length(max = 255, message = "{maxLength}")
     @NotBlank(message = "{required}")
     private String address;
 

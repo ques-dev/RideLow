@@ -23,7 +23,6 @@ public class Route {
     @JoinColumn(name = "startLocationId")
     @ToString.Exclude
     @NonNull
-
     private Location departure;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH})
