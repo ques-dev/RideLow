@@ -48,7 +48,10 @@ public class FavoriteRideServiceImpl implements IFavoriteRideService {
     }
 
     @Override
-    public Set<FavoriteRide> findAll(Integer userId) {
-        return null;
+    public Set<FavoriteRide> findAll() {
+
+        //TODO Get user from token and get his favorites
+        Set<FavoriteRide> favorites = this.passengerRepository.findById(1).get().getFavorites();
+        return favorites;
     }
 }

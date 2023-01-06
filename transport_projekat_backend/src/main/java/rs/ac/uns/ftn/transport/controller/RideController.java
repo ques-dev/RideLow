@@ -10,10 +10,12 @@ import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.RejectionReasonDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleSimulationDTO;
 import rs.ac.uns.ftn.transport.dto.panic.PanicReasonDTO;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerCreatedDTO;
 import rs.ac.uns.ftn.transport.dto.ride.*;
 import rs.ac.uns.ftn.transport.mapper.RejectionReasonDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.ExtendedPanicDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.PanicReasonDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.passenger.PassengerCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.FavoriteRideDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.FavoriteRideWithoutIdDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
@@ -26,6 +28,8 @@ import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -212,6 +216,17 @@ public class RideController {
         catch(ResponseStatusException ex) {
             return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
         }
+    }
+
+    @GetMapping(value = "/favorites")
+    public ResponseEntity<?> getActiveForDriver()
+    {
+        Set<FavoriteRide> favorites = favoriteRideService.findAll();
+        Set<FavoriteRideDTO> favoriteDTOs = favorites.stream()
+                .map(FavoriteRideDTOMapper:: fromFavoriteRideToDTO)
+                .collect(Collectors.toSet());
+        return new ResponseEntity<>(favoriteDTOs,HttpStatus.OK);
+
     }
 
 }
