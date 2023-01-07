@@ -5,6 +5,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import rs.ac.uns.ftn.transport.model.Driver;
+import rs.ac.uns.ftn.transport.repository.DriverRepository;
 import rs.ac.uns.ftn.transport.specification.WorkingHoursSpecification;
 import rs.ac.uns.ftn.transport.model.WorkingHours;
 import rs.ac.uns.ftn.transport.repository.WorkingHoursRepository;
@@ -18,9 +20,11 @@ import java.util.Set;
 @Service
 public class WorkingHoursServiceImpl implements IWorkingHoursService {
     private final WorkingHoursRepository workingHoursRepository;
+    private final DriverRepository driverRepository;
 
-    public WorkingHoursServiceImpl(WorkingHoursRepository workingHoursRepository) {
+    public WorkingHoursServiceImpl(WorkingHoursRepository workingHoursRepository, DriverRepository driverRepository) {
         this.workingHoursRepository = workingHoursRepository;
+        this.driverRepository = driverRepository;
     }
     public WorkingHours start(WorkingHours workingHours) {
         Optional<WorkingHours> inProgressShift = workingHoursRepository.findOne(WorkingHoursSpecification.startEqualsEnd(workingHours.getDriver().getId()));
@@ -33,10 +37,13 @@ public class WorkingHoursServiceImpl implements IWorkingHoursService {
         if (totalDuration.toHours() >= 8) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "limit");
         }
+        Driver driver = inProgressShift.get().getDriver();
+        driver.setIsActive(true);
+        this.driverRepository.save(driver);
         return workingHoursRepository.save(workingHours);
     }
 
-    private Duration getDurationWorkedInPastDay(Integer driverId) {
+    public Duration getDurationWorkedInPastDay(Integer driverId) {
         LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(1);
         Set<WorkingHours> shiftsInPastDay = workingHoursRepository.findAllByDriver_IdAndEndIsAfter(driverId, oneDayAgo);
 
@@ -56,6 +63,10 @@ public class WorkingHoursServiceImpl implements IWorkingHoursService {
     }
 
     public WorkingHours end(WorkingHours workingHours) {
+
+        Driver driver = workingHours.getDriver();
+        driver.setIsActive(false);
+        this.driverRepository.save(driver);
         return workingHoursRepository.save(workingHours);
     }
 

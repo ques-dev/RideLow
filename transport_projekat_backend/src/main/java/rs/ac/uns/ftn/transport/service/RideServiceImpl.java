@@ -10,9 +10,11 @@ import rs.ac.uns.ftn.transport.dto.ride.IncomingRideSimulationDTO;
 import rs.ac.uns.ftn.transport.model.Driver;
 import rs.ac.uns.ftn.transport.model.Rejection;
 import rs.ac.uns.ftn.transport.model.Ride;
+import rs.ac.uns.ftn.transport.model.Route;
 import rs.ac.uns.ftn.transport.model.enumerations.RideStatus;
 import rs.ac.uns.ftn.transport.repository.DriverRepository;
 import rs.ac.uns.ftn.transport.repository.RideRepository;
+import rs.ac.uns.ftn.transport.service.interfaces.IFindingDriverService;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 
 import java.time.LocalDateTime;
@@ -27,31 +29,40 @@ public class RideServiceImpl implements IRideService {
     private final RideRepository rideRepository;
     private final DriverRepository driverRepository;
     private final MessageSource messageSource;
+    private final IFindingDriverService findingDriverService;
+    private final EstimatesService estimatesService;
 
     public RideServiceImpl(RideRepository rideRepository,
-                           DriverRepository driverRepository, MessageSource messageSource) {
+                           DriverRepository driverRepository,
+                           MessageSource messageSource,
+                           IFindingDriverService findingDriverService,
+                           EstimatesService estimatesService) {
         this.rideRepository = rideRepository;
         this.driverRepository = driverRepository;
         this.messageSource = messageSource;
+        this.findingDriverService = findingDriverService;
+        this.estimatesService = estimatesService;
     }
 
     @Override
     public Ride save(Ride ride) {
-
-        ride.setEstimatedTimeInMinutes(5);
-        ride.setStartTime(LocalDateTime.now());
-        ride.setEndTime(LocalDateTime.now().plus(5, ChronoUnit.MINUTES));
-        Driver driver = new Driver();
-        driver.setId(2);
-        driver.setEmail("driver@mail.com");
-        ride.setDriver(driver);
-        Rejection r = new Rejection();
-        r.setReason("Boba");
-        r.setTimeOfRejection(LocalDateTime.now());
-        r.setRide(ride);
-        ride.setRejection(r);
-        ride.setTotalCost(1234.0);
+        Optional<Ride> pending = this.rideRepository.findByPassengers_IdAndStatus(1,RideStatus.PENDING);
+        if(pending.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,messageSource.getMessage("order.alreadyOrdered", null, Locale.getDefault()));
+        }
+        Driver suitable = this.findingDriverService.findSuitableDriver(ride);
+        if(suitable == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,messageSource.getMessage("order.couldNotFindDriver", null, Locale.getDefault()));
+        }
+        ride.setDriver(suitable);
         ride.setStatus(RideStatus.PENDING);
+        ride.setOrderedFor(LocalDateTime.now());
+        double totalDistance = 0;
+        for(Route route : ride.getLocations()) {
+            totalDistance += this.estimatesService.calculateDistance(route.getDeparture(),route.getDestination());
+        }
+        ride.setEstimatedTimeInMinutes((int)Math.round(this.estimatesService.getEstimatedTime(totalDistance)));
+        ride.setTotalCost(this.estimatesService.getEstimatedPrice(ride.getVehicleType(),totalDistance));
         return rideRepository.save(ride);
     }
 

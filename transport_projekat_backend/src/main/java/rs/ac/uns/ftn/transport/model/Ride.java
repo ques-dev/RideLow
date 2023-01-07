@@ -74,6 +74,9 @@ public class Ride {
     @JoinColumn(name = "VehicleType")
     @ToString.Exclude
     private VehicleType vehicleType;
+
+    @Column(name="OrderedFor")
+    private LocalDateTime orderedFor;
     
 
     public void setVehicleTypeByName(String name)

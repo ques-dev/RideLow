@@ -44,6 +44,8 @@ public interface RideRepository extends JpaRepository<Ride,Integer> {
     Page<Ride> findAllByPassengers_IdAndEndTimeIsBefore(@Param("id") Integer id, @Param("to") LocalDateTime end, Pageable page);
 
     List<Ride> findByStatus(RideStatus status);
+
+    Optional<Ride> findFirstByDriver_IdAndOrderedForIsAfter(Integer driverId, LocalDateTime now);
 }
 
 

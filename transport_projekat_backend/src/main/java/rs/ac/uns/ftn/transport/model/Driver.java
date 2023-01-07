@@ -33,6 +33,9 @@ public class Driver extends User{
     @JsonIgnore
     private Vehicle vehicle;
 
+    @Column(name="IsActive")
+    private Boolean isActive;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

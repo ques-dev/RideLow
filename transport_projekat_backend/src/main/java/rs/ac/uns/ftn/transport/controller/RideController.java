@@ -53,11 +53,16 @@ public class RideController {
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<RideCreatedDTO> createRide(@Valid @RequestBody RideCreationDTO rideCreationDTO)
+    public ResponseEntity<?> createRide(@Valid @RequestBody RideCreationDTO rideCreationDTO)
     {
-        Ride ride = rideService.save(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO));
-        RideCreatedDTO rideCreatedDTO = RideCreatedDTOMapper.fromRideToDTO(ride);
-        return new ResponseEntity<>(rideCreatedDTO, HttpStatus.OK);
+        try {
+            Ride ride = rideService.save(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO));
+            RideCreatedDTO rideCreatedDTO = RideCreatedDTOMapper.fromRideToDTO(ride);
+            return new ResponseEntity<>(rideCreatedDTO, HttpStatus.OK);
+        }
+        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+        }
     }
 
     @PostMapping(value="/sim", consumes = "application/json")

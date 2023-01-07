@@ -109,7 +109,7 @@ public class DriverController {
     @PostMapping(consumes = "application/json")
     public ResponseEntity<?> saveDriver(@Valid @RequestBody DriverPasswordDTO dto) throws ConstraintViolationException {
         Driver driver = DriverPasswordDTOMapper.fromDTOtoDriver(dto);
-
+        driver.setIsActive(false);
         if (driver.getProfilePicture() != null) {
             ResponseEntity<ResponseMessage> invalidProfilePicture = imageService.decodeAndValidateImage(driver.getProfilePicture());
             if (invalidProfilePicture != null) {
