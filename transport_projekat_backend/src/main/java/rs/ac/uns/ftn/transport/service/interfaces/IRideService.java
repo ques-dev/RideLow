@@ -10,7 +10,9 @@ import java.util.List;
 
 public interface IRideService {
 
-    Ride save(Ride ride);
+    Ride save(Ride ride, boolean isReservation);
+    void reserve(Ride ride);
+    void scheduleReserving(Ride order);
     Ride findActiveForDriver(Integer driverId);
     Ride findActiveForPassenger(Integer passengerId);
     Page<Ride> findPassenger(Integer passengerId, Pageable page);

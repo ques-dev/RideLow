@@ -23,7 +23,7 @@ public class Vehicle {
     @OneToOne(mappedBy = "vehicle")
     private Driver driver;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicleType")
     @ToString.Exclude
     @JsonIgnore

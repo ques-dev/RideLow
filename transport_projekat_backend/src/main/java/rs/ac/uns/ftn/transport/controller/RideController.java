@@ -14,10 +14,7 @@ import rs.ac.uns.ftn.transport.dto.ride.*;
 import rs.ac.uns.ftn.transport.mapper.RejectionReasonDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.ExtendedPanicDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.PanicReasonDTOMapper;
-import rs.ac.uns.ftn.transport.mapper.ride.FavoriteRideDTOMapper;
-import rs.ac.uns.ftn.transport.mapper.ride.FavoriteRideWithoutIdDTOMapper;
-import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
-import rs.ac.uns.ftn.transport.mapper.ride.RideCreationDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.ride.*;
 import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.service.interfaces.IFavoriteRideService;
 import rs.ac.uns.ftn.transport.service.interfaces.IPanicService;
@@ -56,9 +53,22 @@ public class RideController {
     public ResponseEntity<?> createRide(@Valid @RequestBody RideCreationDTO rideCreationDTO)
     {
         try {
-            Ride ride = rideService.save(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO));
+            Ride ride = rideService.save(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO),false);
             RideCreatedDTO rideCreatedDTO = RideCreatedDTOMapper.fromRideToDTO(ride);
             return new ResponseEntity<>(rideCreatedDTO, HttpStatus.OK);
+        }
+        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+        }
+    }
+
+
+    @PostMapping(value="/reserve",consumes = "application/json")
+    public ResponseEntity<?> createReservation(@Valid @RequestBody ScheduledRideCreationDTO rideCreationDTO)
+    {
+        try {
+            rideService.reserve(ScheduledRideCreationDTOMapper.fromDTOtoRide(rideCreationDTO));
+            return new ResponseEntity<>("Ride successfully reserved!", HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
             return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());

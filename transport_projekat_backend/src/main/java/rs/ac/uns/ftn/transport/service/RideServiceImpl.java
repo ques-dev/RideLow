@@ -4,6 +4,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.ride.IncomingRideSimulationDTO;
@@ -17,11 +19,16 @@ import rs.ac.uns.ftn.transport.repository.RideRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IFindingDriverService;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 @Service
 public class RideServiceImpl implements IRideService {
@@ -31,21 +38,23 @@ public class RideServiceImpl implements IRideService {
     private final MessageSource messageSource;
     private final IFindingDriverService findingDriverService;
     private final EstimatesService estimatesService;
+    private TaskScheduler scheduleReservation;
 
     public RideServiceImpl(RideRepository rideRepository,
                            DriverRepository driverRepository,
                            MessageSource messageSource,
                            IFindingDriverService findingDriverService,
-                           EstimatesService estimatesService) {
+                           EstimatesService estimatesService, TaskScheduler scheduler) {
         this.rideRepository = rideRepository;
         this.driverRepository = driverRepository;
         this.messageSource = messageSource;
         this.findingDriverService = findingDriverService;
         this.estimatesService = estimatesService;
+        this.scheduleReservation = scheduler;
     }
 
     @Override
-    public Ride save(Ride ride) {
+    public Ride save(Ride ride, boolean isReservation) {
         Optional<Ride> pending = this.rideRepository.findByPassengers_IdAndStatus(1,RideStatus.PENDING);
         if(pending.isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,messageSource.getMessage("order.alreadyOrdered", null, Locale.getDefault()));
@@ -56,7 +65,7 @@ public class RideServiceImpl implements IRideService {
         }
         ride.setDriver(suitable);
         ride.setStatus(RideStatus.PENDING);
-        ride.setOrderedFor(LocalDateTime.now());
+        if(!isReservation) ride.setOrderedFor(LocalDateTime.now());
         double totalDistance = 0;
         for(Route route : ride.getLocations()) {
             totalDistance += this.estimatesService.calculateDistance(route.getDeparture(),route.getDestination());
@@ -64,6 +73,36 @@ public class RideServiceImpl implements IRideService {
         ride.setEstimatedTimeInMinutes((int)Math.round(this.estimatesService.getEstimatedTime(totalDistance)));
         ride.setTotalCost(this.estimatesService.getEstimatedPrice(ride.getVehicleType(),totalDistance));
         return rideRepository.save(ride);
+    }
+
+    @Override
+    public void reserve(Ride ride){
+        long betweenNowAndScheduledRideMinutes = Duration.between(LocalDateTime.now(),ride.getOrderedFor()).toMinutes();
+        if(betweenNowAndScheduledRideMinutes < 2) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,messageSource.getMessage("order.scheduleTime", null, Locale.getDefault()));
+        }
+        this.scheduleReserving(ride);
+    }
+
+    @Override
+    public void scheduleReserving(Ride order) {
+        ScheduledExecutorService localExecutor = Executors.newSingleThreadScheduledExecutor();
+        scheduleReservation = new ConcurrentTaskScheduler(localExecutor);
+        Date toSchedule = Date.from(order.getOrderedFor().minus(1, ChronoUnit.MINUTES)
+                .atZone(ZoneId.systemDefault())
+                .toInstant());
+        Runnable scheduledTask = new Runnable() {
+            private Ride order;
+            public Runnable init(Ride ride) {
+                this.order = ride;
+                return this;
+            }
+            @Override
+            public void run() {
+                RideServiceImpl.this.save(this.order,true);
+            }
+        }.init(order);
+        scheduleReservation.schedule(scheduledTask, toSchedule);
     }
 
     @Override

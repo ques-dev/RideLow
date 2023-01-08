@@ -27,7 +27,7 @@ public class Driver extends User{
     @JsonIgnore
     private Set<Ride> rides;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "VehicleId")
     @ToString.Exclude
     @JsonIgnore
