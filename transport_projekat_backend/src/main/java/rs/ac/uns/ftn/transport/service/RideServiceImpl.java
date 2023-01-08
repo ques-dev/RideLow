@@ -176,6 +176,7 @@ public class RideServiceImpl implements IRideService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, messageSource.getMessage("ending.invalidStatus", null, Locale.getDefault()));
         }
         ended.setStatus(RideStatus.FINISHED);
+        ended.setEndTime(LocalDateTime.now());
         rideRepository.save(ended);
         return ended;
     }
@@ -191,6 +192,7 @@ public class RideServiceImpl implements IRideService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, messageSource.getMessage("starting.invalidStatus", null, Locale.getDefault()));
         }
         started.setStatus(RideStatus.ACTIVE);
+        started.setStartTime(LocalDateTime.now());
         rideRepository.save(started);
         return started;
     }

@@ -1,13 +1,11 @@
 package rs.ac.uns.ftn.transport.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.model.enumerations.RideStatus;
 import rs.ac.uns.ftn.transport.repository.DriverRepository;
 import rs.ac.uns.ftn.transport.repository.RideRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IFindingDriverService;
-import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 import rs.ac.uns.ftn.transport.service.interfaces.IWorkingHoursService;
 
 import java.time.LocalDateTime;
@@ -19,18 +17,15 @@ public class FindingDriverService implements IFindingDriverService {
 
     private final EstimatesService estimatesService;
     private final DriverRepository driverRepository;
-    private final IRideService rideService;
     private final RideRepository rideRepository;
     private final IWorkingHoursService workingHoursService;
 
     public FindingDriverService(EstimatesService estimatesService,
                                 DriverRepository driverRepository,
-                                IRideService rideService,
                                 RideRepository rideRepository,
                                 IWorkingHoursService workingHoursService) {
         this.estimatesService = estimatesService;
         this.driverRepository = driverRepository;
-        this.rideService = rideService;
         this.rideRepository = rideRepository;
         this.workingHoursService = workingHoursService;
     }
@@ -110,12 +105,8 @@ public class FindingDriverService implements IFindingDriverService {
     }
 
     private boolean isInActiveRide(Driver driver) {
-        try {
-            this.rideService.findActiveForDriver(driver.getId());
-            return true;
-        } catch (ResponseStatusException ex) { //driver does not have active ride
-            return false;
-        }
+        Optional<Ride> active = this.rideRepository.findByDriver_IdAndStatus(driver.getId(),RideStatus.ACTIVE);
+        return active.isPresent();
     }
 
     private boolean hasScheduledRide(Driver driver, LocalDateTime now) {
@@ -146,6 +137,11 @@ public class FindingDriverService implements IFindingDriverService {
             if (driver.getVehicle() == null) continue;
             Location currentDriverLocation = driver.getVehicle().getCurrentLocation();
             double distanceBetweenDriverAndDeparture = this.estimatesService.calculateDistance(currentDriverLocation, departure);
+            if(closest == null && closestDistance == -1) { //initialization
+                closest = driver;
+                closestDistance = distanceBetweenDriverAndDeparture;
+                continue;
+            }
             if (distanceBetweenDriverAndDeparture > closestDistance) continue;
             closest = driver;
             closestDistance = distanceBetweenDriverAndDeparture;
@@ -157,8 +153,13 @@ public class FindingDriverService implements IFindingDriverService {
         Driver soonest = null;
         LocalDateTime soonestFinish = LocalDateTime.MIN;
         for (Driver driver : inRideDrivers) {
-            Ride inProgress = this.rideService.findActiveForDriver(driver.getId());
+            Ride inProgress = this.rideRepository.findByDriver_IdAndStatus(driver.getId(),RideStatus.ACTIVE).get();
             LocalDateTime rideInProgressFinish = inProgress.getStartTime().plus(inProgress.getEstimatedTimeInMinutes(),ChronoUnit.MINUTES);
+            if(soonest == null && soonestFinish.isEqual(LocalDateTime.MIN)) { // initialization
+                soonest = driver;
+                soonestFinish = rideInProgressFinish;
+                continue;
+            }
             if(rideInProgressFinish.isBefore(soonestFinish)) continue;
             soonest = driver;
             soonestFinish = rideInProgressFinish;
