@@ -8,10 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import rs.ac.uns.ftn.transport.model.ScheduledRide;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @SpringBootApplication
 @EnableScheduling

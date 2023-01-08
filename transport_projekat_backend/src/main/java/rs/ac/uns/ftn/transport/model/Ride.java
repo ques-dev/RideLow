@@ -41,7 +41,7 @@ public class Ride {
     @ToString.Exclude
     private Set<Passenger> passengers;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST})
+    @ManyToMany(cascade = {CascadeType.PERSIST},fetch = FetchType.EAGER)
     @JoinTable(name = "Ride_route", joinColumns = @JoinColumn(name = "RideId", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "RouteId", referencedColumnName = "id"))
     @ToString.Exclude
     private Set<Route> locations;

@@ -8,5 +8,5 @@ import java.time.LocalDateTime;
 @Data
 public class ScheduledRideCreationDTO extends RideCreationDTO{
     @NotNull(message="{required}")
-    private LocalDateTime scheduledFor;
+    private LocalDateTime orderedFor;
 }
