@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 
@@ -48,4 +50,5 @@ public class Driver extends User{
     public int hashCode() {
         return getClass().hashCode();
     }
+
 }

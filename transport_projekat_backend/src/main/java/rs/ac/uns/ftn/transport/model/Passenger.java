@@ -4,8 +4,10 @@ package rs.ac.uns.ftn.transport.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.springframework.security.core.GrantedAuthority;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerWithoutIdPasswordDTO;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 
