@@ -3,8 +3,10 @@ package rs.ac.uns.ftn.transport.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Objects;
 
 import static jakarta.persistence.InheritanceType.JOINED;
@@ -17,7 +19,7 @@ import static jakarta.persistence.InheritanceType.JOINED;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class User {
+public abstract class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,6 +59,9 @@ public abstract class User {
 
     @Column (name = "resetPasswordTokenExpiration")
     private LocalDateTime resetPasswordTokenExpiration;
+
+    @Column (name = "LastPasswordResetDate")
+    private Date LastPasswordResetDate;
 
     @Override
     public boolean equals(Object o) {

@@ -2,6 +2,9 @@ package rs.ac.uns.ftn.transport.service.interfaces;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import rs.ac.uns.ftn.transport.dto.MessageDTO;
 import rs.ac.uns.ftn.transport.dto.NotePageDTO;
 import rs.ac.uns.ftn.transport.dto.TokenDTO;
@@ -12,7 +15,7 @@ import rs.ac.uns.ftn.transport.model.User;
 
 import java.util.Set;
 
-public interface IUserService {
+public interface IUserService extends UserDetailsService {
 
     User save(User user);
     User findOne(Integer id);
@@ -32,4 +35,7 @@ public interface IUserService {
     NotePageDTO findNotes(Integer id, Pageable page);
 
     User findByEmail(String email);
+
+    @Override
+    UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 }

@@ -21,10 +21,7 @@ import rs.ac.uns.ftn.transport.service.interfaces.*;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 @CrossOrigin("http://localhost:4200")
 @RestController
@@ -84,6 +81,7 @@ public class UserController {
         String token = String.valueOf(new Random().nextInt(900000) + 100000); // 6-digit random number
 
         user.setResetPasswordToken(token);
+        user.setLastPasswordResetDate(new Date());
         user.setResetPasswordTokenExpiration(LocalDateTime.now().plusMinutes(10));
         userService.save(user);
 
