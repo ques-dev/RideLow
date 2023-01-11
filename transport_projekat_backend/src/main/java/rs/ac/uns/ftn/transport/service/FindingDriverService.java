@@ -45,19 +45,7 @@ public class FindingDriverService implements IFindingDriverService {
         // (if vehicle is suitable, driver can go to other stages of filtration) and sorting them
         //according to their current state (ride in progress -- free drivers)
         for (Driver driver : activeDrivers) {
-            long minutesWorked = this.workingHoursService.getDurationWorkedInPastDay(driver.getId()).toMinutes();
-            if(isReservation) { //check if their working hours will not exceed 8 hours because of order
-                LocalDateTime reservationTime = order.getOrderedFor();
-                double orderTravelTime = 0;
-                for(Route route : order.getLocations()) {
-                    double distance = this.estimatesService.calculateDistance(route.getDeparture(),route.getDestination());
-                    orderTravelTime += this.estimatesService.getEstimatedTime(distance);
-                }
-                long fromNow = Duration.between(LocalDateTime.now(),order.getOrderedFor()).toMinutes();
-                if(minutesWorked + fromNow >= 8 * 60) continue; // reservation is outside working hours limit
-                if(minutesWorked + fromNow + orderTravelTime > 8*60) continue; //reservation duration exceeds 8 hours limit
-            }
-            else {if(minutesWorked >= 8*60) continue;} //8 hours in minutes
+            if(!this.canFitInWorkingHours(order,driver,isReservation)) continue;
             if(driver.getVehicle() == null) continue; //doesn't have assigned vehicle
             if(this.isVehicleSuitable(order,driver.getVehicle())) {
                 if(this.isInActiveRide(driver)) inRide.add(driver);
@@ -122,6 +110,22 @@ public class FindingDriverService implements IFindingDriverService {
             return this.getSoonestToFinishDriver(mostSuitable);
         }
         return null;
+    }
+
+    private boolean canFitInWorkingHours(Ride order, Driver driver, boolean isReservation) {
+        long minutesWorked = this.workingHoursService.getDurationWorkedInPastDay(driver.getId()).toMinutes();
+        if(isReservation) { //check if their working hours will not exceed 8 hours because of order
+            double orderTravelTime = 0;
+            for(Route route : order.getLocations()) {
+                double distance = this.estimatesService.calculateDistance(route.getDeparture(),route.getDestination());
+                orderTravelTime += this.estimatesService.getEstimatedTime(distance);
+            }
+            long fromNow = Duration.between(LocalDateTime.now(),order.getOrderedFor()).toMinutes();
+            if(minutesWorked + fromNow >= 8 * 60) return false; // reservation is outside working hours limit
+            if(minutesWorked + fromNow + orderTravelTime > 8*60) return false; //reservation duration exceeds 8 hours limit
+        }
+        else {if(minutesWorked >= 8*60) return false;} //8 hours in minutes
+        return true;
     }
 
     private boolean isVehicleSuitable(Ride order, Vehicle driversVehicle) {

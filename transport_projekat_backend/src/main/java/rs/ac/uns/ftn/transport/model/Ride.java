@@ -37,7 +37,7 @@ public class Ride {
     @ToString.Exclude
     private Driver driver;
 
-    @ManyToMany(cascade = {CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.MERGE},fetch = FetchType.EAGER)
     @ToString.Exclude
     private Set<Passenger> passengers;
 

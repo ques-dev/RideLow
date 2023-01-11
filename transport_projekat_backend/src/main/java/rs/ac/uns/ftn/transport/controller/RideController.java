@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -55,6 +57,7 @@ public class RideController {
         try {
             Ride ride = rideService.save(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO),false);
             RideCreatedDTO rideCreatedDTO = RideCreatedDTOMapper.fromRideToDTO(ride);
+            this.simpMessagingTemplate.convertAndSend("/ride-ordered/get-ride", rideCreatedDTO);
             return new ResponseEntity<>(rideCreatedDTO, HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
@@ -129,8 +132,8 @@ public class RideController {
     public ResponseEntity<?> getRideDetails(@PathVariable Integer id)
     {
         try {
-            Ride active = rideService.findActiveForPassenger(id);
-            return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(active),HttpStatus.OK);
+            Ride ride = rideService.findOne(id);
+            return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(ride),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
             return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("ride.notFound", null, Locale.getDefault())), HttpStatus.NOT_FOUND);
@@ -250,7 +253,17 @@ public class RideController {
         } catch (ResponseStatusException ex) {
             return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
         }
+    }
 
+    @MessageMapping("/on-location")
+    public void broadcastNotification(String rideId) {
+        int rideID = Integer.parseInt(rideId);
+        Ride ride = rideService.findOne(rideID);
+        List<Integer> passengersId = new ArrayList<>();
+        for(Passenger passenger : ride.getPassengers()) {
+            passengersId.add(passenger.getId());
+        }
+        this.simpMessagingTemplate.convertAndSend("/driver-at-location/notification", passengersId);
     }
 
 }

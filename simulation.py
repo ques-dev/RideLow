@@ -63,7 +63,7 @@ license_plates = [
     'NS-001-AC'
 ]
 
-id_ = 3
+id_ = 1
 
 
 @events.test_start.add_listener

@@ -4,6 +4,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -245,7 +243,7 @@ public class RideServiceImpl implements IRideService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,messageSource.getMessage("ride.notFound", null, Locale.getDefault()));
         }
         Ride rejected = toReject.get();
-        if(rejected.getStatus() != RideStatus.PENDING) {
+        if(rejected.getStatus() != RideStatus.PENDING && rejected.getStatus() != RideStatus.ACCEPTED) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, messageSource.getMessage("accepting.invalidStatus", null, Locale.getDefault()));
         }
         rejected.setStatus(RideStatus.REJECTED);
