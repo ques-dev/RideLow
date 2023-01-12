@@ -75,8 +75,8 @@ public class Ride {
     @ToString.Exclude
     private VehicleType vehicleType;
 
-    @Column(name="OrderedFor")
-    private LocalDateTime orderedFor;
+    @Column(name="ScheduledTime")
+    private LocalDateTime scheduledTime;
     
 
     public void setVehicleTypeByName(String name)

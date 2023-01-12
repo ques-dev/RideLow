@@ -59,7 +59,7 @@ public class RideServiceImpl implements IRideService {
         if(pending.isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,messageSource.getMessage("order.alreadyOrdered", null, Locale.getDefault()));
         }
-        if(!isReservation) ride.setOrderedFor(LocalDateTime.now());
+        if(!isReservation) ride.setScheduledTime(LocalDateTime.now());
         Driver suitable = this.findingDriverService.findSuitableDriver(ride,isReservation);
         if(suitable == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,messageSource.getMessage("order.couldNotFindDriver", null, Locale.getDefault()));
@@ -77,7 +77,7 @@ public class RideServiceImpl implements IRideService {
 
     @Override
     public void reserve(Ride ride){
-        long betweenNowAndScheduledRideMinutes = Duration.between(LocalDateTime.now(),ride.getOrderedFor()).toMinutes();
+        long betweenNowAndScheduledRideMinutes = Duration.between(LocalDateTime.now(),ride.getScheduledTime()).toMinutes();
         if(betweenNowAndScheduledRideMinutes < RESERVATION_MINIMUM_TIME_MINUTES) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,messageSource.getMessage("order.scheduleTime", null, Locale.getDefault()));
         }
@@ -88,7 +88,7 @@ public class RideServiceImpl implements IRideService {
     public void scheduleReserving(Ride order) {
         ScheduledExecutorService localExecutor = Executors.newSingleThreadScheduledExecutor();
         scheduleReservation = new ConcurrentTaskScheduler(localExecutor);
-        Date toSchedule = Date.from(order.getOrderedFor().minus(this.RESERVATION_MINIMUM_TIME_MINUTES + 1, ChronoUnit.MINUTES)
+        Date toSchedule = Date.from(order.getScheduledTime().minus(this.RESERVATION_MINIMUM_TIME_MINUTES + 1, ChronoUnit.MINUTES)
                 .atZone(ZoneId.systemDefault())
                 .toInstant());
         Runnable scheduledTask = new Runnable() {

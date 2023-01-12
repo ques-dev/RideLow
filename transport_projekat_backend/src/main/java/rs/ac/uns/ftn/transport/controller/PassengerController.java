@@ -82,7 +82,7 @@ public class PassengerController {
             Passenger retrieved = passengerService.findOne(id);
             return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(retrieved), HttpStatus.OK);
         } catch (ResponseStatusException e) {
-            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("passenger.notFound", null, Locale.getDefault())), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(messageSource.getMessage("passenger.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
 
     }
@@ -94,7 +94,7 @@ public class PassengerController {
         try {
             retrieved = passengerService.findOne(id);
         } catch (ResponseStatusException e) {
-            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("passenger.notFound", null, Locale.getDefault())), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(messageSource.getMessage("passenger.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
         if (newInfo.getProfilePicture() != null) {
             ResponseEntity<ResponseMessage> invalidProfilePicture = imageService.decodeAndValidateImage(newInfo.getProfilePicture());
@@ -124,7 +124,7 @@ public class PassengerController {
     }
 
     @GetMapping(value = "/activate/{activationId}")
-    public ResponseEntity<ResponseMessage> activatePassenger(@PathVariable Integer activationId)
+    public ResponseEntity<?> activatePassenger(@PathVariable Integer activationId)
     {
         try {
             UserActivation activation = userActivationService.findOne(activationId);
@@ -143,7 +143,7 @@ public class PassengerController {
             return new ResponseEntity<>(new ResponseMessage("Successful account activation!"), HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
-            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("activation.nonExisting", null, Locale.getDefault())), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(messageSource.getMessage("activation.nonExisting", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         } catch (MessagingException | UnsupportedEncodingException ex) {
             return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("mail.activationError", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
@@ -159,7 +159,7 @@ public class PassengerController {
         try {
             passengerService.findOne(id);
         } catch (ResponseStatusException e) {
-            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("passenger.notFound", null, Locale.getDefault())), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(messageSource.getMessage("passenger.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
         Page<Ride> rides;
         if (from == null && to == null) {
