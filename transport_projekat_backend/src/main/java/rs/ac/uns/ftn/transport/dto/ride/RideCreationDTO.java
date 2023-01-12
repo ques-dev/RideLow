@@ -30,8 +30,7 @@ public class RideCreationDTO {
     private Boolean babyTransport;
     @NotNull(message="{required}")
     private Boolean petTransport;
-
-    @NotNull(message = "{required}")
+    
     private LocalDateTime scheduledTime;
 
 }

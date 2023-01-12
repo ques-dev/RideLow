@@ -56,9 +56,8 @@ public class RideController {
     public ResponseEntity<?> createRide(@Valid @RequestBody RideCreationDTO rideCreationDTO)
     {
         try {
-            Duration duration = Duration.between(rideCreationDTO.getScheduledTime(), LocalDateTime.now());
             Ride ride;
-            if(Math.abs(duration.toSeconds()) >= 60){
+            if(rideCreationDTO.getScheduledTime() != null){
                 rideService.reserve(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO));
                 return new ResponseEntity<>(new ResponseMessage("Ride successfully reserved!"), HttpStatus.OK);
             }
