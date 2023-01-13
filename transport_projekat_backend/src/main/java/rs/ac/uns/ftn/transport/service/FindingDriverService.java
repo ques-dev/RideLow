@@ -45,19 +45,7 @@ public class FindingDriverService implements IFindingDriverService {
         // (if vehicle is suitable, driver can go to other stages of filtration) and sorting them
         //according to their current state (ride in progress -- free drivers)
         for (Driver driver : activeDrivers) {
-            long minutesWorked = this.workingHoursService.getDurationWorkedInPastDay(driver.getId()).toMinutes();
-            if(isReservation) { //check if their working hours will not exceed 8 hours because of order
-                LocalDateTime reservationTime = order.getOrderedFor();
-                double orderTravelTime = 0;
-                for(Route route : order.getLocations()) {
-                    double distance = this.estimatesService.calculateDistance(route.getDeparture(),route.getDestination());
-                    orderTravelTime += this.estimatesService.getEstimatedTime(distance);
-                }
-                long fromNow = Duration.between(LocalDateTime.now(),order.getOrderedFor()).toMinutes();
-                if(minutesWorked + fromNow >= 8 * 60) continue; // reservation is outside working hours limit
-                if(minutesWorked + fromNow + orderTravelTime > 8*60) continue; //reservation duration exceeds 8 hours limit
-            }
-            else {if(minutesWorked >= 8*60) continue;} //8 hours in minutes
+            if(!this.canFitInWorkingHours(order,driver,isReservation)) continue;
             if(driver.getVehicle() == null) continue; //doesn't have assigned vehicle
             if(this.isVehicleSuitable(order,driver.getVehicle())) {
                 if(this.isInActiveRide(driver)) inRide.add(driver);
@@ -80,7 +68,7 @@ public class FindingDriverService implements IFindingDriverService {
                     acceptedRideOverlaps = this.doesPreviouslyAcceptedRideOverlap(order,freeDriver,false);
                 }
                 if(hasScheduledRide) {
-                    Ride scheduled = this.rideRepository.findFirstByDriver_IdAndOrderedForIsAfter(freeDriver.getId(), now).get();
+                    Ride scheduled = this.rideRepository.findFirstByDriver_IdAndScheduledTimeIsAfter(freeDriver.getId(), now).get();
                     hasTimeBeforeScheduled = this.hasTimeBeforeScheduledRide(scheduled,order,false);
                 }
                 if(!acceptedRideOverlaps && hasTimeBeforeScheduled) mostSuitable.add(freeDriver);
@@ -110,7 +98,7 @@ public class FindingDriverService implements IFindingDriverService {
                     acceptedRideOverlaps = this.doesPreviouslyAcceptedRideOverlap(order,inRideDriver,true);
                 }
                 if(hasScheduledRide) {
-                    Ride scheduled = this.rideRepository.findFirstByDriver_IdAndOrderedForIsAfter(inRideDriver.getId(), now).get();
+                    Ride scheduled = this.rideRepository.findFirstByDriver_IdAndScheduledTimeIsAfter(inRideDriver.getId(), now).get();
                     hasTimeBeforeScheduled = this.hasTimeBeforeScheduledRide(scheduled,order,true);
                 }
                 if(!acceptedRideOverlaps && hasTimeBeforeScheduled) mostSuitable.add(inRideDriver);
@@ -122,6 +110,22 @@ public class FindingDriverService implements IFindingDriverService {
             return this.getSoonestToFinishDriver(mostSuitable);
         }
         return null;
+    }
+
+    private boolean canFitInWorkingHours(Ride order, Driver driver, boolean isReservation) {
+        long minutesWorked = this.workingHoursService.getDurationWorkedInPastDay(driver.getId()).toMinutes();
+        if(isReservation) { //check if their working hours will not exceed 8 hours because of order
+            double orderTravelTime = 0;
+            for(Route route : order.getLocations()) {
+                double distance = this.estimatesService.calculateDistance(route.getDeparture(),route.getDestination());
+                orderTravelTime += this.estimatesService.getEstimatedTime(distance);
+            }
+            long fromNow = Duration.between(LocalDateTime.now(),order.getScheduledTime()).toMinutes();
+            if(minutesWorked + fromNow >= 8 * 60) return false; // reservation is outside working hours limit
+            if(minutesWorked + fromNow + orderTravelTime > 8*60) return false; //reservation duration exceeds 8 hours limit
+        }
+        else {if(minutesWorked >= 8*60) return false;} //8 hours in minutes
+        return true;
     }
 
     private boolean isVehicleSuitable(Ride order, Vehicle driversVehicle) {
@@ -141,7 +145,7 @@ public class FindingDriverService implements IFindingDriverService {
     }
 
     private boolean hasScheduledRide(Driver driver, LocalDateTime now) {
-        Optional<Ride> scheduled = this.rideRepository.findFirstByDriver_IdAndOrderedForIsAfter(driver.getId(), now);
+        Optional<Ride> scheduled = this.rideRepository.findFirstByDriver_IdAndScheduledTimeIsAfter(driver.getId(), now);
         if (scheduled.isEmpty()) return false;
         return scheduled.get().getStatus() != RideStatus.CANCELLED && scheduled.get().getStatus() != RideStatus.REJECTED;
     }
@@ -172,12 +176,12 @@ public class FindingDriverService implements IFindingDriverService {
         //the starting location will be current vehicle location, since it is not in ride
         else whereDriverShouldBe = scheduled.getDriver().getVehicle().getCurrentLocation();
         int totalTravelTimeMinutes = this.getTotalTravelTimeMinutes(order,whereDriverShouldBe);
-        LocalDateTime orderEstimatedEndTime = order.getOrderedFor().plus(totalTravelTimeMinutes,ChronoUnit.MINUTES);
-        return !orderEstimatedEndTime.isAfter(scheduled.getOrderedFor());
+        LocalDateTime orderEstimatedEndTime = order.getScheduledTime().plus(totalTravelTimeMinutes,ChronoUnit.MINUTES);
+        return !orderEstimatedEndTime.isAfter(scheduled.getScheduledTime());
     }
 
     private boolean hasAcceptedRide(Driver driver,Ride order) {
-        Optional<Ride> previouslyAccepted = this.rideRepository.findFirstByDriver_IdAndOrderedForIsBeforeOrderByOrderedForDesc(driver.getId(), order.getOrderedFor());
+        Optional<Ride> previouslyAccepted = this.rideRepository.findFirstByDriver_IdAndScheduledTimeIsBeforeOrderByScheduledTimeDesc(driver.getId(), order.getScheduledTime());
         if (previouslyAccepted.isEmpty()) return false;
         return previouslyAccepted.get().getStatus() != RideStatus.CANCELLED &&
                 previouslyAccepted.get().getStatus() != RideStatus.REJECTED &&
@@ -200,14 +204,14 @@ public class FindingDriverService implements IFindingDriverService {
         }
         else whereDriverShouldBe = driver.getVehicle().getCurrentLocation();
         Ride accepted =
-                        this.rideRepository.findFirstByDriver_IdAndOrderedForIsBeforeOrderByOrderedForDesc(
-                        driver.getId(), order.getOrderedFor()).get();
+                        this.rideRepository.findFirstByDriver_IdAndScheduledTimeIsBeforeOrderByScheduledTimeDesc(
+                        driver.getId(), order.getScheduledTime()).get();
 
         totalTravelTimeMinutes += this.getTotalTravelTimeMinutes(accepted,whereDriverShouldBe);
         LocalDateTime totalEstimatedEndTime;
         if(activeRideEstimatedFinish != null) totalEstimatedEndTime = activeRideEstimatedFinish.plus(totalTravelTimeMinutes,ChronoUnit.MINUTES);
-        else totalEstimatedEndTime = accepted.getOrderedFor().plus(totalTravelTimeMinutes,ChronoUnit.MINUTES);
-        return totalEstimatedEndTime.isAfter(order.getOrderedFor());
+        else totalEstimatedEndTime = accepted.getScheduledTime().plus(totalTravelTimeMinutes,ChronoUnit.MINUTES);
+        return totalEstimatedEndTime.isAfter(order.getScheduledTime());
     }
 
     private Driver getClosestDriver(List<Driver> freeDrivers, Location departure) {

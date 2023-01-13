@@ -4,6 +4,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -61,7 +59,7 @@ public class RideServiceImpl implements IRideService {
         if(pending.isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,messageSource.getMessage("order.alreadyOrdered", null, Locale.getDefault()));
         }
-        if(!isReservation) ride.setOrderedFor(LocalDateTime.now());
+        if(!isReservation) ride.setScheduledTime(LocalDateTime.now());
         Driver suitable = this.findingDriverService.findSuitableDriver(ride,isReservation);
         if(suitable == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,messageSource.getMessage("order.couldNotFindDriver", null, Locale.getDefault()));
@@ -79,7 +77,7 @@ public class RideServiceImpl implements IRideService {
 
     @Override
     public void reserve(Ride ride){
-        long betweenNowAndScheduledRideMinutes = Duration.between(LocalDateTime.now(),ride.getOrderedFor()).toMinutes();
+        long betweenNowAndScheduledRideMinutes = Duration.between(LocalDateTime.now(),ride.getScheduledTime()).toMinutes();
         if(betweenNowAndScheduledRideMinutes < RESERVATION_MINIMUM_TIME_MINUTES) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,messageSource.getMessage("order.scheduleTime", null, Locale.getDefault()));
         }
@@ -90,7 +88,7 @@ public class RideServiceImpl implements IRideService {
     public void scheduleReserving(Ride order) {
         ScheduledExecutorService localExecutor = Executors.newSingleThreadScheduledExecutor();
         scheduleReservation = new ConcurrentTaskScheduler(localExecutor);
-        Date toSchedule = Date.from(order.getOrderedFor().minus(this.RESERVATION_MINIMUM_TIME_MINUTES + 1, ChronoUnit.MINUTES)
+        Date toSchedule = Date.from(order.getScheduledTime().minus(this.RESERVATION_MINIMUM_TIME_MINUTES + 1, ChronoUnit.MINUTES)
                 .atZone(ZoneId.systemDefault())
                 .toInstant());
         Runnable scheduledTask = new Runnable() {
@@ -245,7 +243,7 @@ public class RideServiceImpl implements IRideService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,messageSource.getMessage("ride.notFound", null, Locale.getDefault()));
         }
         Ride rejected = toReject.get();
-        if(rejected.getStatus() != RideStatus.PENDING) {
+        if(rejected.getStatus() != RideStatus.PENDING && rejected.getStatus() != RideStatus.ACCEPTED) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, messageSource.getMessage("accepting.invalidStatus", null, Locale.getDefault()));
         }
         rejected.setStatus(RideStatus.REJECTED);

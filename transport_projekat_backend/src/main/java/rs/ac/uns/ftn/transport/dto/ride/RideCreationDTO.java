@@ -9,6 +9,7 @@ import org.hibernate.validator.constraints.Length;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerIdEmailDTO;
 import rs.ac.uns.ftn.transport.dto.RouteDTO;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Data
@@ -29,5 +30,7 @@ public class RideCreationDTO {
     private Boolean babyTransport;
     @NotNull(message="{required}")
     private Boolean petTransport;
+    
+    private LocalDateTime scheduledTime;
 
 }

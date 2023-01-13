@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,6 +21,8 @@ import rs.ac.uns.ftn.transport.service.interfaces.IFavoriteRideService;
 import rs.ac.uns.ftn.transport.service.interfaces.IPanicService;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -53,24 +56,22 @@ public class RideController {
     public ResponseEntity<?> createRide(@Valid @RequestBody RideCreationDTO rideCreationDTO)
     {
         try {
-            Ride ride = rideService.save(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO),false);
-            RideCreatedDTO rideCreatedDTO = RideCreatedDTOMapper.fromRideToDTO(ride);
-            return new ResponseEntity<>(rideCreatedDTO, HttpStatus.OK);
+            Ride ride;
+            if(rideCreationDTO.getScheduledTime() != null){
+                rideService.reserve(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO));
+                return new ResponseEntity<>(new ResponseMessage("Ride successfully reserved!"), HttpStatus.OK);
+            }
+            else {
+                ride = rideService.save(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO), false);
+                RideCreatedDTO rideCreatedDTO = RideCreatedDTOMapper.fromRideToDTO(ride);
+                this.simpMessagingTemplate.convertAndSend("/ride-ordered/get-ride", rideCreatedDTO);
+                return new ResponseEntity<>(rideCreatedDTO, HttpStatus.OK);
+            }
         }
         catch(ResponseStatusException ex) {
-            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
-        }
-    }
-
-
-    @PostMapping(value="/reserve",consumes = "application/json")
-    public ResponseEntity<?> createReservation(@Valid @RequestBody ScheduledRideCreationDTO rideCreationDTO)
-    {
-        try {
-            rideService.reserve(ScheduledRideCreationDTOMapper.fromDTOtoRide(rideCreationDTO));
-            return new ResponseEntity<>("Ride successfully reserved!", HttpStatus.OK);
-        }
-        catch(ResponseStatusException ex) {
+            if(ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            }
             return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
         }
     }
@@ -109,7 +110,7 @@ public class RideController {
             return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(active),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
-            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("activeRide.notFound", null, Locale.getDefault())), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(messageSource.getMessage("activeRide.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -121,7 +122,7 @@ public class RideController {
             return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(active),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
-            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("activeRide.notFound", null, Locale.getDefault())), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(messageSource.getMessage("activeRide.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -129,11 +130,11 @@ public class RideController {
     public ResponseEntity<?> getRideDetails(@PathVariable Integer id)
     {
         try {
-            Ride active = rideService.findActiveForPassenger(id);
-            return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(active),HttpStatus.OK);
+            Ride ride = rideService.findOne(id);
+            return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(ride),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
-            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("ride.notFound", null, Locale.getDefault())), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(messageSource.getMessage("ride.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -145,6 +146,9 @@ public class RideController {
             return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toCancel),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
+            if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
+                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            }
             return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
         }
     }
@@ -157,7 +161,7 @@ public class RideController {
             return new ResponseEntity<>(ExtendedPanicDTOMapper.fromPanicToDTO(retrieved),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
-            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("ride.notFound", null, Locale.getDefault())), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(messageSource.getMessage("ride.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -169,6 +173,9 @@ public class RideController {
             return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toStart),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
+            if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
+                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            }
             return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
         }
     }
@@ -181,6 +188,9 @@ public class RideController {
             return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toStart),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
+            if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
+                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            }
             return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
         }
     }
@@ -198,6 +208,9 @@ public class RideController {
             return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(ride),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
+            if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
+                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            }
             return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
         }
 
@@ -213,6 +226,9 @@ public class RideController {
             return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(rejected),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
+            if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
+                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            }
             return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
         }
     }
@@ -227,12 +243,15 @@ public class RideController {
             return new ResponseEntity<>(favoriteRideCreatedDTO, HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
+            if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
+                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            }
             return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
         }
     }
 
     @GetMapping(value = "/favorites")
-    public ResponseEntity<?> getActiveForDriver()
+    public ResponseEntity<?> getFavorites()
     {
         Set<FavoriteRide> favorites = favoriteRideService.findAll();
         Set<FavoriteRideDTO> favoriteDTOs = favorites.stream()
@@ -248,9 +267,22 @@ public class RideController {
             this.favoriteRideService.delete(id);
             return new ResponseEntity<>("Successful deletion of favorite location!",HttpStatus.NO_CONTENT);
         } catch (ResponseStatusException ex) {
+            if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
+                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            }
             return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
         }
+    }
 
+    @MessageMapping("/on-location")
+    public void broadcastNotification(String rideId) {
+        int rideID = Integer.parseInt(rideId);
+        Ride ride = rideService.findOne(rideID);
+        List<Integer> passengersId = new ArrayList<>();
+        for(Passenger passenger : ride.getPassengers()) {
+            passengersId.add(passenger.getId());
+        }
+        this.simpMessagingTemplate.convertAndSend("/driver-at-location/notification", passengersId);
     }
 
 }

@@ -45,8 +45,8 @@ public interface RideRepository extends JpaRepository<Ride,Integer> {
 
     List<Ride> findByStatus(RideStatus status);
 
-    Optional<Ride> findFirstByDriver_IdAndOrderedForIsAfter(Integer driverId, LocalDateTime now);
-    Optional<Ride> findFirstByDriver_IdAndOrderedForIsBeforeOrderByOrderedForDesc(Integer driverId, LocalDateTime now);
+    Optional<Ride> findFirstByDriver_IdAndScheduledTimeIsAfter(Integer driverId, LocalDateTime now);
+    Optional<Ride> findFirstByDriver_IdAndScheduledTimeIsBeforeOrderByScheduledTimeDesc(Integer driverId, LocalDateTime now);
 }
 
 

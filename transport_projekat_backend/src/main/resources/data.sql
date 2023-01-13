@@ -23,13 +23,14 @@ INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,T
 
 INSERT INTO LOCATIONS (ADDRESS, LATITUDE, LONGITUDE) VALUES
                                                          ('Bulevar oslobodjenja 46', 45.267136, 19.833549),
-                                                         ('Bulevar oslobodjenja 47', 46.267136, 20.833549);
+                                                         ('Bulevar oslobodjenja 47', 46.267136, 20.833549),
+                                                         ('SPENS, Sutjeska 2, Novi Sad 21000',45.24838221468797, 19.845046624739293);
 
 INSERT INTO VEHICLES (BABY_TRANSPORT, LICENSE_NUMBER, MODEL, PASSENGER_SEATS, PET_TRANSPORT, CURRENT_LOCATION, VEHICLE_TYPE) VALUES
     (true, 'NS 123-AB', 'VS Golf 3', 4, true, 1, 1);
 
 INSERT INTO VEHICLES (BABY_TRANSPORT, LICENSE_NUMBER, MODEL, PASSENGER_SEATS, PET_TRANSPORT, CURRENT_LOCATION, VEHICLE_TYPE) VALUES
-    (true, 'NS 567-VR', 'Fiat Punto', 4, true, 1, 1);
+    (true, 'NS 567-VR', 'Fiat Punto', 4, true, 3, 1);
 
 INSERT INTO DRIVERS(ID, VEHICLE_ID,IS_ACTIVE) VALUES (3, 1,true);
 
@@ -43,4 +44,4 @@ INSERT INTO WORKING_HOURS(SHIFT_START, SHIFT_END, DRIVER_ID) VALUES
 INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,TELEPHONE_NUMBER) VALUES
     ('Bulevar Oslobođenja 23','driver@mail.com',true, false, 'Jovan', 'neprobojna_lozinka', 'Test2Test', '06533829');
 
-INSERT INTO DRIVERS(ID, VEHICLE_ID,IS_ACTIVE) VALUES (4, 1,false);
+INSERT INTO DRIVERS(ID, VEHICLE_ID,IS_ACTIVE) VALUES (4, 2,true);

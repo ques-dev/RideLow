@@ -38,6 +38,9 @@ public class VehicleController {
             return new ResponseEntity<>("Coordinates successfully updated!", HttpStatus.NO_CONTENT);
         }
         catch(ResponseStatusException ex){
+            if(ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            }
             return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
         }
     }

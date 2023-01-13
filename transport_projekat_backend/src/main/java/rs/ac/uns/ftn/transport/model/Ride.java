@@ -37,7 +37,7 @@ public class Ride {
     @ToString.Exclude
     private Driver driver;
 
-    @ManyToMany(cascade = {CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.MERGE},fetch = FetchType.EAGER)
     @ToString.Exclude
     private Set<Passenger> passengers;
 
@@ -75,8 +75,8 @@ public class Ride {
     @ToString.Exclude
     private VehicleType vehicleType;
 
-    @Column(name="OrderedFor")
-    private LocalDateTime orderedFor;
+    @Column(name="ScheduledTime")
+    private LocalDateTime scheduledTime;
     
 
     public void setVehicleTypeByName(String name)
