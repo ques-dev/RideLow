@@ -1,7 +1,7 @@
 INSERT INTO VEHICLE_TYPES (NAME, PRICE_PER_KM) VALUES
-                                                   ('STANDARD', 2),
-                                                   ('LUXURY', 5),
-                                                   ('VAN', 7);
+                                                   ('STANDARD', 150),
+                                                   ('LUXURY', 250),
+                                                   ('VAN', 200);
 
 
 INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,TELEPHONE_NUMBER) VALUES
@@ -42,6 +42,6 @@ INSERT INTO WORKING_HOURS(SHIFT_START, SHIFT_END, DRIVER_ID) VALUES
 
 
 INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,TELEPHONE_NUMBER) VALUES
-    ('Bulevar Oslobođenja 23','driver@mail.com',true, false, 'Jovan', 'neprobojna_lozinka', 'Test2Test', '06533829');
+    ('Bulevar Oslobođenja 23','driver@mail.com',true, false, 'Jovan', 'NeprobojnaLozinka1', 'Jovanović', '06545910334');
 
 INSERT INTO DRIVERS(ID, VEHICLE_ID,IS_ACTIVE) VALUES (4, 2,true);

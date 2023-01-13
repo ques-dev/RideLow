@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.RejectionReasonDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleSimulationDTO;
 import rs.ac.uns.ftn.transport.dto.panic.PanicReasonDTO;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerIdEmailDTO;
 import rs.ac.uns.ftn.transport.dto.ride.*;
 import rs.ac.uns.ftn.transport.mapper.RejectionReasonDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.ExtendedPanicDTOMapper;
@@ -21,8 +22,6 @@ import rs.ac.uns.ftn.transport.service.interfaces.IFavoriteRideService;
 import rs.ac.uns.ftn.transport.service.interfaces.IPanicService;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -170,7 +169,9 @@ public class RideController {
     {
         try {
             Ride toStart = rideService.startRide(id);
-            return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toStart),HttpStatus.OK);
+            RideCreatedDTO started = RideCreatedDTOMapper.fromRideToDTO(toStart);
+            this.simpMessagingTemplate.convertAndSend("/ride-started/notification", started);
+            return new ResponseEntity<>(started,HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
             if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
@@ -205,6 +206,11 @@ public class RideController {
             rideDTO.setId(ride.getId());
             rideDTO.setVehicle(vehicle);
             this.simpMessagingTemplate.convertAndSend("/map-updates/ended-ride", rideDTO);
+            List<Integer> passengersId = new ArrayList<>();
+            for(Passenger passenger : ride.getPassengers()) {
+                passengersId.add(passenger.getId());
+            }
+            this.simpMessagingTemplate.convertAndSend("/ride-ended/notification", passengersId);
             return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(ride),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
@@ -275,7 +281,7 @@ public class RideController {
     }
 
     @MessageMapping("/on-location")
-    public void broadcastNotification(String rideId) {
+    public void broadcastOnLocationNotification(String rideId) {
         int rideID = Integer.parseInt(rideId);
         Ride ride = rideService.findOne(rideID);
         List<Integer> passengersId = new ArrayList<>();
@@ -283,6 +289,11 @@ public class RideController {
             passengersId.add(passenger.getId());
         }
         this.simpMessagingTemplate.convertAndSend("/driver-at-location/notification", passengersId);
+    }
+
+    @MessageMapping("/inconsistency")
+    public void broadcastInconsistencyNotification(String rideId) {
+        System.out.println("Panic received. Ride ID: " + rideId);
     }
 
 }

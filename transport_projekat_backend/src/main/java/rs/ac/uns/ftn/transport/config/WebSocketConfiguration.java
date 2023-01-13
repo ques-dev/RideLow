@@ -17,7 +17,12 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/map-updates","/ride-ordered","/driver-at-location","ride-created");
+        registry.enableSimpleBroker("/map-updates",
+                "/ride-ordered",
+                "/driver-at-location",
+                "/ride-created",
+                "/ride-started",
+                "/ride-ended");
         registry.setApplicationDestinationPrefixes("/topic");
     }
 }
