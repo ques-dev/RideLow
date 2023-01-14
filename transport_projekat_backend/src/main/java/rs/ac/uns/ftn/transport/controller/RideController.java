@@ -6,12 +6,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.RejectionReasonDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleSimulationDTO;
 import rs.ac.uns.ftn.transport.dto.panic.PanicReasonDTO;
-import rs.ac.uns.ftn.transport.dto.passenger.PassengerIdEmailDTO;
 import rs.ac.uns.ftn.transport.dto.ride.*;
 import rs.ac.uns.ftn.transport.mapper.RejectionReasonDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.ExtendedPanicDTOMapper;
@@ -22,10 +23,13 @@ import rs.ac.uns.ftn.transport.service.interfaces.IFavoriteRideService;
 import rs.ac.uns.ftn.transport.service.interfaces.IPanicService;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
@@ -58,6 +62,7 @@ public class RideController {
             Ride ride;
             if(rideCreationDTO.getScheduledTime() != null){
                 rideService.reserve(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO));
+                sendPeriodicReservationNotifications(rideCreationDTO);
                 return new ResponseEntity<>(new ResponseMessage("Ride successfully reserved!"), HttpStatus.OK);
             }
             else {
@@ -69,6 +74,7 @@ public class RideController {
         }
         catch(ResponseStatusException ex) {
             if(ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                this.simpMessagingTemplate.convertAndSend("/ride-ordered/not-found", rideCreationDTO);
                 return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
             }
             return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
@@ -294,6 +300,34 @@ public class RideController {
     @MessageMapping("/inconsistency")
     public void broadcastInconsistencyNotification(String rideId) {
         System.out.println("Panic received. Ride ID: " + rideId);
+    }
+
+    public void sendPeriodicReservationNotifications(RideCreationDTO ride) {
+        ScheduledExecutorService localExecutor = Executors.newSingleThreadScheduledExecutor();
+        TaskScheduler scheduleNotification = new ConcurrentTaskScheduler(localExecutor);
+        Runnable rideReservationNotificationScheduling = new Runnable() {
+            private RideCreationDTO ride;
+            public Runnable init(RideCreationDTO ride) {
+                this.ride = ride;
+                return this;
+            }
+            @Override
+            public void run() {
+                Duration beforeOrderStart = Duration.between(LocalDateTime.now(),ride.getScheduledTime());
+                if(Math.abs(beforeOrderStart.toMinutes()) >= 5) {
+                    RideController.this.simpMessagingTemplate.convertAndSend("/ride-ordered/reservation-notification", ride);
+                    Date nextNotification = Date.from(LocalDateTime.now().plus(5, ChronoUnit.MINUTES)
+                            .atZone(ZoneId.systemDefault())
+                            .toInstant());
+                    scheduleNotification.schedule(this,nextNotification);
+                }
+
+            }
+        }.init(ride);
+        Date toSchedule = Date.from(LocalDateTime.now().plus(15, ChronoUnit.MINUTES)
+                .atZone(ZoneId.systemDefault())
+                .toInstant());
+        scheduleNotification.schedule(rideReservationNotificationScheduling,toSchedule);
     }
 
 }
