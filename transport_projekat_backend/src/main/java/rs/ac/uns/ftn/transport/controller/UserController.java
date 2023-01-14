@@ -137,6 +137,7 @@ public class UserController {
 
     @PostMapping(value = "/login")
     public ResponseEntity<TokenDTO> login(@RequestBody Passenger user){
+        System.err.println("DAAAAAAAAAa");
         user = userService.findByLogin(user);
         TokenDTO token = userService.saveToken(user);
         return new ResponseEntity<>(token, HttpStatus.CREATED);
