@@ -10,7 +10,7 @@ INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,T
 INSERT INTO PASSENGERS VALUES 1;
 
 INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,TELEPHONE_NUMBER) VALUES
-    ('Bulevar oslobođenja 74', 'imenka@mail.com', true, false, 'Radomir', 'test2Test', 'Radomirović', '065338295504');
+    ('Bulevar oslobođenja 79', 'imenka@mail.com', true, false, 'Časlav', 'test2Test', 'Radomanović', '06999999999');
 
 INSERT INTO PASSENGERS VALUES 2;
 
