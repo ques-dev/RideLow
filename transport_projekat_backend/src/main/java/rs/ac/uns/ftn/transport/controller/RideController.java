@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.RejectionReasonDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleSimulationDTO;
+import rs.ac.uns.ftn.transport.dto.notifications.TimeUntilOnDepartureDTO;
 import rs.ac.uns.ftn.transport.dto.panic.PanicReasonDTO;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerWithoutIdPasswordDTO;
 import rs.ac.uns.ftn.transport.dto.ride.*;
@@ -309,6 +310,11 @@ public class RideController {
             passengersId.add(passenger.getId());
         }
         this.simpMessagingTemplate.convertAndSend("/driver-at-location/notification", passengersId);
+    }
+
+    @MessageMapping("/location-tracker")
+    public void broadcastTimeUntilOnDepartureLocationNotification(TimeUntilOnDepartureDTO dto) {
+        this.simpMessagingTemplate.convertAndSend("/location-tracker/notification", dto);
     }
 
     @MessageMapping("/inconsistency")

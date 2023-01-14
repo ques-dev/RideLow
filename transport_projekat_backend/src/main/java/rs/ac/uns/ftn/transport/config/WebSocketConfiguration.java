@@ -22,7 +22,8 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                 "/driver-at-location",
                 "/ride-created",
                 "/ride-started",
-                "/ride-ended");
+                "/ride-ended",
+                "/location-tracker");
         registry.setApplicationDestinationPrefixes("/topic");
     }
 }
