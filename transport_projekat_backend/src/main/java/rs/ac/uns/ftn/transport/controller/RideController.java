@@ -13,10 +13,12 @@ import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.RejectionReasonDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleSimulationDTO;
 import rs.ac.uns.ftn.transport.dto.panic.PanicReasonDTO;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerWithoutIdPasswordDTO;
 import rs.ac.uns.ftn.transport.dto.ride.*;
 import rs.ac.uns.ftn.transport.mapper.RejectionReasonDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.ExtendedPanicDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.PanicReasonDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.passenger.PassengerWithoutIdPasswordDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.*;
 import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.service.interfaces.IFavoriteRideService;
@@ -105,6 +107,18 @@ public class RideController {
             rideDTOs.add(rideDTO);
         }
         return new ResponseEntity<>(rideDTOs, HttpStatus.OK);
+    }
+
+    @GetMapping(value="/{id}/passengers", produces = "application/json")
+    public ResponseEntity<List<PassengerWithoutIdPasswordDTO>> getPassengers(@PathVariable Integer id) {
+        try {
+            Ride ride = this.rideService.findOne(id);
+            List<PassengerWithoutIdPasswordDTO> passengers = ride.getPassengers().stream().map(PassengerWithoutIdPasswordDTOMapper::fromPassengerToDTO).collect(Collectors.toList());
+            return new ResponseEntity<>(passengers, HttpStatus.OK);
+        }
+        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(new ArrayList<>(), ex.getStatusCode());
+        }
     }
 
     @GetMapping(value = "/driver/{driverId}/active")
