@@ -6,14 +6,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -63,15 +60,16 @@ public class WebSecurityConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        System.err.println("1");
-        http.authorizeHttpRequests(auth -> auth.requestMatchers("/h2-console/**")
+        http.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint);
+        http.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, "/h2-console", "/api/user/login")
                 .permitAll().anyRequest().authenticated())
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors().and()
-                .addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userService), BasicAuthenticationFilter.class)
-                .csrf(AbstractHttpConfigurer::disable).headers().frameOptions().disable();
+                .addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userService), BasicAuthenticationFilter.class);
+
+        http.csrf().disable();
+        http.headers().frameOptions().disable();
         http.authenticationProvider(authenticationProvider());
-        System.err.println("1");
 
         return http.build();
     }

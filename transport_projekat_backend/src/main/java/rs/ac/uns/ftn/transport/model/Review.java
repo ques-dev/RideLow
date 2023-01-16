@@ -6,12 +6,17 @@ import org.hibernate.Hibernate;
 
 import java.util.Objects;
 
+import static jakarta.persistence.InheritanceType.JOINED;
+
 //TODO: Model nije jasan sto se tice recenzija (vozac i vozilo odvojeno). Pitacu asistenta za ovo. Do tada ostaje prazno
 @Entity
-@Table(name = "reviews")
+@Table(name = "users")
+@Inheritance(strategy = JOINED)
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public abstract class Review {
 
     @Id
