@@ -1,10 +1,15 @@
 package rs.ac.uns.ftn.transport.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Date;
 import java.util.Objects;
 
 import static jakarta.persistence.InheritanceType.JOINED;
@@ -17,7 +22,7 @@ import static jakarta.persistence.InheritanceType.JOINED;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class User {
+public abstract class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,6 +63,9 @@ public abstract class User {
     @Column (name = "resetPasswordTokenExpiration")
     private LocalDateTime resetPasswordTokenExpiration;
 
+    @Column (name = "lastPasswordResetDate")
+    private Date lastPasswordResetDate;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -69,5 +77,39 @@ public abstract class User {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
