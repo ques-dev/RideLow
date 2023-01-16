@@ -38,7 +38,7 @@ INSERT INTO DOCUMENTS(DOCUMENT_IMAGE, NAME, DRIVER_ID) VALUES
                                                                ('U3dhZ2dlciByb2Nrcw=', 'VOZACKA_DOZVOLA', 3);
 
 INSERT INTO WORKING_HOURS(SHIFT_START, SHIFT_END, DRIVER_ID) VALUES
-                                                                     ('2023-01-08 09:35:22', '2023-01-08 09:35:22', 3);
+                                                                     ('2023-01-08 09:35:22', '2023-01-08 09:35:23', 3);
 
 
 INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,TELEPHONE_NUMBER) VALUES

@@ -37,7 +37,8 @@ public class WorkingHoursServiceImpl implements IWorkingHoursService {
         if (totalDuration.toHours() >= 8) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "limit");
         }
-        Driver driver = inProgressShift.get().getDriver();
+
+        Driver driver = workingHours.getDriver();
         driver.setIsActive(true);
         this.driverRepository.save(driver);
         return workingHoursRepository.save(workingHours);

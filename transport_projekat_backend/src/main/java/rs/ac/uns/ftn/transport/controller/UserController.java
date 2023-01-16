@@ -3,7 +3,6 @@ package rs.ac.uns.ftn.transport.controller;
 import jakarta.mail.MessagingException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
-import org.modelmapper.internal.bytebuddy.utility.RandomString;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +25,7 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 @CrossOrigin("http://localhost:4200")
 @RestController
 @RequestMapping(value = "/api/user")
@@ -62,11 +62,11 @@ public class UserController {
             return new ResponseEntity<>(messageSource.getMessage("user.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
 
-        if (!dto.getOld_password().equals(user.getPassword())) {
-            return new ResponseEntity<>(messageSource.getMessage("user.passwordMatch", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+        if (!dto.getOldPassword().equals(user.getPassword())) {
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("user.passwordMatch", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
-        user.setPassword(dto.getNew_password());
+        user.setPassword(dto.getNewPassword());
         userService.save(user);
 
         return new ResponseEntity<>("Password successfully changed!", HttpStatus.NO_CONTENT);
@@ -103,10 +103,10 @@ public class UserController {
         }
 
         if (user.getResetPasswordToken() == null || user.getResetPasswordTokenExpiration().isBefore(LocalDateTime.now()) || !user.getResetPasswordToken().equals(dto.getCode())) {
-            return new ResponseEntity<>(messageSource.getMessage("user.resetToken", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("user.resetToken", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
-        user.setPassword(dto.getNew_password());
+        user.setPassword(dto.getNewPassword());
         user.setResetPasswordToken(null);
         user.setResetPasswordTokenExpiration(null);
         userService.save(user);
