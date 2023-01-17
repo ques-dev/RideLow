@@ -13,16 +13,15 @@ import rs.ac.uns.ftn.transport.dto.NotePageDTO;
 import rs.ac.uns.ftn.transport.dto.TokenDTO;
 import rs.ac.uns.ftn.transport.mapper.MessageDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.NoteDTOMapper;
-import rs.ac.uns.ftn.transport.model.Message;
-import rs.ac.uns.ftn.transport.model.Note;
-import rs.ac.uns.ftn.transport.model.Passenger;
-import rs.ac.uns.ftn.transport.model.User;
+import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.repository.MessageRepository;
 import rs.ac.uns.ftn.transport.repository.NoteRepository;
 import rs.ac.uns.ftn.transport.repository.UserRepository;
+import rs.ac.uns.ftn.transport.service.interfaces.IRoleService;
 import rs.ac.uns.ftn.transport.service.interfaces.IUserService;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,14 +32,17 @@ public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
     private final NoteRepository noteRepository;
     private final MessageRepository messageRepository;
+    private final IRoleService roleService;
 
-    public UserServiceImpl(UserRepository userRepository, MessageRepository messageRepository, NoteRepository noteRepository){
+    public UserServiceImpl(IRoleService roleService, UserRepository userRepository, MessageRepository messageRepository, NoteRepository noteRepository){
+        this.roleService = roleService;
         this.noteRepository = noteRepository;
         this.userRepository = userRepository;
         this.messageRepository = messageRepository;
     }
     public User save(User user)
     {
+        user.setRoles(roleService.findByName("ROLE_PASSENGER"));
         return userRepository.save(user);
     }
 
@@ -64,11 +66,6 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public TokenDTO saveToken(User user) {
-        return new TokenDTO(user, "1", "1");
-    }
-
-    @Override
     public Set<MessageDTO> findMessagesOfUser(Integer id) {
         Optional<User> userO = userRepository.findById(id);
         if(!userO.isPresent()){
@@ -78,6 +75,13 @@ public class UserServiceImpl implements IUserService {
         Set<Message> messages = messageRepository.findBySender(user);
         Set<MessageDTO> messageDTOS = messages.stream().map(MessageDTOMapper::fromMessagetoDTO).collect(Collectors.toSet());
         return messageDTOS;
+    }
+
+    @Override
+    public Set<Role> findRolesOfUser(String username) {
+        Set<Role> roles = new HashSet<>();
+        roles.add(new Role(1L, "ROLE_PASSENGER"));
+        return roles;
     }
 
     @Override

@@ -6,10 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import rs.ac.uns.ftn.transport.dto.MessageDTO;
 import rs.ac.uns.ftn.transport.dto.NotePageDTO;
 import rs.ac.uns.ftn.transport.dto.TokenDTO;
-import rs.ac.uns.ftn.transport.model.Message;
-import rs.ac.uns.ftn.transport.model.Note;
-import rs.ac.uns.ftn.transport.model.Passenger;
-import rs.ac.uns.ftn.transport.model.User;
+import rs.ac.uns.ftn.transport.model.*;
 
 import java.util.Set;
 
@@ -19,9 +16,8 @@ public interface IUserService extends UserDetailsService {
     User findOne(Integer id);
     Page<User> findAll(Pageable page);
     Passenger findByLogin(User user);
-    TokenDTO saveToken(User user);
     Set<MessageDTO> findMessagesOfUser(Integer id);
-
+    Set<Role> findRolesOfUser(String username);
     Message SaveMessage(Message message);
 
     void blockUser(Integer id);

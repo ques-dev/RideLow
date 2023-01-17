@@ -1,15 +1,15 @@
 package rs.ac.uns.ftn.transport.utils;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import rs.ac.uns.ftn.transport.model.User;
+import rs.ac.uns.ftn.transport.service.interfaces.IUserService;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 
 // Utility klasa za rad sa JSON Web Tokenima
@@ -17,7 +17,7 @@ import java.util.Date;
 public class TokenUtils {
 
 	// Izdavac tokena
-	@Value("spring-security-example")
+	@Value("transport-projekat-backend")
 	private String APP_NAME;
 
 	// Tajna koju samo backend aplikacija treba da zna kako bi mogla da generise i proveri JWT https://jwt.io/
@@ -35,9 +35,15 @@ public class TokenUtils {
 	// Moguce je generisati JWT za razlicite klijente (npr. web i mobilni klijenti nece imati isto trajanje JWT, 
 	// JWT za mobilne klijente ce trajati duze jer se mozda aplikacija redje koristi na taj nacin)
 	// Radi jednostavnosti primera, necemo voditi racuna o uređaju sa kojeg zahtev stiže.
-	//	private static final String AUDIENCE_UNKNOWN = "unknown";
-	//	private static final String AUDIENCE_MOBILE = "mobile";
-	//	private static final String AUDIENCE_TABLET = "tablet";
+	private static final String AUDIENCE_UNKNOWN = "unknown";
+	private static final String AUDIENCE_MOBILE = "mobile";
+	private static final String AUDIENCE_TABLET = "tablet";
+
+	private final IUserService userService;
+
+	public TokenUtils(IUserService userService){
+		this.userService = userService;
+	}
 	
 	private static final String AUDIENCE_WEB = "web";
 
@@ -53,6 +59,7 @@ public class TokenUtils {
 	 * @param username Korisničko ime korisnika kojem se token izdaje
 	 * @return JWT token
 	 */
+
 	public String generateToken(String username) {
 		return Jwts.builder()
 				.setIssuer(APP_NAME)
@@ -60,6 +67,7 @@ public class TokenUtils {
 				.setAudience(generateAudience())
 				.setIssuedAt(new Date())
 				.setExpiration(generateExpirationDate())
+				.claim("role", userService.findRolesOfUser(username))
 				.signWith(SIGNATURE_ALGORITHM, SECRET).compact();
 		
 
@@ -71,19 +79,19 @@ public class TokenUtils {
 	 * @return Tip uređaja. 
 	 */
 	private String generateAudience() {
-		
+
 		//	Moze se iskoristiti org.springframework.mobile.device.Device objekat za odredjivanje tipa uredjaja sa kojeg je zahtev stigao.
 		//	https://spring.io/projects/spring-mobile
-				
-		//	String audience = AUDIENCE_UNKNOWN;
-		//		if (device.isNormal()) {
-		//			audience = AUDIENCE_WEB;
-		//		} else if (device.isTablet()) {
-		//			audience = AUDIENCE_TABLET;
-		//		} else if (device.isMobile()) {
-		//			audience = AUDIENCE_MOBILE;
-		//		}
-		
+
+		/*String audience = AUDIENCE_UNKNOWN;
+		if (device.isNormal()) {
+			audience = AUDIENCE_WEB;
+		} else if (device.isTablet()) {
+			audience = AUDIENCE_TABLET;
+		} else if (device.isMobile()) {
+			audience = AUDIENCE_MOBILE;
+		}*/
+
 		return AUDIENCE_WEB;
 	}
 

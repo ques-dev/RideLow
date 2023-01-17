@@ -5,9 +5,18 @@ INSERT INTO VEHICLE_TYPES (NAME, PRICE_PER_KM) VALUES
 
 
 INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,TELEPHONE_NUMBER) VALUES
-    ('Bulevar oslobođenja 74', 'imenko@mail.com', true, false, 'Radomir', 'test2Test', 'Radomirović', '065338295504');
+    ('Bulevar oslobođenja 74', 'imenko@mail.com', true, false, 'Radomir',
+     '$2a$10$pXKYv3jwDFfh0ijVUSCNgel43TbKncFKWCspfsW.5nZsigOU/LekC', 'Radomirović', '065338295504');
 
 INSERT INTO PASSENGERS VALUES 1;
+
+INSERT INTO ROLE (NAME) VALUES
+    ('ROLE_PASSENGER');
+INSERT INTO ROLE (NAME) VALUES
+    ('ROLE_DRIVER');
+INSERT INTO ROLE (NAME) VALUES
+    ('ROLE_ADMIN');
+INSERT INTO USER_ROLE (user_id, role_id) VALUES (1, 1);
 
 INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,TELEPHONE_NUMBER) VALUES
     ('Bulevar oslobođenja 79', 'imenka@mail.com', true, false, 'Časlav', 'test2Test', 'Radomanović', '06999999999');

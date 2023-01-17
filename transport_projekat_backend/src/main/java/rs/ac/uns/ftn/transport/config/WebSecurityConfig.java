@@ -5,6 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -43,11 +47,33 @@ public class WebSecurityConfig {
     private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
     @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService());
+        authProvider.setPasswordEncoder(passwordEncoder());
+
+        return authProvider;
+    }
+
+    @Bean
     @Order(1)
     public SecurityFilterChain setupFilterChain(HttpSecurity http) throws Exception {
 
+        http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.headers().frameOptions().disable();
         http.exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint);
+        http.authenticationProvider(authenticationProvider());
         return http.build();
     }
 
@@ -66,16 +92,11 @@ public class WebSecurityConfig {
     @Order(3)
     public SecurityFilterChain DefaultFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeRequests(authorize -> {
-                    try {
-                        authorize
-                                .anyRequest().authenticated().and().cors().and()
-                                .addFilterBefore(new TokenAuthenticationFilter(tokenUtils,  userDetailsService()), BasicAuthenticationFilter.class);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                );
+                .authorizeHttpRequests(authorize -> authorize
+                        .anyRequest().authenticated()//.and()
+                        //.addFilterBefore(new TokenAuthenticationFilter(tokenUtils,  userDetailsService()), BasicAuthenticationFilter.class)
+                )
+                .formLogin(withDefaults());
         return http.build();
     }
 }

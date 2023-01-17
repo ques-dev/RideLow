@@ -14,6 +14,13 @@
           <element id="module-output" name="transport-projekat-backend" />
         </element>
         <element id="directory" name="lib">
+          <element id="library" level="project" name="Maven: org.glassfish.jaxb:jaxb-runtime:2.3.2" />
+          <element id="library" level="project" name="Maven: jakarta.xml.bind:jakarta.xml.bind-api:4.0.0" />
+          <element id="library" level="project" name="Maven: org.glassfish.jaxb:txw2:4.0.1" />
+          <element id="library" level="project" name="Maven: com.sun.istack:istack-commons-runtime:4.1.1" />
+          <element id="library" level="project" name="Maven: org.jvnet.staxex:stax-ex:2.1.0" />
+          <element id="library" level="project" name="Maven: com.sun.xml.fastinfoset:FastInfoset:2.1.0" />
+          <element id="library" level="project" name="Maven: jakarta.activation:jakarta.activation-api:2.1.0" />
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot-starter-web:3.0.0" />
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot-starter:3.0.0" />
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot:3.0.0" />
@@ -37,8 +44,6 @@
           <element id="library" level="project" name="Maven: org.springframework:spring-web:6.0.2" />
           <element id="library" level="project" name="Maven: org.springframework:spring-webmvc:6.0.2" />
           <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:2.0.4" />
-          <element id="library" level="project" name="Maven: jakarta.xml.bind:jakarta.xml.bind-api:4.0.0" />
-          <element id="library" level="project" name="Maven: jakarta.activation:jakarta.activation-api:2.1.0" />
           <element id="library" level="project" name="Maven: net.bytebuddy:byte-buddy:1.12.19" />
           <element id="library" level="project" name="Maven: org.springframework:spring-core:6.0.2" />
           <element id="library" level="project" name="Maven: org.springframework:spring-jcl:6.0.2" />
@@ -61,10 +66,6 @@
           <element id="library" level="project" name="Maven: jakarta.transaction:jakarta.transaction-api:2.0.1" />
           <element id="library" level="project" name="Maven: org.hibernate.common:hibernate-commons-annotations:6.0.2.Final" />
           <element id="library" level="project" name="Maven: org.jboss:jandex:2.4.2.Final" />
-          <element id="library" level="project" name="Maven: org.glassfish.jaxb:jaxb-runtime:4.0.1" />
-          <element id="library" level="project" name="Maven: org.glassfish.jaxb:jaxb-core:4.0.1" />
-          <element id="library" level="project" name="Maven: org.glassfish.jaxb:txw2:4.0.1" />
-          <element id="library" level="project" name="Maven: com.sun.istack:istack-commons-runtime:4.1.1" />
           <element id="library" level="project" name="Maven: jakarta.inject:jakarta.inject-api:2.0.0" />
           <element id="library" level="project" name="Maven: org.antlr:antlr4-runtime:4.10.1" />
           <element id="library" level="project" name="Maven: org.springframework.data:spring-data-jpa:3.0.0" />

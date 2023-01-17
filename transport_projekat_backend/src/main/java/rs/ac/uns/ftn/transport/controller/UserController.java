@@ -1,22 +1,30 @@
 package rs.ac.uns.ftn.transport.controller;
 
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.*;
+import rs.ac.uns.ftn.transport.dto.User.LoginDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RidePage2DTO;
 import rs.ac.uns.ftn.transport.mapper.RideDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.UserDTOMapper;
 import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.model.enumerations.MessageType;
 import rs.ac.uns.ftn.transport.service.interfaces.*;
+import rs.ac.uns.ftn.transport.utils.TokenUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
@@ -30,6 +38,9 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(value = "/api/user")
 public class UserController {
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
     private final IUserService userService;
     private final IDriverService driverService;
     private final IPassengerService passengerService;
@@ -37,13 +48,16 @@ public class UserController {
     private final IRideService rideService;
     private final MessageSource messageSource;
     private final IMailService mailService;
+    private final TokenUtils tokenUtils;
 
     public UserController(IUserService userService,
                           IDriverService driverService,
                           IPassengerService passengerService,
                           IRideService rideService,
                           MessageSource messageSource,
-                          IMailService mailService) {
+                          IMailService mailService,
+                          TokenUtils tokenUtils) {
+        this.tokenUtils = tokenUtils;
         this.rideService = rideService;
         this.passengerService = passengerService;
         this.driverService = driverService;
@@ -130,18 +144,25 @@ public class UserController {
     public ResponseEntity<UserPageDTO> findUsers(Pageable page){
         Page<User> users = userService.findAll(page);
         Set<UserDTO> userDTOS = new HashSet<>();
-        System.err.println(users.getTotalElements());
         if(users.getTotalElements() != 0)
              userDTOS = users.stream().map(UserDTOMapper::fromUsertoDTO).collect(Collectors.toSet());
 
         return new ResponseEntity<>(new UserPageDTO(users.getTotalElements(), userDTOS), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/login")
-    public ResponseEntity<TokenDTO> login(@RequestBody Passenger user){
-        user = userService.findByLogin(user);
-        TokenDTO token = userService.saveToken(user);
-        return new ResponseEntity<>(token, HttpStatus.CREATED);
+    @PostMapping(value = "/login", consumes = "application/json")
+    public ResponseEntity<TokenDTO> login(
+            @RequestBody LoginDTO authenticationRequest, HttpServletResponse response){
+
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                authenticationRequest.getEmail(), authenticationRequest.getPassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        User user = (User) authentication.getPrincipal();
+        String jwt = tokenUtils.generateToken(user.getUsername());
+
+        return ResponseEntity.ok(new TokenDTO(jwt, jwt));
     }
 
     @GetMapping(value = "/{id}/message")

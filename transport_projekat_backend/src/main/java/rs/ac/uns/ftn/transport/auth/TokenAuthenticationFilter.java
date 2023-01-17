@@ -32,10 +32,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-
-		System.err.println("2");
 		String username;
-		
 		// 1. Preuzimanje JWT tokena iz zahteva
 		String authToken = tokenUtils.getToken(request);
 		
