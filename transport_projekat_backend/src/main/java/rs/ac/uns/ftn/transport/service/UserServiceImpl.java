@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.transport.service;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -68,8 +69,8 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Set<MessageDTO> findMessagesOfUser(Integer id) {
         Optional<User> userO = userRepository.findById(id);
-        if(!userO.isPresent()){
-            return null;
+        if(userO.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         User user = userO.get();
         Set<Message> messages = messageRepository.findBySender(user);
@@ -92,6 +93,8 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void blockUser(Integer id) {
         User user = findOne(id);
+        if(user.getIsBlocked())
+            throw new DataIntegrityViolationException("User is blocked!");
         user.setIsBlocked(true);
         save(user);
     }
@@ -99,6 +102,8 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void unblockUser(Integer id) {
         User user = findOne(id);
+        if(!user.getIsBlocked())
+            throw new DataIntegrityViolationException("User is not blocked!");
         user.setIsBlocked(false);
         save(user);
     }
@@ -106,8 +111,8 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Note saveNote(Integer id, Note note) {
         Optional<User> userO = userRepository.findById(id);
-        if(!userO.isPresent())
-            return null;
+        if(userO.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         User user = userO.get();
         note.setUser(user);
         note.setDate(LocalDateTime.now());
@@ -118,8 +123,8 @@ public class UserServiceImpl implements IUserService {
     @Override
     public NotePageDTO findNotes(Integer id, Pageable page) {
         Optional<User> userO = userRepository.findById(id);
-        if(!userO.isPresent())
-            return null;
+        if(userO.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         User user = userO.get();
         Page<Note> notes = noteRepository.findByUser(user, page);
         Set<NoteDTO> noteDTOS = notes.stream().map(NoteDTOMapper::fromNotetoDTO).collect(Collectors.toSet());

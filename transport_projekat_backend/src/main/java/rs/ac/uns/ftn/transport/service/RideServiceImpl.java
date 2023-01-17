@@ -124,7 +124,11 @@ public class RideServiceImpl implements IRideService {
 
     @Override
     public Page<Ride> findPassenger(Integer passengerId, Pageable page) {
-        return rideRepository.findPassenger(passengerId, page);
+        Optional<Page<Ride>> rides = Optional.ofNullable(rideRepository.findPassenger(passengerId, page));
+        if(rides.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return rides.get();
     }
 
     @Override
@@ -138,7 +142,11 @@ public class RideServiceImpl implements IRideService {
     }
 
     public Page<Ride> findAllByDriver_Id(Integer id, Pageable page) {
-        return rideRepository.findAllByDriver_Id(id, page);
+        Optional<Page<Ride>> rides = Optional.ofNullable(rideRepository.findAllByDriver_Id(id, page));
+        if(rides.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return rides.get();
     }
 
     public Page<Ride> findAllByDriver_IdAndStartTimeIsAfterAndEndTimeIsBefore(Integer id, LocalDateTime start, LocalDateTime end, Pageable page) {

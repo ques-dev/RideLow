@@ -6,6 +6,7 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -108,7 +109,7 @@ public class UserController {
 
     @PutMapping(value = "/{id}/resetPassword", consumes = "application/json")
     public ResponseEntity<?> resetPassword(@PathVariable Integer id,
-                                            @Valid @RequestBody ResetPasswordDTO dto) throws ConstraintViolationException {
+                                           @Valid @RequestBody ResetPasswordDTO dto) throws ConstraintViolationException {
         User user;
         try {
             user = userService.findOne(id);
@@ -129,30 +130,35 @@ public class UserController {
     }
 
     @GetMapping(value = "/{id}/ride")
-    public ResponseEntity<RidePage2DTO> findRides(@PathVariable Integer id, Pageable page){
-        Page<Ride> rides = rideService.findPassenger(id, (page));
-        if(rides.isEmpty()){
-            rides = rideService.findAllByDriver_Id(id, (page));
+    public ResponseEntity<?> findRides(@PathVariable Integer id, Pageable page) {
+        try {
+            User user = userService.findOne(id);
+            Page<Ride> rides = rideService.findPassenger(id, (page));
+            if (rides.isEmpty()) {
+                rides = rideService.findAllByDriver_Id(id, (page));
+            }
+            Set<RideDTO> rideDTOs = rides.stream()
+                    .map(RideDTOMapper::fromRidetoDTO)
+                    .collect(Collectors.toSet());
+            return new ResponseEntity<>(new RidePage2DTO(rides.getTotalElements(), rideDTOs), HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("user.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
-        Set<RideDTO> rideDTOs = rides.stream()
-                .map(RideDTOMapper:: fromRidetoDTO)
-                .collect(Collectors.toSet());
-        return new ResponseEntity<>(new RidePage2DTO(rides.getTotalElements(),rideDTOs),HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<UserPageDTO> findUsers(Pageable page){
+    public ResponseEntity<?> findUsers(Pageable page) {
         Page<User> users = userService.findAll(page);
         Set<UserDTO> userDTOS = new HashSet<>();
-        if(users.getTotalElements() != 0)
-             userDTOS = users.stream().map(UserDTOMapper::fromUsertoDTO).collect(Collectors.toSet());
+        if (users.getTotalElements() != 0)
+            userDTOS = users.stream().map(UserDTOMapper::fromUsertoDTO).collect(Collectors.toSet());
 
         return new ResponseEntity<>(new UserPageDTO(users.getTotalElements(), userDTOS), HttpStatus.OK);
     }
 
     @PostMapping(value = "/login", consumes = "application/json")
-    public ResponseEntity<TokenDTO> login(
-            @RequestBody LoginDTO authenticationRequest, HttpServletResponse response){
+    public ResponseEntity<?> login(
+            @RequestBody LoginDTO authenticationRequest, HttpServletResponse response) {
 
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getEmail(), authenticationRequest.getPassword()));
@@ -166,48 +172,77 @@ public class UserController {
     }
 
     @GetMapping(value = "/{id}/message")
-    public ResponseEntity<MessagePageDTO> findUserMessages(@PathVariable Integer id){
-        Set<MessageDTO> messageDTOS = userService.findMessagesOfUser(id);
-        return new ResponseEntity<>(new MessagePageDTO((long) messageDTOS.size(), messageDTOS), HttpStatus.OK);
+    public ResponseEntity<?> findUserMessages(@PathVariable Integer id) {
+        try {
+            Set<MessageDTO> messageDTOS = userService.findMessagesOfUser(id);
+            return new ResponseEntity<>(new MessagePageDTO((long) messageDTOS.size(), messageDTOS), HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("user.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping(value = "/{id}/message")
-    public ResponseEntity<MessageLightDTO> createMessage(@PathVariable Integer id, @RequestBody MessageLightDTO messageLight){
-        Message message = new Message();
-        message.setSender(userService.findOne(id));
-        message.setReceiver(userService.findOne(messageLight.getReceiverId()));
-        message.setMessage(messageLight.getMessage());
-        message.setSentDateTime(LocalDateTime.now());
-        message.setMessageType(MessageType.VOZNJA);
-        message.setRide(rideService.findOne(id));
-        message = userService.SaveMessage(message);
+    public ResponseEntity<?> createMessage(@PathVariable Integer id, @RequestBody MessageLightDTO messageLight) {
+        try {
+            Message message = new Message();
+            message.setSender(userService.findOne(id));
+            message.setReceiver(userService.findOne(messageLight.getReceiverId()));
+            message.setMessage(messageLight.getMessage());
+            message.setSentDateTime(LocalDateTime.now());
+            message.setMessageType(MessageType.VOZNJA);
+            message.setRide(rideService.findOne(id));
+            message = userService.SaveMessage(message);
 
-        messageLight.setId(message.getId());
-        messageLight.setTimeOfSending(message.getSentDateTime());
-        messageLight.setSenderId(id);
-        return new ResponseEntity<>(messageLight, HttpStatus.CREATED);
+            messageLight.setId(message.getId());
+            messageLight.setTimeOfSending(message.getSentDateTime());
+            messageLight.setSenderId(id);
+            return new ResponseEntity<>(messageLight, HttpStatus.CREATED);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("user.reciver.ride.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
     }
 
     @PutMapping(value = "/{id}/block")
-    public ResponseEntity<String> blockUser(@PathVariable Integer id){
-        userService.blockUser(id);
-        return new ResponseEntity<>("User is successfully blocked", HttpStatus.NO_CONTENT);
+    public ResponseEntity<?> blockUser(@PathVariable Integer id) {
+        try {
+            userService.blockUser(id);
+            return new ResponseEntity<>(new ResponseMessage("User is successfully blocked"), HttpStatus.NO_CONTENT);
+        } catch (DataIntegrityViolationException e) {
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("user.alreadyBlocked", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("user.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
     }
+
     @PutMapping(value = "/{id}/unblock")
-    public ResponseEntity<String> unblockUser(@PathVariable Integer id){
-        userService.unblockUser(id);
-        return new ResponseEntity<>("User is successfully unblocked", HttpStatus.NO_CONTENT);
+    public ResponseEntity<?> unblockUser(@PathVariable Integer id) {
+        try {
+            userService.unblockUser(id);
+            return new ResponseEntity<>(new ResponseMessage("User is successfully unblocked"), HttpStatus.NO_CONTENT);
+        } catch (DataIntegrityViolationException e) {
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("user.notBlocked", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("user.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping(value = "/{id}/note")
-    public ResponseEntity<NoteLiteDTO> creatingNote(@PathVariable Integer id, @RequestBody Note note){
-        note = userService.saveNote(id, note);
-        return new ResponseEntity<>(new NoteLiteDTO(note), HttpStatus.OK);
+    public ResponseEntity<?> creatingNote(@PathVariable Integer id, @RequestBody Note note){
+        try {
+            note = userService.saveNote(id, note);
+            return new ResponseEntity<>(new NoteLiteDTO(note), HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("user.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping(value = "/{id}/note")
-    public ResponseEntity<NotePageDTO> findNotes(@PathVariable Integer id, Pageable page){
-        NotePageDTO notePageDTO = userService.findNotes(id, page);
-        return new ResponseEntity<>(notePageDTO, HttpStatus.OK);
+    public ResponseEntity<?> findNotes(@PathVariable Integer id, Pageable page) {
+        try {
+            NotePageDTO notePageDTO = userService.findNotes(id, page);
+            return new ResponseEntity<>(notePageDTO, HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("user.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
     }
 }

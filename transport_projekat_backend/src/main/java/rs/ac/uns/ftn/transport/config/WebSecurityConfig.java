@@ -92,11 +92,12 @@ public class WebSecurityConfig {
     @Order(3)
     public SecurityFilterChain DefaultFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().authenticated()//.and()
-                        //.addFilterBefore(new TokenAuthenticationFilter(tokenUtils,  userDetailsService()), BasicAuthenticationFilter.class)
-                )
-                .formLogin(withDefaults());
+                .authorizeHttpRequests(authorize -> {
+                    authorize
+                            .requestMatchers("/api/**").authenticated().and()
+                            .addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userDetailsService()), BasicAuthenticationFilter.class);
+                        }
+                );
         return http.build();
     }
 }

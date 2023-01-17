@@ -1,6 +1,8 @@
 package rs.ac.uns.ftn.transport.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.review.DriverReviewDTO;
 import rs.ac.uns.ftn.transport.dto.review.ReviewRideDTO;
 import rs.ac.uns.ftn.transport.dto.review.VehicleReviewDTO;
@@ -34,16 +36,16 @@ public class ReviewServiceImpl implements IReviewService {
 
     public Set<VehicleReview> getVehicleReviewsofVehicle(Integer id){
         Optional<Vehicle> vehicleOptional = vehicleRepository.findById(id);
-        if(!vehicleOptional.isPresent()){
-            return null;
+        if(vehicleOptional.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         Vehicle vehicle = vehicleOptional.get();
         return vehicleReviewRepository.findByVehicle(vehicle);
     }
     public Set<DriverReview> getDriverReviewsofDriver(Integer id){
         Optional<Driver> driverOptional= driverRepository.findById(id);
-        if(!driverOptional.isPresent()){
-            return null;
+        if(driverOptional.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         Driver driver = driverOptional.get();
         return driverReviewRepository.findByDriver(driver);
@@ -54,11 +56,11 @@ public class ReviewServiceImpl implements IReviewService {
     @Override
     public ReviewRideDTO getReviewsForRide(Integer rideId) {
         Optional<Ride> rideO = rideRepository.findById(rideId);
-        if(!rideO.isPresent())
-            return null;
+        if(rideO.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         Ride ride = rideO.get();
-        VehicleReview vehicleReview = vehicleReviewRepository.findByCurrentRide(ride);
-        DriverReview driverReview = driverReviewRepository.findByCurrentRide(ride);
-        return new ReviewRideDTO(new DriverReviewDTO(driverReview), new VehicleReviewDTO(vehicleReview));
+        Set<VehicleReview> vehicleReview = vehicleReviewRepository.findByCurrentRide(ride);
+        Set<DriverReview> driverReview = driverReviewRepository.findByCurrentRide(ride);
+        return new ReviewRideDTO(driverReview, vehicleReview);
     }
 }
