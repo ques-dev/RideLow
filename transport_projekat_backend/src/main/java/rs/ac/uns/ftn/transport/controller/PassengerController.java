@@ -2,6 +2,7 @@ package rs.ac.uns.ftn.transport.controller;
 
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
+import jakarta.websocket.server.PathParam;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,7 @@ import rs.ac.uns.ftn.transport.dto.passenger.PassengerWithoutIdPasswordDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
 import rs.ac.uns.ftn.transport.mapper.passenger.PassengerCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.passenger.PassengerDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.passenger.PassengerIdEmailDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.RideCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.model.ResponseMessage;
@@ -30,6 +32,7 @@ import rs.ac.uns.ftn.transport.service.interfaces.IUserActivationService;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -84,7 +87,6 @@ public class PassengerController {
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(messageSource.getMessage("passenger.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
-
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
@@ -175,4 +177,15 @@ public class PassengerController {
                 .map(RideCreatedDTOMapper:: fromRideToDTO).collect(Collectors.toSet());
         return new ResponseEntity<>(new RidePageDTO(rides.getTotalElements(),rideDTOs),HttpStatus.OK);
     }
+
+    @GetMapping(value="/{email}/id")
+    public ResponseEntity<?> getIdOfPassengerFromEmail(@PathVariable String email){
+        try {
+            Passenger retrieved = passengerService.findByEmail(email);
+            return new ResponseEntity<>(PassengerIdEmailDTOMapper.fromPassengerToDTO(retrieved), HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("passenger.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
+    }
+
 }

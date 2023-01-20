@@ -119,4 +119,13 @@ public abstract class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public User(Integer id) {
+        this.id = id;
+    }
+
+    public User(Integer id, Boolean isBlocked) {
+        this.id = id;
+        this.isBlocked = isBlocked;
+    }
 }

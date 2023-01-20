@@ -251,7 +251,7 @@ public class RideServiceImpl implements IRideService {
         }
         Ride rejected = toReject.get();
         if(rejected.getStatus() != RideStatus.PENDING && rejected.getStatus() != RideStatus.ACCEPTED) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, messageSource.getMessage("accepting.invalidStatus", null, Locale.getDefault()));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, messageSource.getMessage("cancellation.invalidStatus", null, Locale.getDefault()));
         }
         rejected.setStatus(RideStatus.REJECTED);
         explanation.setRide(rejected);

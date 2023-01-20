@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 
 @Data
 public class RideCreatedDTO extends RideCreationDTO {
-
     private Integer id;
     private LocalDateTime startTime;
     private LocalDateTime endTime;

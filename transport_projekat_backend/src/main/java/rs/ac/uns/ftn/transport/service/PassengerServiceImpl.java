@@ -75,6 +75,15 @@ public class PassengerServiceImpl implements IPassengerService {
     }
 
     @Override
+    public Passenger findByEmail(String email) {
+        Optional<Passenger> passenger = passengerRepository.findByEmail(email);
+        if(passenger.isEmpty() || !passenger.get().getIsActivated()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return passenger.get();
+    }
+
+    @Override
     public Page<Ride> findAllByPassenger_Id(Integer id, Pageable page) {
         return rideService.findAllByPassenger_Id(id, page);
     }
