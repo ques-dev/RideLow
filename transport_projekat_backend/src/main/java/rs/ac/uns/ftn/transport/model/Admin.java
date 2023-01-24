@@ -1,7 +1,7 @@
 package rs.ac.uns.ftn.transport.model;
 
-import jakarta.persistence.*;
 import lombok.*;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "admins")

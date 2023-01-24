@@ -1,7 +1,7 @@
 package rs.ac.uns.ftn.transport.model;
 
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;

@@ -1,9 +1,6 @@
 package rs.ac.uns.ftn.transport.controller;
 
 import com.google.common.base.Strings;
-import jakarta.transaction.Transactional;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -35,6 +32,9 @@ import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.model.enumerations.DocumentType;
 import rs.ac.uns.ftn.transport.service.interfaces.*;
 
+import javax.transaction.Transactional;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Base64;

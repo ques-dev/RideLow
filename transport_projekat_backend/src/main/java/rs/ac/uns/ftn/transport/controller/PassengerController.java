@@ -1,8 +1,8 @@
 package rs.ac.uns.ftn.transport.controller;
 
-import jakarta.mail.MessagingException;
-import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
+import javax.mail.MessagingException;
+import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;

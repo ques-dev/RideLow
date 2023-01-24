@@ -1,12 +1,12 @@
 package rs.ac.uns.ftn.transport.model;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 
 import java.util.Objects;
 
-import static jakarta.persistence.InheritanceType.JOINED;
+import static javax.persistence.InheritanceType.*;
 
 //TODO: Model nije jasan sto se tice recenzija (vozac i vozilo odvojeno). Pitacu asistenta za ovo. Do tada ostaje prazno
 @Entity

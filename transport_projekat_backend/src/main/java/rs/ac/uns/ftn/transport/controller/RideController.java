@@ -1,6 +1,6 @@
 package rs.ac.uns.ftn.transport.controller;
 
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,11 +76,11 @@ public class RideController {
             }
         }
         catch(ResponseStatusException ex) {
-            if(ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+            if(ex.getStatus() == HttpStatus.NOT_FOUND) {
                 this.simpMessagingTemplate.convertAndSend("/ride-ordered/not-found", rideCreationDTO);
-                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+                return new ResponseEntity<>(ex.getReason(), ex.getStatus());
             }
-            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatus());
         }
     }
 
@@ -118,7 +118,7 @@ public class RideController {
             return new ResponseEntity<>(passengers, HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
-            return new ResponseEntity<>(new ArrayList<>(), ex.getStatusCode());
+            return new ResponseEntity<>(new ArrayList<>(), ex.getStatus());
         }
     }
 
@@ -166,10 +166,10 @@ public class RideController {
             return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toCancel),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
-            if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
-                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            if(ex.getStatus() == HttpStatus.NOT_FOUND){
+                return new ResponseEntity<>(ex.getReason(), ex.getStatus());
             }
-            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatus());
         }
     }
 
@@ -195,10 +195,10 @@ public class RideController {
             return new ResponseEntity<>(started,HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
-            if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
-                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            if(ex.getStatus() == HttpStatus.NOT_FOUND){
+                return new ResponseEntity<>(ex.getReason(), ex.getStatus());
             }
-            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatus());
         }
     }
 
@@ -210,10 +210,10 @@ public class RideController {
             return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toStart),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
-            if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
-                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            if(ex.getStatus() == HttpStatus.NOT_FOUND){
+                return new ResponseEntity<>(ex.getReason(), ex.getStatus());
             }
-            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatus());
         }
     }
 
@@ -235,10 +235,10 @@ public class RideController {
             return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(ride),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
-            if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
-                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            if(ex.getStatus() == HttpStatus.NOT_FOUND){
+                return new ResponseEntity<>(ex.getReason(), ex.getStatus());
             }
-            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatus());
         }
 
     }
@@ -253,10 +253,10 @@ public class RideController {
             return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(rejected),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
-            if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
-                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            if(ex.getStatus() == HttpStatus.NOT_FOUND){
+                return new ResponseEntity<>(ex.getReason(), ex.getStatus());
             }
-            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatus());
         }
     }
 
@@ -270,10 +270,10 @@ public class RideController {
             return new ResponseEntity<>(favoriteRideCreatedDTO, HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
-            if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
-                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            if(ex.getStatus() == HttpStatus.NOT_FOUND){
+                return new ResponseEntity<>(ex.getReason(), ex.getStatus());
             }
-            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatus());
         }
     }
 
@@ -294,10 +294,10 @@ public class RideController {
             this.favoriteRideService.delete(id);
             return new ResponseEntity<>("Successful deletion of favorite location!",HttpStatus.NO_CONTENT);
         } catch (ResponseStatusException ex) {
-            if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
-                return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+            if(ex.getStatus() == HttpStatus.NOT_FOUND){
+                return new ResponseEntity<>(ex.getReason(), ex.getStatus());
             }
-            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatus());
         }
     }
 

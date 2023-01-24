@@ -1,7 +1,7 @@
 package rs.ac.uns.ftn.transport.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static jakarta.persistence.InheritanceType.JOINED;
+import static javax.persistence.InheritanceType.*;
 
 @Entity
 @Table(name = "users")
