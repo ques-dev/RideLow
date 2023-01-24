@@ -12,8 +12,10 @@ public class LocationDTO {
 
     @DecimalMin(value= "-90.0",message="{latitude.minLimit}")
     @DecimalMax(value="90.0",message = "{latitude.maxLimit}")
+    @NotNull
     private Double latitude;
     @DecimalMin(value= "-180.0",message="{longitude.minLimit}")
     @DecimalMax(value="180.0",message = "{longitude.maxLimit}")
+    @NotNull
     private Double longitude;
 }

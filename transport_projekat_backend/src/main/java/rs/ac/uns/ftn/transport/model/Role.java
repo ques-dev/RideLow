@@ -2,9 +2,15 @@ package rs.ac.uns.ftn.transport.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 
+
+// POJO koji implementira Spring Security GrantedAuthority kojim se mogu definisati role u aplikaciji
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name="ROLE")
 public class Role implements GrantedAuthority {
 

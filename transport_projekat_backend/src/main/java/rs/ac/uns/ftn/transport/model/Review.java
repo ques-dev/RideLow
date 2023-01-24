@@ -10,13 +10,11 @@ import static jakarta.persistence.InheritanceType.JOINED;
 
 //TODO: Model nije jasan sto se tice recenzija (vozac i vozilo odvojeno). Pitacu asistenta za ovo. Do tada ostaje prazno
 @Entity
-@Table(name = "users")
+@Table(name = "reviews")
 @Inheritance(strategy = JOINED)
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
-@AllArgsConstructor
 public abstract class Review {
 
     @Id

@@ -3,11 +3,25 @@ package rs.ac.uns.ftn.transport.dto.review;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import rs.ac.uns.ftn.transport.model.DriverReview;
+import rs.ac.uns.ftn.transport.model.VehicleReview;
+
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class ReviewRideDTO {
-    private DriverReviewDTO driverReview;
-    private VehicleReviewDTO vehicleReview;
+    private Set<DriverReviewDTO> driverReview;
+    private Set<VehicleReviewDTO> vehicleReview;
+
+    public ReviewRideDTO(Set<DriverReview> driverReview, Set<VehicleReview> vehicleReview) {
+        for (DriverReview dr :
+                driverReview) {
+            this.driverReview.add(new DriverReviewDTO(dr));
+        }
+        for (VehicleReview vr:
+             vehicleReview) {
+            this.vehicleReview.add(new VehicleReviewDTO(vr));
+        }
+    }
 }

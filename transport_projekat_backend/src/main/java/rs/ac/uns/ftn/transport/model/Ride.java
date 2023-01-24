@@ -32,7 +32,7 @@ public class Ride {
     @Column (name = "TotalPrice")
     private Double totalCost;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn (name = "DriverId")
     @ToString.Exclude
     private Driver driver;

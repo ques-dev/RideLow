@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class ResetPasswordDTO {
     @Pattern(regexp = "^(?=.*\\d)(?=.*[A-Z])(?!.*[^a-zA-Z0-9@#$^+=])(.{8,15})$", message = "{format}")
     @NotBlank(message = "{required}")
-    private String new_password;
+    private String newPassword;
 
     @Pattern(regexp = "^[0-9]{1,6}$", message = "{format}")
     @NotBlank(message = "{required}")

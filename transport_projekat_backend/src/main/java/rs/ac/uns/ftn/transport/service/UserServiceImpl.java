@@ -1,10 +1,10 @@
 package rs.ac.uns.ftn.transport.service;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,34 +14,36 @@ import rs.ac.uns.ftn.transport.dto.NotePageDTO;
 import rs.ac.uns.ftn.transport.dto.TokenDTO;
 import rs.ac.uns.ftn.transport.mapper.MessageDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.NoteDTOMapper;
-import rs.ac.uns.ftn.transport.model.Message;
-import rs.ac.uns.ftn.transport.model.Note;
-import rs.ac.uns.ftn.transport.model.Passenger;
-import rs.ac.uns.ftn.transport.model.User;
+import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.repository.MessageRepository;
 import rs.ac.uns.ftn.transport.repository.NoteRepository;
 import rs.ac.uns.ftn.transport.repository.UserRepository;
+import rs.ac.uns.ftn.transport.service.interfaces.IRoleService;
 import rs.ac.uns.ftn.transport.service.interfaces.IUserService;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class UserServiceImpl implements IUserService, UserDetailsService {
+public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
     private final NoteRepository noteRepository;
     private final MessageRepository messageRepository;
+    private final IRoleService roleService;
 
-    public UserServiceImpl(UserRepository userRepository, MessageRepository messageRepository, NoteRepository noteRepository){
+    public UserServiceImpl(IRoleService roleService, UserRepository userRepository, MessageRepository messageRepository, NoteRepository noteRepository){
+        this.roleService = roleService;
         this.noteRepository = noteRepository;
         this.userRepository = userRepository;
         this.messageRepository = messageRepository;
     }
     public User save(User user)
     {
+        user.setRoles(roleService.findByName("ROLE_PASSENGER"));
         return userRepository.save(user);
     }
 
@@ -65,20 +67,22 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     }
 
     @Override
-    public TokenDTO saveToken(User user) {
-        return new TokenDTO(user, "1", "1");
-    }
-
-    @Override
     public Set<MessageDTO> findMessagesOfUser(Integer id) {
         Optional<User> userO = userRepository.findById(id);
-        if(!userO.isPresent()){
-            return null;
+        if(userO.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         User user = userO.get();
         Set<Message> messages = messageRepository.findBySender(user);
         Set<MessageDTO> messageDTOS = messages.stream().map(MessageDTOMapper::fromMessagetoDTO).collect(Collectors.toSet());
         return messageDTOS;
+    }
+
+    @Override
+    public Set<Role> findRolesOfUser(String username) {
+        Set<Role> roles = new HashSet<>();
+        roles.add(new Role(1L, "ROLE_PASSENGER"));
+        return roles;
     }
 
     @Override
@@ -89,6 +93,8 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     @Override
     public void blockUser(Integer id) {
         User user = findOne(id);
+        if(user.getIsBlocked())
+            throw new DataIntegrityViolationException("User is blocked!");
         user.setIsBlocked(true);
         save(user);
     }
@@ -96,6 +102,8 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     @Override
     public void unblockUser(Integer id) {
         User user = findOne(id);
+        if(!user.getIsBlocked())
+            throw new DataIntegrityViolationException("User is not blocked!");
         user.setIsBlocked(false);
         save(user);
     }
@@ -103,8 +111,8 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     @Override
     public Note saveNote(Integer id, Note note) {
         Optional<User> userO = userRepository.findById(id);
-        if(!userO.isPresent())
-            return null;
+        if(userO.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         User user = userO.get();
         note.setUser(user);
         note.setDate(LocalDateTime.now());
@@ -115,8 +123,8 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     @Override
     public NotePageDTO findNotes(Integer id, Pageable page) {
         Optional<User> userO = userRepository.findById(id);
-        if(!userO.isPresent())
-            return null;
+        if(userO.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         User user = userO.get();
         Page<Note> notes = noteRepository.findByUser(user, page);
         Set<NoteDTO> noteDTOS = notes.stream().map(NoteDTOMapper::fromNotetoDTO).collect(Collectors.toSet());

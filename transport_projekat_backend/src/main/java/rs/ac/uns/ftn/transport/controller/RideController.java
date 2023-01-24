@@ -6,15 +6,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.RejectionReasonDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleSimulationDTO;
+import rs.ac.uns.ftn.transport.dto.notifications.TimeUntilOnDepartureDTO;
 import rs.ac.uns.ftn.transport.dto.panic.PanicReasonDTO;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerWithoutIdPasswordDTO;
 import rs.ac.uns.ftn.transport.dto.ride.*;
 import rs.ac.uns.ftn.transport.mapper.RejectionReasonDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.ExtendedPanicDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.PanicReasonDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.passenger.PassengerWithoutIdPasswordDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.*;
 import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.service.interfaces.IFavoriteRideService;
@@ -23,10 +28,11 @@ import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
@@ -59,6 +65,7 @@ public class RideController {
             Ride ride;
             if(rideCreationDTO.getScheduledTime() != null){
                 rideService.reserve(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO));
+                sendPeriodicReservationNotifications(rideCreationDTO);
                 return new ResponseEntity<>(new ResponseMessage("Ride successfully reserved!"), HttpStatus.OK);
             }
             else {
@@ -70,6 +77,7 @@ public class RideController {
         }
         catch(ResponseStatusException ex) {
             if(ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                this.simpMessagingTemplate.convertAndSend("/ride-ordered/not-found", rideCreationDTO);
                 return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
             }
             return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatusCode());
@@ -100,6 +108,18 @@ public class RideController {
             rideDTOs.add(rideDTO);
         }
         return new ResponseEntity<>(rideDTOs, HttpStatus.OK);
+    }
+
+    @GetMapping(value="/{id}/passengers", produces = "application/json")
+    public ResponseEntity<List<PassengerWithoutIdPasswordDTO>> getPassengers(@PathVariable Integer id) {
+        try {
+            Ride ride = this.rideService.findOne(id);
+            List<PassengerWithoutIdPasswordDTO> passengers = ride.getPassengers().stream().map(PassengerWithoutIdPasswordDTOMapper::fromPassengerToDTO).collect(Collectors.toList());
+            return new ResponseEntity<>(passengers, HttpStatus.OK);
+        }
+        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(new ArrayList<>(), ex.getStatusCode());
+        }
     }
 
     @GetMapping(value = "/driver/{driverId}/active")
@@ -170,7 +190,9 @@ public class RideController {
     {
         try {
             Ride toStart = rideService.startRide(id);
-            return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(toStart),HttpStatus.OK);
+            RideCreatedDTO started = RideCreatedDTOMapper.fromRideToDTO(toStart);
+            this.simpMessagingTemplate.convertAndSend("/ride-started/notification", started);
+            return new ResponseEntity<>(started,HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
             if(ex.getStatusCode() == HttpStatus.NOT_FOUND){
@@ -205,6 +227,11 @@ public class RideController {
             rideDTO.setId(ride.getId());
             rideDTO.setVehicle(vehicle);
             this.simpMessagingTemplate.convertAndSend("/map-updates/ended-ride", rideDTO);
+            List<Integer> passengersId = new ArrayList<>();
+            for(Passenger passenger : ride.getPassengers()) {
+                passengersId.add(passenger.getId());
+            }
+            this.simpMessagingTemplate.convertAndSend("/ride-ended/notification", passengersId);
             return new ResponseEntity<>(RideCreatedDTOMapper.fromRideToDTO(ride),HttpStatus.OK);
         }
         catch(ResponseStatusException ex) {
@@ -275,7 +302,7 @@ public class RideController {
     }
 
     @MessageMapping("/on-location")
-    public void broadcastNotification(String rideId) {
+    public void broadcastOnLocationNotification(String rideId) {
         int rideID = Integer.parseInt(rideId);
         Ride ride = rideService.findOne(rideID);
         List<Integer> passengersId = new ArrayList<>();
@@ -283,6 +310,44 @@ public class RideController {
             passengersId.add(passenger.getId());
         }
         this.simpMessagingTemplate.convertAndSend("/driver-at-location/notification", passengersId);
+    }
+
+    @MessageMapping("/location-tracker")
+    public void broadcastTimeUntilOnDepartureLocationNotification(TimeUntilOnDepartureDTO dto) {
+        this.simpMessagingTemplate.convertAndSend("/location-tracker/notification", dto);
+    }
+
+    @MessageMapping("/inconsistency")
+    public void broadcastInconsistencyNotification(String rideId) {
+        System.out.println("Panic received. Ride ID: " + rideId);
+    }
+
+    public void sendPeriodicReservationNotifications(RideCreationDTO ride) {
+        ScheduledExecutorService localExecutor = Executors.newSingleThreadScheduledExecutor();
+        TaskScheduler scheduleNotification = new ConcurrentTaskScheduler(localExecutor);
+        Runnable rideReservationNotificationScheduling = new Runnable() {
+            private RideCreationDTO ride;
+            public Runnable init(RideCreationDTO ride) {
+                this.ride = ride;
+                return this;
+            }
+            @Override
+            public void run() {
+                Duration beforeOrderStart = Duration.between(LocalDateTime.now(),ride.getScheduledTime());
+                if(Math.abs(beforeOrderStart.toMinutes()) >= 5) {
+                    RideController.this.simpMessagingTemplate.convertAndSend("/ride-ordered/reservation-notification", ride);
+                    Date nextNotification = Date.from(LocalDateTime.now().plus(5, ChronoUnit.MINUTES)
+                            .atZone(ZoneId.systemDefault())
+                            .toInstant());
+                    scheduleNotification.schedule(this,nextNotification);
+                }
+
+            }
+        }.init(ride);
+        Date toSchedule = Date.from(LocalDateTime.now().plus(15, ChronoUnit.MINUTES)
+                .atZone(ZoneId.systemDefault())
+                .toInstant());
+        scheduleNotification.schedule(rideReservationNotificationScheduling,toSchedule);
     }
 
 }

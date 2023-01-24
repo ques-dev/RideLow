@@ -12,5 +12,5 @@ public interface DriverReviewRepository extends JpaRepository<DriverReview, Inte
 
     Set<DriverReview> findByDriver(@Param("driver") Driver driver);
 
-    DriverReview findByCurrentRide(Ride currentRide);
+    Set<DriverReview> findByCurrentRide(Ride currentRide);
 }

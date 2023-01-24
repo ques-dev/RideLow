@@ -4,7 +4,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.stereotype.Service;
@@ -125,7 +124,11 @@ public class RideServiceImpl implements IRideService {
 
     @Override
     public Page<Ride> findPassenger(Integer passengerId, Pageable page) {
-        return rideRepository.findPassenger(passengerId, page);
+        Optional<Page<Ride>> rides = Optional.ofNullable(rideRepository.findPassenger(passengerId, page));
+        if(rides.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return rides.get();
     }
 
     @Override
@@ -139,7 +142,11 @@ public class RideServiceImpl implements IRideService {
     }
 
     public Page<Ride> findAllByDriver_Id(Integer id, Pageable page) {
-        return rideRepository.findAllByDriver_Id(id, page);
+        Optional<Page<Ride>> rides = Optional.ofNullable(rideRepository.findAllByDriver_Id(id, page));
+        if(rides.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return rides.get();
     }
 
     public Page<Ride> findAllByDriver_IdAndStartTimeIsAfterAndEndTimeIsBefore(Integer id, LocalDateTime start, LocalDateTime end, Pageable page) {
@@ -244,7 +251,7 @@ public class RideServiceImpl implements IRideService {
         }
         Ride rejected = toReject.get();
         if(rejected.getStatus() != RideStatus.PENDING && rejected.getStatus() != RideStatus.ACCEPTED) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, messageSource.getMessage("accepting.invalidStatus", null, Locale.getDefault()));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, messageSource.getMessage("cancellation.invalidStatus", null, Locale.getDefault()));
         }
         rejected.setStatus(RideStatus.REJECTED);
         explanation.setRide(rejected);

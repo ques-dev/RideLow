@@ -9,5 +9,5 @@ import java.util.Set;
 public interface VehicleReviewRepository extends JpaRepository<VehicleReview, Integer> {
     Set<VehicleReview> findByVehicle(@Param("vehicle") Vehicle vehicle);
 
-    VehicleReview findByCurrentRide(@Param("currentRide") Ride currentRide);
+    Set<VehicleReview> findByCurrentRide(@Param("currentRide") Ride currentRide);
 }

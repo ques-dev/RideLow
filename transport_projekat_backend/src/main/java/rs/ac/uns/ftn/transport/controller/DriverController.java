@@ -10,14 +10,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import rs.ac.uns.ftn.transport.dto.LocationDTO;
+import rs.ac.uns.ftn.transport.dto.DocumentDTO;
 import rs.ac.uns.ftn.transport.dto.RidePageDTO;
 import rs.ac.uns.ftn.transport.dto.VehicleDTO;
-import rs.ac.uns.ftn.transport.dto.DocumentDTO;
 import rs.ac.uns.ftn.transport.dto.driver.DriverDTO;
 import rs.ac.uns.ftn.transport.dto.driver.DriverPageDTO;
 import rs.ac.uns.ftn.transport.dto.driver.DriverPasswordDTO;
@@ -37,9 +35,6 @@ import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.model.enumerations.DocumentType;
 import rs.ac.uns.ftn.transport.service.interfaces.*;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Base64;
@@ -121,7 +116,7 @@ public class DriverController {
             driver = driverService.save(driver);
             return new ResponseEntity<>(DriverDTOMapper.fromDrivertoDTO(driver), HttpStatus.OK);
         } catch (DataIntegrityViolationException e) {
-            return new ResponseEntity<>(messageSource.getMessage("user.emailExists", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("user.emailExists", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -154,7 +149,7 @@ public class DriverController {
         try {
             driverToUpdate = driverService.save(driverToUpdate);
         } catch (DataIntegrityViolationException e) {
-            return new ResponseEntity<>(messageSource.getMessage("user.emailExists", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("user.emailExists", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(DriverDTOMapper.fromDrivertoDTO(driverToUpdate), HttpStatus.OK);
     }
@@ -171,15 +166,15 @@ public class DriverController {
         }
 
         if (type.length() > 100) {
-            return new ResponseEntity<>(messageSource.getMessage("document.nameTooLong", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("document.nameTooLong", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
         if (image == null || image.isEmpty()) {
-            return new ResponseEntity<>(messageSource.getMessage("imageNull", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("imageNull", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
         if (!Objects.requireNonNull(image.getContentType()).startsWith("image/")) {
-            return new ResponseEntity<>(messageSource.getMessage("imageFormat", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("imageFormat", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
         String imageString;
@@ -287,7 +282,7 @@ public class DriverController {
         Vehicle vehicle = driver.getVehicle();
 
         if (vehicle == null) {
-            return new ResponseEntity<>(messageSource.getMessage("vehicle.notFound", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("vehicle.notFound", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(VehicleDTOMapper.fromVehicletoDTO(vehicle), HttpStatus.OK);
@@ -305,7 +300,7 @@ public class DriverController {
         Vehicle oldVehicle = driver.getVehicle();
 
         if (oldVehicle == null) {
-            return new ResponseEntity<>(messageSource.getMessage("vehicle.notFound", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("vehicle.notFound", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
         Vehicle newVehicle = VehicleDTOMapper.fromDTOtoVehicle(vehicleDTO);
@@ -341,11 +336,11 @@ public class DriverController {
         }
 
         if (driver.getVehicle() == null) {
-            return new ResponseEntity<>(messageSource.getMessage("workingHour.start.vehicle.notFound", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("workingHour.start.vehicle.notFound", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
         if (workingHoursDTO.getStart().isAfter(LocalDateTime.now())) {
-            return new ResponseEntity<>(messageSource.getMessage("workingHour.start.future", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("workingHour.start.future", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
         WorkingHours workingHours = WorkingHoursStartDTOMapper.fromDTOToWorkingHoursStart(workingHoursDTO);
@@ -356,9 +351,9 @@ public class DriverController {
             workingHours = workingHoursService.start(workingHours);
         } catch (ResponseStatusException e) {
             if (Objects.equals(e.getReason(), "ongoing")) {
-                return new ResponseEntity<>(messageSource.getMessage("workingHour.start.ongoing", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("workingHour.start.ongoing", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity<>(messageSource.getMessage("workingHour.start.limit", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("workingHour.start.limit", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(WorkingHoursDTOMapper.fromWorkingHoursToDTO(workingHours), HttpStatus.OK);
     }
@@ -385,19 +380,19 @@ public class DriverController {
         }
 
         if (workingHoursDTO.getEnd().isBefore(workingHours.getStart())) {
-            return new ResponseEntity<>(messageSource.getMessage("workingHour.end.beforeStart", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("workingHour.end.beforeStart", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
         if (workingHoursDTO.getEnd().isAfter(LocalDateTime.now())) {
-            return new ResponseEntity<>(messageSource.getMessage("workingHour.end.future", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("workingHour.end.future", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
         if (workingHours.getDriver().getVehicle() == null) {
-            return new ResponseEntity<>(messageSource.getMessage("workingHour.end.vehicle.notFound", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("workingHour.end.vehicle.notFound", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
         if (!workingHours.getStart().equals(workingHours.getEnd())) {
-            return new ResponseEntity<>(messageSource.getMessage("workingHour.end.notOngoing", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("workingHour.end.notOngoing", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
         workingHours.setEnd(workingHoursDTO.getEnd());
@@ -449,7 +444,7 @@ public class DriverController {
         }
 
         if (from != null && from.isAfter(LocalDateTime.now())) {
-            return new ResponseEntity<>(messageSource.getMessage("from.future", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("from.future", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
         Page<Ride> rides;
@@ -487,13 +482,13 @@ public class DriverController {
                 actualDriver.getTelephoneNumber().equals(request.getTelephoneNumber()) &&
                 actualDriver.getEmail().equals(request.getEmail()) &&
                 actualDriver.getAddress().equals(request.getAddress())) {
-            return new ResponseEntity<>(messageSource.getMessage("driver.editRequest.noChange", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("driver.editRequest.noChange", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
         // check if email is already taken
         User user = userService.findByEmail(request.getEmail());
         if (user != null && !user.getId().equals(actualDriver.getId())) {
-            return new ResponseEntity<>(messageSource.getMessage("user.emailExists", null, Locale.getDefault()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("user.emailExists", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
         // validate profile picture

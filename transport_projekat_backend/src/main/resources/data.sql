@@ -1,11 +1,12 @@
 INSERT INTO VEHICLE_TYPES (NAME, PRICE_PER_KM) VALUES
-                                                   ('STANDARD', 2),
-                                                   ('LUXURY', 5),
-                                                   ('VAN', 7);
+                                                   ('STANDARD', 150),
+                                                   ('LUXURY', 250),
+                                                   ('VAN', 200);
 
 
 INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,TELEPHONE_NUMBER) VALUES
-    ('Bulevar oslobođenja 74', 'imenko@mail.com', true, false, 'Radomir', 'test2Test', 'Radomirović', '065338295504');
+    ('Bulevar oslobođenja 74', 'imenko@mail.com', true, false, 'Radomir',
+     '$2a$10$pXKYv3jwDFfh0ijVUSCNgel43TbKncFKWCspfsW.5nZsigOU/LekC', 'Radomirović', '065338295504');
 
 INSERT INTO ROLE (NAME) VALUES
     ('PASSANGER_ROLE');
@@ -16,8 +17,16 @@ INSERT INTO ROLE (NAME) VALUES
 
 INSERT INTO PASSENGERS VALUES 1;
 
+INSERT INTO ROLE (NAME) VALUES
+    ('ROLE_PASSENGER');
+INSERT INTO ROLE (NAME) VALUES
+    ('ROLE_DRIVER');
+INSERT INTO ROLE (NAME) VALUES
+    ('ROLE_ADMIN');
+INSERT INTO USER_ROLE (user_id, role_id) VALUES (1, 1);
+
 INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,TELEPHONE_NUMBER) VALUES
-    ('Bulevar oslobođenja 74', 'imenka@mail.com', true, false, 'Radomir', 'test2Test', 'Radomirović', '065338295504');
+    ('Bulevar oslobođenja 79', 'imenka@mail.com', true, false, 'Časlav', 'test2Test', 'Radomanović', '06999999999');
 
 INSERT INTO PASSENGERS VALUES 2;
 
@@ -45,10 +54,10 @@ INSERT INTO DOCUMENTS(DOCUMENT_IMAGE, NAME, DRIVER_ID) VALUES
                                                                ('U3dhZ2dlciByb2Nrcw=', 'VOZACKA_DOZVOLA', 3);
 
 INSERT INTO WORKING_HOURS(SHIFT_START, SHIFT_END, DRIVER_ID) VALUES
-                                                                     ('2023-01-08 09:35:22', '2023-01-08 09:35:22', 3);
+                                                                     ('2023-01-08 09:35:22', '2023-01-08 09:35:23', 3);
 
 
 INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,TELEPHONE_NUMBER) VALUES
-    ('Bulevar Oslobođenja 23','driver@mail.com',true, false, 'Jovan', 'neprobojna_lozinka', 'Test2Test', '06533829');
+    ('Bulevar Oslobođenja 23','driver@mail.com',true, false, 'Jovan', 'NeprobojnaLozinka1', 'Jovanović', '06545910334');
 
 INSERT INTO DRIVERS(ID, VEHICLE_ID,IS_ACTIVE) VALUES (4, 2,true);

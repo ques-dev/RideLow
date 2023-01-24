@@ -23,7 +23,7 @@ public class RideCreationDTO {
     @Valid
     private Set<PassengerIdEmailDTO> passengers;
 
-    @Length(max=255,message = "{maxLength}")
+    @Length(max=50,message = "{maxLength}")
     @NotBlank(message = "{required}")
     private String vehicleType;
     @NotNull(message="{required}")
