@@ -1,6 +1,6 @@
 package rs.ac.uns.ftn.transport.service.interfaces;
 
-import jakarta.mail.MessagingException;
+import javax.mail.MessagingException;
 import org.springframework.data.domain.Page;
 import rs.ac.uns.ftn.transport.model.Passenger;
 import org.springframework.data.domain.Pageable;

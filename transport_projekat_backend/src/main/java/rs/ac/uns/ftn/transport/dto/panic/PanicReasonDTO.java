@@ -1,6 +1,6 @@
 package rs.ac.uns.ftn.transport.dto.panic;
 
-import jakarta.validation.constraints.NotBlank;
+import javax.validation.constraints.NotBlank;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 

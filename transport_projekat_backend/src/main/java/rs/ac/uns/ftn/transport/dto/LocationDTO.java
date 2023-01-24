@@ -1,6 +1,6 @@
 package rs.ac.uns.ftn.transport.dto;
 
-import jakarta.validation.constraints.*;
+import javax.validation.constraints.*;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 

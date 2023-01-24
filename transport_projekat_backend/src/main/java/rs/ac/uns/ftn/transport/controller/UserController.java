@@ -10,6 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.*;
@@ -20,6 +24,7 @@ import rs.ac.uns.ftn.transport.mapper.UserDTOMapper;
 import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.model.enumerations.MessageType;
 import rs.ac.uns.ftn.transport.service.interfaces.*;
+import rs.ac.uns.ftn.transport.util.TokenUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
@@ -36,23 +41,28 @@ public class UserController {
     private final IUserService userService;
     private final IDriverService driverService;
     private final IPassengerService passengerService;
-
     private final IRideService rideService;
     private final MessageSource messageSource;
     private final IMailService mailService;
+    private final AuthenticationManager authenticationManager;
+    private final TokenUtils tokenUtils;
 
     public UserController(IUserService userService,
                           IDriverService driverService,
                           IPassengerService passengerService,
                           IRideService rideService,
                           MessageSource messageSource,
-                          IMailService mailService) {
+                          IMailService mailService,
+                          AuthenticationManager authenticationManager,
+                          TokenUtils tokenUtils) {
         this.rideService = rideService;
         this.passengerService = passengerService;
         this.driverService = driverService;
         this.userService = userService;
         this.messageSource = messageSource;
         this.mailService = mailService;
+        this.authenticationManager = authenticationManager;
+        this.tokenUtils = tokenUtils;
     }
 
     @PutMapping(value = "/{id}/changePassword", consumes = "application/json")
@@ -147,8 +157,13 @@ public class UserController {
     @PostMapping(value = "/login", consumes = "application/json")
     public ResponseEntity<?> login(
             @RequestBody LoginDTO authenticationRequest, HttpServletResponse response) {
-
-        return ResponseEntity.ok(null);
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                authenticationRequest.getEmail(), authenticationRequest.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        User user = (User) authentication.getPrincipal();
+        String jwt = tokenUtils.generateToken(user.getUsername(), (user.getRoles()).get(0));
+        int expiresIn = tokenUtils.getExpiredIn();
+        return ResponseEntity.ok(new TokenDTO(jwt, jwt));
     }
 
     @GetMapping(value = "/{id}/message")

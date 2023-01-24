@@ -1,6 +1,6 @@
 package rs.ac.uns.ftn.transport.service;
 
-import jakarta.mail.MessagingException;
+import javax.mail.MessagingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;

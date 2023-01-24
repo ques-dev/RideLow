@@ -1,6 +1,6 @@
 package rs.ac.uns.ftn.transport.service;
 
-import jakarta.mail.MessagingException;
+import javax.mail.MessagingException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
