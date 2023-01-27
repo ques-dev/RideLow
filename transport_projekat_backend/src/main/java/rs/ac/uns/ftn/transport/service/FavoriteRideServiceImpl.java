@@ -53,7 +53,7 @@ public class FavoriteRideServiceImpl implements IFavoriteRideService {
         Passenger passenger = this.passengerRepository.findById(1).get();
         passenger.getFavorites().removeIf(fav -> fav.getId() == id);
         this.passengerRepository.save(passenger);
-        //this.favRideRepository.deleteById(id);
+        this.favRideRepository.deleteById(id);
     }
 
     @Override
@@ -62,5 +62,10 @@ public class FavoriteRideServiceImpl implements IFavoriteRideService {
         //TODO Get user from token and get his favorites
         Set<FavoriteRide> favorites = this.passengerRepository.findById(1).get().getFavorites();
         return favorites;
+    }
+
+    @Override
+    public Set<FavoriteRide> findAllByPassenger(Integer id) {
+        return favRideRepository.findAllByPassengerId(id);
     }
 }

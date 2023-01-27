@@ -6,7 +6,7 @@ import org.hibernate.validator.constraints.Length;
 
 @Data
 public class RejectionReasonDTO {
-    @Length(max = 255,message = "{maxLength}")
+    @Length(max = 500,message = "{maxLength}")
     @NotBlank(message = "{required}")
     private String reason;
 }

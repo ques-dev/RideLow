@@ -288,6 +288,23 @@ public class RideController {
 
     }
 
+    @GetMapping(value = "/favorites/passenger/{id}")
+    public ResponseEntity<?> getFavoritesByPassenger(@PathVariable Integer id)
+    {
+        try {
+            Set<FavoriteRide> favorites = favoriteRideService.findAllByPassenger(id);
+            Set<FavoriteRideDTO> favoriteDTOs = favorites.stream()
+                    .map(FavoriteRideDTOMapper:: fromFavoriteRideToDTO)
+                    .collect(Collectors.toSet());
+            return new ResponseEntity<>(favoriteDTOs, HttpStatus.OK);
+        } catch(ResponseStatusException ex) {
+            if(ex.getStatus() == HttpStatus.NOT_FOUND){
+                return new ResponseEntity<>(ex.getReason(), ex.getStatus());
+            }
+            return new ResponseEntity<>(new ResponseMessage(ex.getReason()), ex.getStatus());
+        }
+    }
+
     @DeleteMapping(value = "/favorites/{id}")
     public ResponseEntity<?> deleteFavorite(@PathVariable Integer id) {
         try {

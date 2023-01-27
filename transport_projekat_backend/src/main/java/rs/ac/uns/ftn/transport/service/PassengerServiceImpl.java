@@ -6,10 +6,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import rs.ac.uns.ftn.transport.dto.passenger.PassengerOneDayReportDTO;
 import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.model.UserActivation;
 import rs.ac.uns.ftn.transport.repository.PassengerRepository;
+import rs.ac.uns.ftn.transport.repository.RideRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
 import org.springframework.data.domain.Pageable;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
@@ -17,6 +19,9 @@ import rs.ac.uns.ftn.transport.service.interfaces.IUserActivationService;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -24,13 +29,16 @@ import java.util.Optional;
 public class PassengerServiceImpl implements IPassengerService {
 
     private final PassengerRepository passengerRepository;
+    private final RideRepository rideRepository;
     private final IRideService rideService;
     private final IUserActivationService activationService;
 
     public PassengerServiceImpl(PassengerRepository passengerRepository,
+                                RideRepository rideRepository,
                                 IRideService rideService,
                                 IUserActivationService activationService) {
         this.passengerRepository = passengerRepository;
+        this.rideRepository = rideRepository;
         this.rideService = rideService;
         this.activationService = activationService;
     }
@@ -72,6 +80,30 @@ public class PassengerServiceImpl implements IPassengerService {
 
     public Page<Passenger> findAll(Pageable page) {
         return passengerRepository.findAll(page);
+    }
+
+    @Override
+    public List<PassengerOneDayReportDTO> getReport(Integer passengerId, LocalDateTime from, LocalDateTime to) {
+        List<PassengerOneDayReportDTO> reports = new ArrayList<>();
+
+        for (LocalDateTime date = from; date.isBefore(to.plusDays(1)); date = date.plusDays(1)) {
+            Integer rides = rideRepository.countRidesByPassengerIdAndRideDate(passengerId,
+                    date.truncatedTo(ChronoUnit.DAYS),
+                    date.plusDays(1).truncatedTo(ChronoUnit.DAYS));
+
+            Double totalDistance = rideRepository.sumDistanceByPassengerIdAndRideDate(passengerId,
+                    date.truncatedTo(ChronoUnit.DAYS),
+                    date.plusDays(1).truncatedTo(ChronoUnit.DAYS));
+
+            Double totalCost = rideRepository.sumPriceByPassengerIdAndRideDate(passengerId,
+                    date.truncatedTo(ChronoUnit.DAYS),
+                    date.plusDays(1).truncatedTo(ChronoUnit.DAYS));
+
+            reports.add(new PassengerOneDayReportDTO(rides != null ? rides : 0,
+                    totalDistance != null ? totalDistance : 0,
+                    totalCost != null ? totalCost : 0));
+        }
+        return reports;
     }
 
     @Override

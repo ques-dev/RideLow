@@ -20,6 +20,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/map-updates",
                 "/ride-ordered",
+                "/ride-accepted",
                 "/driver-at-location",
                 "/ride-created",
                 "/ride-started",

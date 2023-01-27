@@ -47,6 +47,21 @@ public interface RideRepository extends JpaRepository<Ride,Integer> {
 
     Optional<Ride> findFirstByDriver_IdAndScheduledTimeIsAfter(Integer driverId, LocalDateTime now);
     Optional<Ride> findFirstByDriver_IdAndScheduledTimeIsBeforeOrderByScheduledTimeDesc(Integer driverId, LocalDateTime now);
+
+    @Query("SELECT COUNT(r) FROM Ride r JOIN r.passengers p WHERE p.id = :passengerId AND r.endTime >= :rideDate AND r.endTime < :nextDay AND r.status = 'FINISHED'")
+    Integer countRidesByPassengerIdAndRideDate(@Param("passengerId") Integer passengerId,
+                                               @Param("rideDate") LocalDateTime rideDate,
+                                               @Param("nextDay") LocalDateTime nextDay);
+
+    @Query("SELECT SUM(l.distanceInKm) FROM Ride r join r.locations l JOIN r.passengers p WHERE p.id = :passengerId AND r.endTime >= :rideDate AND r.endTime < :nextDay AND r.status = 'FINISHED'")
+    Double sumDistanceByPassengerIdAndRideDate(@Param("passengerId") Integer passengerId,
+                                               @Param("rideDate") LocalDateTime rideDate,
+                                               @Param("nextDay") LocalDateTime nextDay);
+
+    @Query("SELECT SUM(r.totalCost) FROM Ride r JOIN r.passengers p WHERE p.id = :passengerId AND r.endTime >= :rideDate AND r.endTime < :nextDay AND r.status = 'FINISHED'")
+    Double sumPriceByPassengerIdAndRideDate(@Param("passengerId") Integer passengerId,
+                                            @Param("rideDate") LocalDateTime rideDate,
+                                            @Param("nextDay") LocalDateTime nextDay);
 }
 
 

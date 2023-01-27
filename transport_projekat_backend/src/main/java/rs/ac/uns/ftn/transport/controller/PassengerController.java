@@ -12,10 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.RidePageDTO;
-import rs.ac.uns.ftn.transport.dto.passenger.PassengerDTO;
-import rs.ac.uns.ftn.transport.dto.passenger.PassengerCreatedDTO;
-import rs.ac.uns.ftn.transport.dto.passenger.PassengerPageDTO;
-import rs.ac.uns.ftn.transport.dto.passenger.PassengerWithoutIdPasswordDTO;
+import rs.ac.uns.ftn.transport.dto.passenger.*;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
 import rs.ac.uns.ftn.transport.mapper.passenger.PassengerCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.passenger.PassengerDTOMapper;
@@ -178,14 +175,18 @@ public class PassengerController {
         return new ResponseEntity<>(new RidePageDTO(rides.getTotalElements(),rideDTOs),HttpStatus.OK);
     }
 
-    @GetMapping(value="/{email}/id")
-    public ResponseEntity<?> getIdOfPassengerFromEmail(@PathVariable String email){
+    @GetMapping(value = "/{id}/report")
+    public ResponseEntity<?> getReport(@PathVariable Integer id,
+                                       @RequestParam LocalDateTime from,
+                                       @RequestParam LocalDateTime to) {
         try {
-            Passenger retrieved = passengerService.findByEmail(email);
-            return new ResponseEntity<>(PassengerIdEmailDTOMapper.fromPassengerToDTO(retrieved), HttpStatus.OK);
+            passengerService.findOne(id);
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(messageSource.getMessage("passenger.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
+
+        List<PassengerOneDayReportDTO> report = passengerService.getReport(id, from, to);
+        return new ResponseEntity<>(report, HttpStatus.OK);
     }
 
 }

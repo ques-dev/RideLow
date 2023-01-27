@@ -2,6 +2,8 @@ package rs.ac.uns.ftn.transport.model;
 
 
 import javax.persistence.*;
+
+import com.google.common.base.Strings;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
@@ -48,9 +50,13 @@ public class Passenger extends User{
     {
         this.setName(newInfo.getName());
         this.setSurname(newInfo.getSurname());
-        this.setProfilePicture(newInfo.getProfilePicture());
+        if (!Strings.isNullOrEmpty(newInfo.getProfilePicture())) {
+            this.setProfilePicture(newInfo.getProfilePicture());
+        }
         this.setAddress(newInfo.getAddress());
-        this.setTelephoneNumber(newInfo.getTelephoneNumber());
+        if (!Strings.isNullOrEmpty(newInfo.getTelephoneNumber())) {
+            this.setTelephoneNumber(newInfo.getTelephoneNumber());
+        }
         this.setEmail(newInfo.getEmail());
     }
 }

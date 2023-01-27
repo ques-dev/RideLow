@@ -16,5 +16,5 @@ public interface IFavoriteRideService {
     FavoriteRide save(FavoriteRide ride);
     void delete(Integer id);
     Set<FavoriteRide> findAll();
-
+    Set<FavoriteRide> findAllByPassenger(Integer id);
 }
