@@ -1,6 +1,5 @@
 package rs.ac.uns.ftn.transport.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,7 +11,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -57,24 +55,40 @@ public class WebSecurityConfig {
  	public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
  	    return authConfig.getAuthenticationManager();
  	}
-	
-	// Definisemo prava pristupa za zahteve ka odredjenim URL-ovima/rutama
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    	// svim korisnicima dopusti da pristupe sledecim putanjama:
-    	// komunikacija izmedju klijenta i servera je stateless posto je u pitanju REST aplikacija
-        // ovo znaci da server ne pamti nikakvo stanje, tokeni se ne cuvaju na serveru 
-		// ovo nije slucaj kao sa sesijama koje se cuvaju na serverskoj strani - STATEFULL aplikacija
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        
-        // sve neautentifikovane zahteve obradi uniformno i posalji 401 gresku	
+
         http.exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint);
     	http.authorizeRequests()
 				.antMatchers("/h2-console/**").permitAll()
-				.antMatchers("/api/user/login").permitAll()
-				.antMatchers("/api/driver/**").hasRole("DRIVER")
-				.antMatchers("/api/user/*/ride", "/api/user/*/message").hasRole("PASSENGER")
-				.antMatchers("/api/**").hasRole("ADMIN")
+				.antMatchers("/api/user/login", "/api/unregisteredUser/").permitAll()
+				.antMatchers("/api/driver/*/vehicle", "/api/vehicle/*/location", "/api/user/*/resetPassword"
+				).permitAll()
+				.antMatchers(HttpMethod.POST, "/api/passenger").permitAll()
+
+				.antMatchers(HttpMethod.POST, "/api/ride", "/api/ride/favourites").hasRole("PASSENGER")
+				.antMatchers(HttpMethod.GET, "/api/ride/passenger/*/active", "/api/ride/favourites"
+				,"/api/ride/favourites/*").hasRole("PASSENGER")
+				.antMatchers(HttpMethod.PUT, "/api/passenger/*", "/api/ride/*/withdraw").hasRole("PASSENGER")
+
+				.antMatchers(HttpMethod.GET, "/api/ride/driver/*/active").hasRole("DRIVER")
+				.antMatchers(HttpMethod.PUT, "/api/ride/*/start", "/api/ride/*/start", "/api/ride/*/end",
+						"/api/ride/*/cancel").hasRole("DRIVER")
+				.antMatchers("/api/driver/*/working-hour").hasRole("DRIVER")
+
+				.antMatchers(HttpMethod.POST, "/api/diver/*/documents", "/api/driver").hasRole("ADMIN")
+				.antMatchers(HttpMethod.GET, "/api/passenger", "/api/driver",
+						"/api/diver/*/documents", "/api/panic").hasRole("ADMIN")
+				.antMatchers(HttpMethod.PUT, "/api/driver/*").hasRole("ADMIN")
+				.antMatchers(HttpMethod.DELETE, "/api/diver/document/*").hasRole("ADMIN")
+
+				.antMatchers(HttpMethod.GET, "/api/passenger/*/ride").hasAnyRole("ADMIN", "PASSENGER")
+				.antMatchers( HttpMethod.PUT,"api/driver/working-hour/*",
+						"/api/user/*/block", "/api/user/*/unblock").hasAnyRole("ADMIN", "DRIVER")
+				.antMatchers(HttpMethod.POST, "/api/review/**").hasRole("PASSENGER")
+
 				.anyRequest().authenticated().and()
 				.cors().and()
 				.addFilterBefore(new TokenAuthenticationFilter(tokenUtils,  userService), BasicAuthenticationFilter.class);

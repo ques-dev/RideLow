@@ -162,7 +162,6 @@ public class UserController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         User user = (User) authentication.getPrincipal();
         String jwt = tokenUtils.generateToken(user.getUsername(), (user.getRoles()).get(0));
-        int expiresIn = tokenUtils.getExpiredIn();
         return ResponseEntity.ok(new TokenDTO(jwt, jwt));
     }
 
