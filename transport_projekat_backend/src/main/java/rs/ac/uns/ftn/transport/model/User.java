@@ -86,9 +86,10 @@ public abstract class User implements UserDetails {
         return getClass().hashCode();
     }
 
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return this.roles;
     }
 
     @Override
