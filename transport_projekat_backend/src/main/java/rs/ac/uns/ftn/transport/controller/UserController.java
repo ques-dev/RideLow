@@ -157,12 +157,17 @@ public class UserController {
     @PostMapping(value = "/login", consumes = "application/json")
     public ResponseEntity<?> login(
             @RequestBody LoginDTO authenticationRequest, HttpServletResponse response) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+        try{Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getEmail(), authenticationRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         User user = (User) authentication.getPrincipal();
         String jwt = tokenUtils.generateToken(user.getUsername(), (user.getRoles()).get(0));
         return ResponseEntity.ok(new TokenDTO(jwt, jwt));
+        }
+        catch(Exception ex) {
+            System.out.println(ex);
+        }
+        return ResponseEntity.ok(new TokenDTO(null, null));
     }
 
     @GetMapping(value = "/{id}/message")

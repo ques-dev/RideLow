@@ -26,9 +26,10 @@ INSERT INTO ROLE (NAME) VALUES
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (1, 1);
 
 INSERT INTO USERS (ADDRESS,EMAIL,IS_ACTIVATED,IS_BLOCKED,NAME,PASSWORD,SURNAME,TELEPHONE_NUMBER) VALUES
-    ('Bulevar oslobođenja 79', 'imenka@mail.com', true, false, 'Časlav', 'test2Test', 'Radomanović', '+38169999999');
+    ('Bulevar oslobođenja 79', 'imenka@mail.com', true, false, 'Časlav', '$2a$10$SgtU7/rjLdi6EC.CQ5J6P.M.SuW3Oy/Yx48M1sa56U87NmFb6PWRW', 'Radomanović', '+38169999999');
 
 INSERT INTO PASSENGERS VALUES 2;
+INSERT INTO USER_ROLE (user_id, role_id) VALUES (2, 1);
 
 INSERT INTO USER_ACTIVATIONS(DATE_CREATED,MINUTES_VALID,USER_ID) VALUES
     (CURRENT_TIMESTAMP,25,1);

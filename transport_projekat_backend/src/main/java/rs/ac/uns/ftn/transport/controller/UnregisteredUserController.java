@@ -13,7 +13,7 @@ import rs.ac.uns.ftn.transport.service.EstimatesService;
 
 @CrossOrigin("http://localhost:4200")
 @RestController
-@RequestMapping(value="api/unregisteredUser")
+@RequestMapping(value="/api/unregisteredUser")
 public class UnregisteredUserController {
 
 

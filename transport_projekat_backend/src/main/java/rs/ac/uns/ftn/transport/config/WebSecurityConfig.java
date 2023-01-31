@@ -59,11 +59,10 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
         http.exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint);
     	http.authorizeRequests()
 				.antMatchers("/h2-console/**").permitAll()
-				.antMatchers("/api/user/login", "/api/unregisteredUser/").permitAll()
+					.antMatchers("/api/user/login", "/api/unregisteredUser").permitAll()
 				.antMatchers("/api/driver/*/vehicle", "/api/vehicle/*/location", "/api/user/*/resetPassword"
 				).permitAll()
 				.antMatchers(HttpMethod.POST, "/api/passenger").permitAll()
@@ -102,10 +101,10 @@ public class WebSecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-    	return (web) -> web.ignoring().antMatchers(HttpMethod.POST, "/auth/login")
+    	return (web) -> web.ignoring().antMatchers(HttpMethod.POST, "/auth/login","/socket/**")
 
     			.antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico",
-    			"/**/*.html", "/**/*.css", "/**/*.js");	 
+    			"/**/*.html", "/**/*.css", "/**/*.js","/socket/**");
 
     }
 
