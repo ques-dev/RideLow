@@ -24,6 +24,6 @@ public class RoleServiceImpl implements IRoleService {
 
   @Override
   public List<Role> findByName(String name) {
-    return null;
+    return this.roleRepository.findByName(name);
   }
 }

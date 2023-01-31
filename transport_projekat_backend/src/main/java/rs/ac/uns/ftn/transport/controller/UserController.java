@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Bean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.*;
@@ -48,6 +51,10 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final TokenUtils tokenUtils;
 
+    private BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     public UserController(IUserService userService,
                           IDriverService driverService,
                           IPassengerService passengerService,
@@ -75,12 +82,14 @@ public class UserController {
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(messageSource.getMessage("user.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
-
-        if (!dto.getOldPassword().equals(user.getPassword())) {
+        BCryptPasswordEncoder passwordEncoder = this.passwordEncoder();
+        if (!passwordEncoder.matches(dto.getOldPassword(),user.getPassword())) {
+            System.out.println(dto);
+            System.out.println("not matching");
             return new ResponseEntity<>(new ResponseMessage(messageSource.getMessage("user.passwordMatch", null, Locale.getDefault())), HttpStatus.BAD_REQUEST);
         }
 
-        user.setPassword(dto.getNewPassword());
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         userService.save(user);
 
         return new ResponseEntity<>("Password successfully changed!", HttpStatus.NO_CONTENT);

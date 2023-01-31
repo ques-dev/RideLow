@@ -22,9 +22,7 @@ import rs.ac.uns.ftn.transport.service.interfaces.IRoleService;
 import rs.ac.uns.ftn.transport.service.interfaces.IUserService;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,7 +41,7 @@ public class UserServiceImpl implements IUserService {
     }
     public User save(User user)
     {
-        user.setRoles(roleService.findByName("ROLE_PASSENGER"));
+        user.setRoles(roleService.findByName(user.getRoles().get(0).getName()));
         return userRepository.save(user);
     }
 
