@@ -189,4 +189,14 @@ public class PassengerController {
         return new ResponseEntity<>(report, HttpStatus.OK);
     }
 
+    @GetMapping(value="/{email}/id")
+    public ResponseEntity<?> getIdOfPassengerFromEmail(@PathVariable String email){
+        try {
+            Passenger retrieved = passengerService.findByEmail(email);
+            return new ResponseEntity<>(PassengerIdEmailDTOMapper.fromPassengerToDTO(retrieved), HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("passenger.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
+    }
+
 }
