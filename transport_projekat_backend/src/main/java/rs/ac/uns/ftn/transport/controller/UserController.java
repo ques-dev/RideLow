@@ -21,6 +21,7 @@ import rs.ac.uns.ftn.transport.dto.User.LoginDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RidePage2DTO;
 import rs.ac.uns.ftn.transport.mapper.RideDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.UserDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.passenger.PassengerIdEmailDTOMapper;
 import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.model.enumerations.MessageType;
 import rs.ac.uns.ftn.transport.service.interfaces.*;
@@ -240,6 +241,16 @@ public class UserController {
         try {
             NotePageDTO notePageDTO = userService.findNotes(id, page);
             return new ResponseEntity<>(notePageDTO, HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("user.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping(value="/{email}/id")
+    public ResponseEntity<?> getUserFromEmail(@PathVariable String email){
+        try {
+            User retrieved = userService.findByEmail(email);
+            return new ResponseEntity<>(UserDTOMapper.fromUsertoDTO(retrieved), HttpStatus.OK);
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(messageSource.getMessage("user.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }

@@ -62,9 +62,10 @@ public class WebSecurityConfig {
         http.exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint);
     	http.authorizeRequests()
 				.antMatchers("/h2-console/**").permitAll()
-					.antMatchers("/api/user/login", "/api/unregisteredUser").permitAll()
+					.antMatchers("/api/user/login", "/api/unregisteredUser","api/passenger/*/id").permitAll()
 				.antMatchers("/api/driver/*/vehicle", "/api/vehicle/*/location", "/api/user/*/resetPassword"
 				).permitAll()
+				.antMatchers(HttpMethod.GET,"api/user/*/id").permitAll()
 				.antMatchers(HttpMethod.POST, "/api/passenger").permitAll()
 
 				.antMatchers(HttpMethod.POST, "/api/ride", "/api/ride/favourites").hasRole("PASSENGER")
