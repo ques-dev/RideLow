@@ -7,6 +7,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -177,8 +178,8 @@ public class PassengerController {
 
     @GetMapping(value = "/{id}/report")
     public ResponseEntity<?> getReport(@PathVariable Integer id,
-                                       @RequestParam LocalDateTime from,
-                                       @RequestParam LocalDateTime to) {
+                                       @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime from,
+                                       @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime to) {
         try {
             passengerService.findOne(id);
         } catch (ResponseStatusException e) {
