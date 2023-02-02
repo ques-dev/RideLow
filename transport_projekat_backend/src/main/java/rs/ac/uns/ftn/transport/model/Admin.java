@@ -9,25 +9,6 @@ import javax.persistence.*;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
-public class Admin {
+public class Admin extends User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    @Column(name = "username", unique = true)
-    private String username;
-
-    @Column(name = "password", nullable = false)
-    private String password;
-
-    @Column(name = "name", nullable = false)
-    private String name;
-
-    @Column(name = "surname", nullable = false)
-    private String surname;
-
-    @Column(name = "profilePicture")
-    private String profilePicture;
 }

@@ -170,16 +170,16 @@ public class UserController {
                 authenticationRequest.getEmail(), authenticationRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         User user = (User) authentication.getPrincipal();
-        UserInfoMobileAppDTO userDTO = new UserInfoMobileAppDTO(user.getId(),
-                                                                user.getName(),
-                                                                user.getSurname(),
-                                                                user.getUsername(),
-                                                                user.getProfilePicture(),
-                                                                user.getRoles().get(0).getName()
-                );
-        return ResponseEntity.ok(userDTO);
-        //String jwt = tokenUtils.generateToken(user.getUsername(), (user.getRoles()).get(0));
-        //return ResponseEntity.ok(new TokenDTO(jwt, jwt));
+//        UserInfoMobileAppDTO userDTO = new UserInfoMobileAppDTO(user.getId(),
+//                                                                user.getName(),
+//                                                                user.getSurname(),
+//                                                                user.getUsername(),
+//                                                                user.getProfilePicture(),
+//                                                                user.getRoles().get(0).getName()
+//                );
+//        return ResponseEntity.ok(userDTO);
+        String jwt = tokenUtils.generateToken(user.getUsername(), (user.getRoles()).get(0));
+        return ResponseEntity.ok(new TokenDTO(jwt, jwt));
         }
         catch(Exception ex) {
             System.out.println(ex);
