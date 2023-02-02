@@ -60,6 +60,7 @@ public class ReviewServiceImpl implements IReviewService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         Ride ride = rideO.get();
         Set<VehicleReview> vehicleReview = vehicleReviewRepository.findByCurrentRide(ride);
+
         Set<DriverReview> driverReview = driverReviewRepository.findByCurrentRide(ride);
         return new ReviewRideDTO(driverReview, vehicleReview);
     }

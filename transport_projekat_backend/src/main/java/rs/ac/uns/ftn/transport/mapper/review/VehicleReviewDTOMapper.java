@@ -19,7 +19,7 @@ public class VehicleReviewDTOMapper {
         VehicleReviewDTOMapper.modelMapper = modelMapper;
         modelMapper.typeMap(VehicleReview.class, VehicleReviewDTO.class).addMappings(mapper -> {
             mapper.map(src -> new PassengerIdEmailDTO(src.getReviewer().getId(), src.getReviewer().getEmail()),
-                    VehicleReviewDTO::setPassenger);
+                    VehicleReviewDTO::setReviewer);
         });
     }
 

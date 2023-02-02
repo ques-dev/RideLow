@@ -5,18 +5,18 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Bean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.*;
@@ -24,7 +24,6 @@ import rs.ac.uns.ftn.transport.dto.User.LoginDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RidePage2DTO;
 import rs.ac.uns.ftn.transport.mapper.RideDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.UserDTOMapper;
-import rs.ac.uns.ftn.transport.mapper.passenger.PassengerIdEmailDTOMapper;
 import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.model.enumerations.MessageType;
 import rs.ac.uns.ftn.transport.service.interfaces.*;
@@ -32,10 +31,7 @@ import rs.ac.uns.ftn.transport.util.TokenUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @CrossOrigin("http://localhost:4200")
@@ -49,6 +45,8 @@ public class UserController {
     private final MessageSource messageSource;
     private final IMailService mailService;
     private final AuthenticationManager authenticationManager;
+
+    private final SimpMessagingTemplate simpMessagingTemplate;
     private final TokenUtils tokenUtils;
 
     private BCryptPasswordEncoder passwordEncoder() {
@@ -62,7 +60,7 @@ public class UserController {
                           MessageSource messageSource,
                           IMailService mailService,
                           AuthenticationManager authenticationManager,
-                          TokenUtils tokenUtils) {
+                          SimpMessagingTemplate simpMessagingTemplate, TokenUtils tokenUtils) {
         this.rideService = rideService;
         this.passengerService = passengerService;
         this.driverService = driverService;
@@ -70,6 +68,7 @@ public class UserController {
         this.messageSource = messageSource;
         this.mailService = mailService;
         this.authenticationManager = authenticationManager;
+        this.simpMessagingTemplate = simpMessagingTemplate;
         this.tokenUtils = tokenUtils;
     }
 
@@ -271,5 +270,21 @@ public class UserController {
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(messageSource.getMessage("user.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
         }
+    }
+
+    @MessageMapping("/message")
+    public void transferMessages(MessageMostSimpleDTO msg) {
+        Message message = new Message();
+        User sender = this.userService.findOne(msg.getSender());
+        message.setSender(sender);
+        User receiver = this.userService.findOne(msg.getReceiver());
+        message.setReceiver(receiver);
+        Ride ride = this.rideService.findOne(msg.getRide());
+        message.setRide(ride);
+        message.setSentDateTime(msg.getSentDateTime());
+        message.setMessageType(MessageType.VOZNJA);
+        message.setMessage(msg.getMessage());
+        this.userService.SaveMessage(message);
+        this.simpMessagingTemplate.convertAndSend("/message/notification", msg);
     }
 }

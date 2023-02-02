@@ -14,7 +14,7 @@ import rs.ac.uns.ftn.transport.model.VehicleReview;
 @AllArgsConstructor
 public class VehicleReviewDTO {
     private Integer id;
-    private PassengerIdEmailDTO passenger;
+    private PassengerIdEmailDTO reviewer;
     private String comment;
     private Integer rating;
 
@@ -22,5 +22,6 @@ public class VehicleReviewDTO {
         this.id = vehicleReview.getId();
         this.comment = vehicleReview.getComment();
         this.rating = vehicleReview.getRating();
+        this.reviewer = new PassengerIdEmailDTO(vehicleReview.getReviewer().getId(),vehicleReview.getReviewer().getEmail());
     }
 }

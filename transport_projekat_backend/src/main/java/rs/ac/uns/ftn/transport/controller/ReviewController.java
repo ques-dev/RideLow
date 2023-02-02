@@ -9,11 +9,9 @@ import rs.ac.uns.ftn.transport.dto.review.*;
 import rs.ac.uns.ftn.transport.mapper.review.DriverReviewDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.review.VehicleReviewDTOMapper;
 import rs.ac.uns.ftn.transport.model.DriverReview;
+import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.model.VehicleReview;
-import rs.ac.uns.ftn.transport.service.interfaces.IDriverService;
-import rs.ac.uns.ftn.transport.service.interfaces.IReviewService;
-import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
-import rs.ac.uns.ftn.transport.service.interfaces.IVehicleService;
+import rs.ac.uns.ftn.transport.service.interfaces.*;
 
 import java.util.Locale;
 import java.util.Set;
@@ -27,15 +25,17 @@ public class ReviewController {
     private final IRideService rideService;
     private final MessageSource messageSource;
     private final IDriverService driverService;
+    private final IUserService userService;
     private final IVehicleService vehicleService;
 
     public ReviewController(MessageSource messageSource, IReviewService reviewService, IVehicleService vehicleService, IDriverService driverService,
-                            IRideService rideService){
+                            IRideService rideService, IUserService userService){
         this.messageSource = messageSource;
         this.rideService = rideService;
         this.reviewService = reviewService;
         this.vehicleService = vehicleService;
         this.driverService = driverService;
+        this.userService = userService;
     }
 
     @PostMapping(value = "/{rideId}/vehicle", consumes = "application/json")
@@ -43,10 +43,12 @@ public class ReviewController {
                                                               @RequestBody VehicleReviewDTO review){
         try {
             VehicleReview vehicleReview = new VehicleReview();
-            vehicleReview.setCurrentRide(rideService.findOne(rideId));
+            Ride currentRide = rideService.findOne(rideId);
+            vehicleReview.setCurrentRide(currentRide);
             vehicleReview.setRating(review.getRating());
             vehicleReview.setComment(review.getComment());
             vehicleReview.setVehicle(vehicleReview.getCurrentRide().getDriver().getVehicle());
+            vehicleReview.setReviewer(userService.findOne(1));
             review = VehicleReviewDTOMapper.fromVehicleReviewtoDTO(reviewService.saveVehicleReview(vehicleReview));
             return new ResponseEntity<>(review, HttpStatus.OK);
         }   catch (ResponseStatusException e) {
@@ -71,10 +73,12 @@ public class ReviewController {
     public ResponseEntity<?> saveDriverReview(@PathVariable Integer rideId, @RequestBody DriverReviewDTO review){
         try {
             DriverReview driverReview = new DriverReview();
-            driverReview.setCurrentRide(rideService.findOne(rideId));
+            Ride currentRide = rideService.findOne(rideId);
+            driverReview.setCurrentRide(currentRide);
             driverReview.setDriver(driverReview.getCurrentRide().getDriver());
             driverReview.setRating(review.getRating());
             driverReview.setComment(review.getComment());
+            driverReview.setReviewer(userService.findOne(1));
             review = DriverReviewDTOMapper.fromDriverReviewToDTO(reviewService.saveDriverReview(driverReview));
             return new ResponseEntity<>(review, HttpStatus.OK);
         }   catch (ResponseStatusException e){

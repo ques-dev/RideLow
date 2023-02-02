@@ -17,7 +17,7 @@ public class DriverReviewDTOMapper {
         DriverReviewDTOMapper.modelMapper = modelMapper;
         modelMapper.typeMap(DriverReview.class, DriverReviewDTO.class).addMappings(mapper -> {
             mapper.map(src -> new PassengerIdEmailDTO(src.getReviewer().getId(), src.getReviewer().getEmail()),
-                    DriverReviewDTO::setPassenger);
+                    DriverReviewDTO::setReviewer);
         });
     }
 
