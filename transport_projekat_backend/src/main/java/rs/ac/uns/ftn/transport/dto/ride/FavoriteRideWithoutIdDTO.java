@@ -35,4 +35,6 @@ public class FavoriteRideWithoutIdDTO {
     @Length(max=255,message = "{maxLength}")
     @NotBlank(message = "{required}")
     private String vehicleType;
+
+    private Integer rideId;
 }

@@ -264,12 +264,10 @@ public class RideController {
     public ResponseEntity<?> createFavoriteRide(@Valid @RequestBody FavoriteRideWithoutIdDTO favoriteRideDTO)
     {
         try{
-
             FavoriteRide ride = favoriteRideService.save(FavoriteRideWithoutIdDTOMapper.fromDTOtoFavoriteRide(favoriteRideDTO));
             FavoriteRideDTO favoriteRideCreatedDTO = FavoriteRideDTOMapper.fromFavoriteRideToDTO(ride);
             return new ResponseEntity<>(favoriteRideCreatedDTO, HttpStatus.OK);
-        }
-        catch(ResponseStatusException ex) {
+        } catch(ResponseStatusException ex) {
             if(ex.getStatus() == HttpStatus.NOT_FOUND){
                 return new ResponseEntity<>(ex.getReason(), ex.getStatus());
             }

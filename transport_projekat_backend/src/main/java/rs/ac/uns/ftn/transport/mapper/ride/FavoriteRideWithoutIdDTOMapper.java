@@ -61,6 +61,7 @@ public class FavoriteRideWithoutIdDTOMapper {
         for(RouteDTO route : dto.getLocations()){
             favorite.getLocations().add(RouteDTOMapper.fromDTOtoRoute(route));
         }
+        favorite.setRideId(dto.getRideId());
         return favorite;
     }
 }

@@ -8,9 +8,11 @@ import rs.ac.uns.ftn.transport.model.FavoriteRide;
 import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.repository.FavoriteRideRepository;
 import rs.ac.uns.ftn.transport.repository.PassengerRepository;
+import rs.ac.uns.ftn.transport.repository.RideRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IFavoriteRideService;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -20,12 +22,15 @@ public class FavoriteRideServiceImpl implements IFavoriteRideService {
     private final MessageSource messageSource;
     private final FavoriteRideRepository favRideRepository;
     private final PassengerRepository passengerRepository;
+    private final RideRepository rideRepository;
 
     public FavoriteRideServiceImpl(FavoriteRideRepository favRideRepository,
-                                   MessageSource messageSource, PassengerRepository passengerRepository) {
+                                   MessageSource messageSource, PassengerRepository passengerRepository,
+                                   RideRepository rideRepository) {
         this.favRideRepository = favRideRepository;
         this.messageSource = messageSource;
         this.passengerRepository = passengerRepository;
+        this.rideRepository = rideRepository;
     }
 
 
@@ -38,8 +43,8 @@ public class FavoriteRideServiceImpl implements IFavoriteRideService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, messageSource.getMessage("favorites.maxLength", null, Locale.getDefault()));
         }
         FavoriteRide saved = this.favRideRepository.save(ride);
-        passenger.getFavorites().add(saved);
-        this.passengerRepository.save(passenger);
+//        passenger.getFavorites().add(saved);
+//        this.passengerRepository.save(passenger);
         return saved;
     }
 
@@ -50,9 +55,11 @@ public class FavoriteRideServiceImpl implements IFavoriteRideService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,messageSource.getMessage("favorite.notFound", null, Locale.getDefault()));
         }
         //TODO Get user from token and delete favorite by id
-        Passenger passenger = this.passengerRepository.findById(1).get();
-        passenger.getFavorites().removeIf(fav -> fav.getId() == id);
-        this.passengerRepository.save(passenger);
+//        Passenger passenger = this.passengerRepository.findById(1).get();
+//        passenger.getFavorites().removeIf(fav -> fav.getId() == id);
+//        this.passengerRepository.save(passenger);
+        favorite.get().setPassengers(null);
+        this.favRideRepository.save(favorite.get());
         this.favRideRepository.deleteById(id);
     }
 
