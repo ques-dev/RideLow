@@ -1,9 +1,6 @@
 package rs.ac.uns.ftn.transport;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -27,6 +24,8 @@ import rs.ac.uns.ftn.transport.dto.ride.RideCreatedDTO;
 import rs.ac.uns.ftn.transport.dto.ride.RideCreationDTO;
 import rs.ac.uns.ftn.transport.model.enumerations.RideStatus;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -35,14 +34,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class RideControllerIntegrationTests {
     @Autowired
     private TestRestTemplate restTemplatePlain;
     @Autowired
     private MessageSource messageSource;
-    private TestRestTemplate restTemplatePassenger,restTemplateDriver,restTemplateAdmin;
-    private String passengerJwtToken,driverJwtToken,adminJwtToken;
+    private TestRestTemplate restTemplatePassenger,restTemplatePassengerSecond,restTemplateDriver,restTemplateAdmin;
+    private String passengerJwtToken,passengerJwtTokenSecond,driverJwtToken,adminJwtToken;
+
     private final String BASE_URL_PATH = "http://localhost:8080/api";
 
     private void instantiatePassengerRestTemplate(){
@@ -51,6 +52,11 @@ public class RideControllerIntegrationTests {
         return execution.execute(request, body);
         }));
         this.restTemplatePassenger = new TestRestTemplate(builder);
+        RestTemplateBuilder builderSecond = new RestTemplateBuilder(rt-> rt.getInterceptors().add((request, body, execution) -> {
+            request.getHeaders().add("Authorization", "Bearer "+ this.passengerJwtTokenSecond);
+            return execution.execute(request, body);
+        }));
+        this.restTemplatePassengerSecond = new TestRestTemplate(builderSecond);
     }
 
     private void instantiateDriverRestTemplate(){
@@ -85,6 +91,13 @@ public class RideControllerIntegrationTests {
                 TokenDTO.class);
         this.passengerJwtToken = loginPassenger.getBody().getAccessToken();
 
+        passengerLoginCredentials = new HttpEntity<>(new LoginDTO("passenger2@mail.com","Test1Test"));
+        ResponseEntity<TokenDTO> loginPassengerSecond = restTemplatePlain.exchange("/api/user/login",
+                HttpMethod.POST,
+                passengerLoginCredentials,
+                TokenDTO.class);
+        this.passengerJwtTokenSecond = loginPassengerSecond.getBody().getAccessToken();
+
         HttpEntity<LoginDTO> adminLoginCredentials = new HttpEntity<>(new LoginDTO("admin1@mail.com","Test1Test"));
         ResponseEntity<TokenDTO> loginAdmin = this.restTemplatePlain.exchange("/api/user/login",
                 HttpMethod.POST,
@@ -102,6 +115,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(16)
     @DisplayName("Should not find active ride for driver that doesn't have one")
     public void shouldNotGetActiveRideForDriverIfNone() {
         ResponseEntity<String> responseEntity = this.restTemplateDriver.exchange(this.BASE_URL_PATH + "/ride/driver/1/active",
@@ -116,6 +130,7 @@ public class RideControllerIntegrationTests {
 
     @Test
     @DisplayName("Should not find active ride for driver without passed JWT")
+    @Order(12)
     public void shouldNotGetActiveRideForDriverIfUnauthorized() {
         ResponseEntity<String> responseEntity = this.restTemplatePlain.exchange(this.BASE_URL_PATH + "/ride/driver/1/active",
                 HttpMethod.GET,
@@ -125,6 +140,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(13)
     @DisplayName("Should not find active ride for driver if JWT role is not correct")
     public void shouldNotGetActiveRideForDriverIfNotDriver() {
         ResponseEntity<String> responseEntity = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride/driver/1/active",
@@ -135,6 +151,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(14)
     @DisplayName("Should not find active ride for driver if passed id is in incorrect format")
     public void shouldNotGetActiveRideForDriverIfIdIsNotNumber() {
         ResponseEntity<String> responseEntity = this.restTemplateDriver.exchange(this.BASE_URL_PATH + "/ride/driver/abc/active",
@@ -145,6 +162,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(15)
     @DisplayName("Should not find active ride for driver if he does not exist")
     public void shouldNotGetActiveRideForDriverIfHeDoesNotExist() {
         ResponseEntity<String> responseEntity = this.restTemplateDriver.exchange(this.BASE_URL_PATH + "/ride/driver/20/active",
@@ -156,6 +174,7 @@ public class RideControllerIntegrationTests {
 
 
     @Test
+    @Order(21)
     @DisplayName("Should not find active ride for passenger that doesn't have one")
     public void shouldNotGetActiveRideForPassengerIfNone() {
         ResponseEntity<String> responseEntity = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride/passenger/2/active",
@@ -169,6 +188,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(17)
     @DisplayName("Should not find active ride for passenger without passed JWT")
     public void shouldNotGetActiveRideForPassengerIfUnauthorized() {
         ResponseEntity<String> responseEntity = this.restTemplatePlain.exchange(this.BASE_URL_PATH + "/ride/passenger/1/active",
@@ -179,6 +199,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(18)
     @DisplayName("Should not find active ride for passenger if JWT role is not correct")
     public void shouldNotGetActiveRideForPassengerIfNotPassenger() {
         ResponseEntity<String> responseEntity = this.restTemplateDriver.exchange(this.BASE_URL_PATH + "/ride/passenger/1/active",
@@ -189,6 +210,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(19)
     @DisplayName("Should not find active ride for passenger if passed id is in incorrect format")
     public void shouldNotGetActiveRideForPassengerIfIdIsNotNumber() {
         ResponseEntity<String> responseEntity = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride/passenger/abc/active",
@@ -199,6 +221,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(20)
     @DisplayName("Should not find active ride for passenger if he does not exist")
     public void shouldNotGetActiveRideForPassengerIfHeDoesNotExist() {
         ResponseEntity<String> responseEntity = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride/passenger/20/active",
@@ -210,31 +233,18 @@ public class RideControllerIntegrationTests {
 
 
     @Test
+    @Order(22)
     @DisplayName("Should find an active ride for both passenger and chosen driver if it exists")
     public void shouldGetActiveRideForPassengerAndDriverIfItExists() {
-        LocationDTO location = new LocationDTO("Bulevar oslobodjenja 46",45.267136,19.833549);
-        RouteDTO route = new RouteDTO(location,location);
-        PassengerIdEmailDTO passenger = new PassengerIdEmailDTO(1,"passenger1@mail.com");
-        Set<RouteDTO> locations = new HashSet<>();
-        locations.add(route);
-        Set<PassengerIdEmailDTO> passengers = new HashSet<>();
-        passengers.add(passenger);
-        RideCreationDTO rideOrder = new RideCreationDTO(locations,
-                                                        passengers,
-                                                        "STANDARD",
-                                                        true,
-                                                        true,
-                                                        null);
+        ResponseEntity<RideCreatedDTO> getCreatedRide = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride/1",
+                HttpMethod.GET,null,RideCreatedDTO.class);
 
-        ResponseEntity<RideCreatedDTO> mockRide = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride",
-                HttpMethod.POST,new HttpEntity<>(rideOrder),RideCreatedDTO.class);
-        int createdRideId = mockRide.getBody().getId();
-        int chosenDriverId = mockRide.getBody().getDriver().getId();
-        this.restTemplateDriver.exchange(this.BASE_URL_PATH + "/ride/" + createdRideId + "/accept",
+        int chosenDriverId = getCreatedRide.getBody().getDriver().getId();
+        this.restTemplateDriver.exchange(this.BASE_URL_PATH + "/ride/1/accept",
                 HttpMethod.PUT,
                 null,
                 RideCreatedDTO.class);
-        this.restTemplateDriver.exchange(this.BASE_URL_PATH + "/ride/" + createdRideId + "/start",
+        this.restTemplateDriver.exchange(this.BASE_URL_PATH + "/ride/1/start",
                 HttpMethod.PUT,
                 null,
                 RideCreatedDTO.class);
@@ -253,6 +263,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(23)
     @DisplayName("Should not get ride details if unauthorized")
     public void shouldNotGetRideDetailsIfUnauthorized() {
         ResponseEntity<String> responseEntity = this.restTemplatePlain.exchange(this.BASE_URL_PATH + "/ride/1",
@@ -263,6 +274,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(24)
     @DisplayName("Should not get ride details if the ride ID is not a valid number")
     public void shouldNotGetRideDetailsIfIdIsNotNumber() {
         ResponseEntity<String> responseEntity = this.restTemplateDriver.exchange(this.BASE_URL_PATH + "/ride/abc",
@@ -273,6 +285,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(25)
     @DisplayName("Should not get ride details if ride does not exist")
     public void shouldNotGetRideDetailsIfDoesntExist() {
         ResponseEntity<String> responseEntity = this.restTemplateDriver.exchange(this.BASE_URL_PATH + "/ride/20",
@@ -283,6 +296,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(26)
     @DisplayName("Should get ride details if ride does exist")
     public void shouldGetRideDetailsIfExists() {
         ResponseEntity<String> getRideDetailsDriver = this.restTemplateDriver.exchange(this.BASE_URL_PATH + "/ride/1",
@@ -303,6 +317,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(27)
     @DisplayName("Should not get favorite locations if unauthorized")
     public void shouldNotGetFavoriteLocationsIfUnauthorized() {
         ResponseEntity<String> responseEntity = this.restTemplatePlain.exchange(this.BASE_URL_PATH + "/ride/favorites",
@@ -313,6 +328,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(28)
     @DisplayName("Should not get favorite locations if logged user's role not passenger")
     public void shouldNotGetFavoriteLocationsIfNotPassenger() {
         ResponseEntity<String> responseEntity = this.restTemplateDriver.exchange(this.BASE_URL_PATH + "/ride/favorites",
@@ -323,6 +339,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(29)
     @DisplayName("Should get passengers favorite rides")
     public void shouldGetPassengersFavoriteLocations() {
         ResponseEntity<Set<FavoriteRideDTO>> getFavoriteRides = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride/favorites",
@@ -359,6 +376,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(1)
     @DisplayName("Should not create ride if user is unauthorized")
     public void shouldNotCreateRideIfUnauthorized() {
         ResponseEntity<String> responseEntity = this.restTemplatePlain.exchange(this.BASE_URL_PATH + "/ride",
@@ -369,6 +387,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(2)
     @DisplayName("Should not create ride if user's role is not passenger")
     public void shouldNotCreateRideIfForbidden() {
         ResponseEntity<String> responseEntity = this.restTemplateDriver.exchange(this.BASE_URL_PATH + "/ride",
@@ -379,6 +398,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(3)
     @DisplayName("Should not create ride if locations field format is not valid")
     public void shouldNotCreateRideIfLocationsFormatInvalid() {
         LocationDTO location = new LocationDTO("Bulevar oslobodjenja 46",-91.0,19.833549);
@@ -436,6 +456,7 @@ public class RideControllerIntegrationTests {
     }
 
     @Test
+    @Order(4)
     @DisplayName("Should not create ride if passengers field format is not valid")
     public void shouldNotCreateRideIfPassengerFormatInvalid() {
         LocationDTO location = new LocationDTO("Bulevar oslobodjenja 46",45.0,19.833549);
@@ -480,5 +501,204 @@ public class RideControllerIntegrationTests {
         rideOrderRequest = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride",
                 HttpMethod.POST,new HttpEntity<>(rideOrder),RideCreatedDTO.class);
         assertEquals(HttpStatus.BAD_REQUEST,rideOrderRequest.getStatusCode());
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("Should not create ride if vehicle type field format is not valid")
+    public void shouldNotCreateRideIfVehicleTypeFormatInvalid() {
+        LocationDTO location = new LocationDTO("Bulevar oslobodjenja 46",45.0,19.833549);
+        RouteDTO route = new RouteDTO(location,location);
+        PassengerIdEmailDTO passenger = new PassengerIdEmailDTO(1,"passenger1@mail.com");
+        Set<RouteDTO> locations = new HashSet<>();
+        locations.add(route);
+        Set<PassengerIdEmailDTO> passengers = new HashSet<>();
+        passengers.add(passenger);
+        RideCreationDTO rideOrder = new RideCreationDTO(locations,
+                passengers,
+                null,
+                true,
+                true,
+                null);
+
+        ResponseEntity<RideCreatedDTO> rideOrderRequest = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride",
+                HttpMethod.POST,new HttpEntity<>(rideOrder),RideCreatedDTO.class);
+        assertEquals(HttpStatus.BAD_REQUEST,rideOrderRequest.getStatusCode());
+
+        rideOrder.setVehicleType("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        rideOrderRequest = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride",
+                HttpMethod.POST,new HttpEntity<>(rideOrder),RideCreatedDTO.class);
+        assertEquals(HttpStatus.BAD_REQUEST,rideOrderRequest.getStatusCode());
+    }
+    @Test
+    @Order(6)
+    @DisplayName("Should not create ride if pet transport field is not valid")
+    public void shouldNotCreateRideIfPetTransportFormatInvalid() {
+        LocationDTO location = new LocationDTO("Bulevar oslobodjenja 46",45.0,19.833549);
+        RouteDTO route = new RouteDTO(location,location);
+        PassengerIdEmailDTO passenger = new PassengerIdEmailDTO(1,"passenger1@mail.com");
+        Set<RouteDTO> locations = new HashSet<>();
+        locations.add(route);
+        Set<PassengerIdEmailDTO> passengers = new HashSet<>();
+        passengers.add(passenger);
+        RideCreationDTO rideOrder = new RideCreationDTO(locations,
+                passengers,
+                "STANDARD",
+                true,
+                null,
+                null);
+
+        ResponseEntity<RideCreatedDTO> rideOrderRequest = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride",
+                HttpMethod.POST,new HttpEntity<>(rideOrder),RideCreatedDTO.class);
+        assertEquals(HttpStatus.BAD_REQUEST,rideOrderRequest.getStatusCode());
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("Should not create ride if baby transport field is not valid")
+    public void shouldNotCreateRideIfBabyTransportFormatInvalid() {
+        LocationDTO location = new LocationDTO("Bulevar oslobodjenja 46",45.0,19.833549);
+        RouteDTO route = new RouteDTO(location,location);
+        PassengerIdEmailDTO passenger = new PassengerIdEmailDTO(1,"passenger1@mail.com");
+        Set<RouteDTO> locations = new HashSet<>();
+        locations.add(route);
+        Set<PassengerIdEmailDTO> passengers = new HashSet<>();
+        passengers.add(passenger);
+        RideCreationDTO rideOrder = new RideCreationDTO(locations,
+                passengers,
+                "STANDARD",
+                null,
+                true,
+                null);
+
+        ResponseEntity<RideCreatedDTO> rideOrderRequest = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride",
+                HttpMethod.POST,new HttpEntity<>(rideOrder),RideCreatedDTO.class);
+        assertEquals(HttpStatus.BAD_REQUEST,rideOrderRequest.getStatusCode());
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("Should not create ride if schedule time format is not valid")
+    public void shouldNotCreateRideIfScheduleTimeFormatInvalid() {
+        LocationDTO location = new LocationDTO("Bulevar oslobodjenja 46",45.0,19.833549);
+        RouteDTO route = new RouteDTO(location,location);
+        PassengerIdEmailDTO passenger = new PassengerIdEmailDTO(1,"passenger1@mail.com");
+        Set<RouteDTO> locations = new HashSet<>();
+        locations.add(route);
+        Set<PassengerIdEmailDTO> passengers = new HashSet<>();
+        passengers.add(passenger);
+        RideCreationDTO rideOrder = new RideCreationDTO(locations,
+                passengers,
+                "STANDARD",
+                true,
+                true,
+                LocalDateTime.now().minus(1, ChronoUnit.HOURS));
+
+        ResponseEntity<String> rideOrderRequest = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride",
+                HttpMethod.POST,new HttpEntity<>(rideOrder),String.class);
+        assertEquals(HttpStatus.BAD_REQUEST,rideOrderRequest.getStatusCode());
+
+        rideOrder.setScheduledTime(LocalDateTime.now().plus(5 * 60 + 3, ChronoUnit.MINUTES));
+        rideOrderRequest = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride",
+                HttpMethod.POST,new HttpEntity<>(rideOrder),String.class);
+        assertEquals(HttpStatus.BAD_REQUEST,rideOrderRequest.getStatusCode());
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("Should not create ride if no driver is available")
+    public void shouldNotCreateRideIfNoDriverAvailable() {
+        LocationDTO location = new LocationDTO("Bulevar oslobodjenja 46",45.0,19.833549);
+        RouteDTO route = new RouteDTO(location,location);
+        PassengerIdEmailDTO passenger = new PassengerIdEmailDTO(2,"passenger2@mail.com");
+        Set<RouteDTO> locations = new HashSet<>();
+        locations.add(route);
+        Set<PassengerIdEmailDTO> passengers = new HashSet<>();
+        passengers.add(passenger);
+        RideCreationDTO rideOrder = new RideCreationDTO(locations,
+                passengers,
+                "STANDARD",
+                true,
+                true,
+                null);
+
+        ResponseEntity<String> rideOrderRequest = this.restTemplatePassengerSecond.exchange(this.BASE_URL_PATH + "/ride",
+                HttpMethod.POST,new HttpEntity<>(rideOrder),String.class);
+        assertEquals(HttpStatus.NOT_FOUND,rideOrderRequest.getStatusCode());
+    }
+
+
+    @Test
+    @Order(9)
+    @DisplayName("Should create ride if for now if all fields are valid")
+    public void shouldCreateRideIfAllFieldsAreValid() {
+        LocationDTO location = new LocationDTO("Bulevar oslobodjenja 46",45.0,19.833549);
+        RouteDTO route = new RouteDTO(location,location);
+        PassengerIdEmailDTO passenger = new PassengerIdEmailDTO(1,"passenger1@mail.com");
+        Set<RouteDTO> locations = new HashSet<>();
+        locations.add(route);
+        Set<PassengerIdEmailDTO> passengers = new HashSet<>();
+        passengers.add(passenger);
+        RideCreationDTO rideOrder = new RideCreationDTO(locations,
+                passengers,
+                "STANDARD",
+                true,
+                true,
+                null);
+
+        ResponseEntity<String> rideOrderRequest = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride",
+                HttpMethod.POST,new HttpEntity<>(rideOrder),String.class);
+        assertEquals(HttpStatus.OK,rideOrderRequest.getStatusCode());
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("Should not create ride if passenger already has one pending")
+    public void shouldNotCreateRideIfAlreadyOnePending() {
+        LocationDTO location = new LocationDTO("Bulevar oslobodjenja 46",45.0,19.833549);
+        RouteDTO route = new RouteDTO(location,location);
+        PassengerIdEmailDTO passenger = new PassengerIdEmailDTO(1,"passenger1@mail.com");
+        Set<RouteDTO> locations = new HashSet<>();
+        locations.add(route);
+        Set<PassengerIdEmailDTO> passengers = new HashSet<>();
+        passengers.add(passenger);
+        RideCreationDTO rideOrder = new RideCreationDTO(locations,
+                passengers,
+                "STANDARD",
+                true,
+                true,
+                null);
+
+        ResponseEntity<String> rideOrderRequest = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride",
+                HttpMethod.POST,new HttpEntity<>(rideOrder),String.class);
+        assertEquals(HttpStatus.BAD_REQUEST,rideOrderRequest.getStatusCode());
+    }
+
+
+    @Test
+    @Order(11)
+    @DisplayName("Should create ride for later if all fields are valid")
+    public void shouldReserveRideForLaterIfAllFieldsValid() {
+        LocationDTO location = new LocationDTO("Bulevar oslobodjenja 46",45.0,19.833549);
+        RouteDTO route = new RouteDTO(location,location);
+        PassengerIdEmailDTO passenger = new PassengerIdEmailDTO(1,"passenger1@mail.com");
+        Set<RouteDTO> locations = new HashSet<>();
+        locations.add(route);
+        Set<PassengerIdEmailDTO> passengers = new HashSet<>();
+        passengers.add(passenger);
+        RideCreationDTO rideOrder = new RideCreationDTO(locations,
+                passengers,
+                "STANDARD",
+                true,
+                true,
+                LocalDateTime.now().plus(2,ChronoUnit.HOURS));
+
+        ResponseEntity<String> rideOrderRequest = this.restTemplatePassenger.exchange(this.BASE_URL_PATH + "/ride",
+                HttpMethod.POST,new HttpEntity<>(rideOrder),String.class);
+        assertEquals(HttpStatus.OK,rideOrderRequest.getStatusCode());
     }
 }

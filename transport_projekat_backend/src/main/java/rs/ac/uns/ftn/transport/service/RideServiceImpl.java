@@ -52,8 +52,8 @@ public class RideServiceImpl implements IRideService {
     }
 
     @Override
-    public Ride save(Ride ride, boolean isReservation) {
-        Optional<Ride> pending = this.rideRepository.findByPassengers_IdAndStatus(1,RideStatus.PENDING);
+    public Ride save(Ride ride, boolean isReservation,int passengerId) {
+        Optional<Ride> pending = this.rideRepository.findByPassengers_IdAndStatus(passengerId,RideStatus.PENDING);
         if(pending.isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,messageSource.getMessage("order.alreadyOrdered", null, Locale.getDefault()));
         }
@@ -74,16 +74,22 @@ public class RideServiceImpl implements IRideService {
     }
 
     @Override
-    public void reserve(Ride ride){
+    public void reserve(Ride ride,int passengerId){
+        if(Math.abs(Duration.between(LocalDateTime.now(),ride.getScheduledTime()).toMinutes()) > 5 * 60){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,messageSource.getMessage("order.scheduleTimeMax", null, Locale.getDefault()));
+        }
+        if(ride.getScheduledTime().isBefore(LocalDateTime.now())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,messageSource.getMessage("order.scheduleTimeBefore", null, Locale.getDefault()));
+        }
         long betweenNowAndScheduledRideMinutes = Duration.between(LocalDateTime.now(),ride.getScheduledTime()).toMinutes();
         if(betweenNowAndScheduledRideMinutes < RESERVATION_MINIMUM_TIME_MINUTES) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,messageSource.getMessage("order.scheduleTime", null, Locale.getDefault()));
         }
-        this.scheduleReserving(ride);
+        this.scheduleReserving(ride,passengerId);
     }
 
     @Override
-    public void scheduleReserving(Ride order) {
+    public void scheduleReserving(Ride order,int passengerId) {
         ScheduledExecutorService localExecutor = Executors.newSingleThreadScheduledExecutor();
         scheduleReservation = new ConcurrentTaskScheduler(localExecutor);
         Date toSchedule = Date.from(order.getScheduledTime().minus(this.RESERVATION_MINIMUM_TIME_MINUTES + 1, ChronoUnit.MINUTES)
@@ -97,7 +103,7 @@ public class RideServiceImpl implements IRideService {
             }
             @Override
             public void run() {
-                RideServiceImpl.this.save(this.order,true);
+                RideServiceImpl.this.save(this.order,true,passengerId);
             }
         }.init(order);
         scheduleReservation.schedule(scheduledTask, toSchedule);

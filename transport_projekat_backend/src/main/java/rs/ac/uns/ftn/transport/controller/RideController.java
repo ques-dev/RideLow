@@ -8,6 +8,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.RejectionReasonDTO;
@@ -62,14 +63,16 @@ public class RideController {
     public ResponseEntity<?> createRide(@Valid @RequestBody RideCreationDTO rideCreationDTO)
     {
         try {
+            //int passengerId = 1;
+            int passengerId = ((User)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
             Ride ride;
             if(rideCreationDTO.getScheduledTime() != null){
-                rideService.reserve(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO));
+                rideService.reserve(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO),passengerId);
                 sendPeriodicReservationNotifications(rideCreationDTO);
                 return new ResponseEntity<>(new ResponseMessage("Ride successfully reserved!"), HttpStatus.OK);
             }
             else {
-                ride = rideService.save(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO), false);
+                ride = rideService.save(RideCreationDTOMapper.fromDTOtoRide(rideCreationDTO), false,passengerId);
                 RideCreatedDTO rideCreatedDTO = RideCreatedDTOMapper.fromRideToDTO(ride);
                 this.simpMessagingTemplate.convertAndSend("/ride-ordered/get-ride", rideCreatedDTO);
                 return new ResponseEntity<>(rideCreatedDTO, HttpStatus.OK);
