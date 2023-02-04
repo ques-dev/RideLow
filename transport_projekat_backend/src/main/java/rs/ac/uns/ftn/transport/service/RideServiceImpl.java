@@ -53,7 +53,6 @@ public class RideServiceImpl implements IRideService {
 
     @Override
     public Ride save(Ride ride, boolean isReservation) {
-        //TODO: Read passenger id from jwt token and find rides for him
         Optional<Ride> pending = this.rideRepository.findByPassengers_IdAndStatus(1,RideStatus.PENDING);
         if(pending.isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,messageSource.getMessage("order.alreadyOrdered", null, Locale.getDefault()));

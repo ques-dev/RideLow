@@ -1,10 +1,15 @@
 package rs.ac.uns.ftn.transport.dto;
 
 import javax.validation.constraints.*;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class LocationDTO {
 
     @Length(max=255,message="{maxLength}")

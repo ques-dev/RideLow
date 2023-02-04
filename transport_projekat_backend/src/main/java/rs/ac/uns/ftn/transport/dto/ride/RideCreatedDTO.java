@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.transport.dto.ride;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import rs.ac.uns.ftn.transport.dto.driver.DriverIdEmailDTO;
 import rs.ac.uns.ftn.transport.dto.RejectionDTO;

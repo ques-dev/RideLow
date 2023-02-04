@@ -4,7 +4,10 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerIdEmailDTO;
 import rs.ac.uns.ftn.transport.dto.RouteDTO;
@@ -13,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class RideCreationDTO {
 
     @Size(min = 1, message = "{minLength}")
@@ -30,7 +35,8 @@ public class RideCreationDTO {
     private Boolean babyTransport;
     @NotNull(message="{required}")
     private Boolean petTransport;
-    
+
+    @Valid
     private LocalDateTime scheduledTime;
 
 }

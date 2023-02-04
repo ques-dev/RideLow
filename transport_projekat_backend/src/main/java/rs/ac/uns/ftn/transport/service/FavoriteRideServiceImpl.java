@@ -31,7 +31,6 @@ public class FavoriteRideServiceImpl implements IFavoriteRideService {
 
     @Override
     public FavoriteRide save(FavoriteRide ride) {
-        //TODO Get user from token and get count of his favorites
         Passenger passenger = this.passengerRepository.findById(1).get();
         long favoritesCount = passenger.getFavorites().size();
         if(favoritesCount >= 10) {
@@ -49,7 +48,6 @@ public class FavoriteRideServiceImpl implements IFavoriteRideService {
         if(favorite.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,messageSource.getMessage("favorite.notFound", null, Locale.getDefault()));
         }
-        //TODO Get user from token and delete favorite by id
         Passenger passenger = this.passengerRepository.findById(1).get();
         passenger.getFavorites().removeIf(fav -> fav.getId() == id);
         this.passengerRepository.save(passenger);
@@ -58,8 +56,6 @@ public class FavoriteRideServiceImpl implements IFavoriteRideService {
 
     @Override
     public Set<FavoriteRide> findAll() {
-
-        //TODO Get user from token and get his favorites
         Set<FavoriteRide> favorites = this.passengerRepository.findById(1).get().getFavorites();
         return favorites;
     }

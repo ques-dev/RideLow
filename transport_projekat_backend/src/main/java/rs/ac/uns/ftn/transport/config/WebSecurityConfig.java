@@ -69,9 +69,9 @@ public class WebSecurityConfig {
 				.antMatchers(HttpMethod.GET,"api/user/*/id").permitAll()
 				.antMatchers(HttpMethod.POST, "/api/passenger").permitAll()
 
-				.antMatchers(HttpMethod.POST, "/api/ride", "/api/ride/favourites").hasRole("PASSENGER")
-				.antMatchers(HttpMethod.GET, "/api/ride/passenger/*/active", "/api/ride/favourites"
-				,"/api/ride/favourites/*").hasRole("PASSENGER")
+				.antMatchers(HttpMethod.POST, "/api/ride", "/api/ride/favorites").hasRole("PASSENGER")
+				.antMatchers(HttpMethod.GET, "/api/ride/passenger/*/active", "/api/ride/favorites"
+				,"/api/ride/favorites/*").hasRole("PASSENGER")
 				.antMatchers(HttpMethod.PUT, "/api/passenger/*", "/api/ride/*/withdraw").hasRole("PASSENGER")
 
 				.antMatchers(HttpMethod.GET, "/api/ride/driver/*/active").hasRole("DRIVER")
