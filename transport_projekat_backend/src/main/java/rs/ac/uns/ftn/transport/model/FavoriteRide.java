@@ -28,7 +28,7 @@ public class FavoriteRide {
     @ToString.Exclude
     private Set<Route> locations;
 
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.EAGER)
     @ToString.Exclude
     private Set<Passenger> passengers;
 
@@ -38,6 +38,8 @@ public class FavoriteRide {
     @Column(name = "TransportsPet")
     private Boolean petTransport;
 
+    @Column(name = "rideId")
+    private Integer rideId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "VehicleType")
     @ToString.Exclude

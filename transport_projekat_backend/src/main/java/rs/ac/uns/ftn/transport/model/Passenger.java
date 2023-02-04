@@ -27,7 +27,7 @@ public class Passenger extends User{
     @ToString.Exclude
     private Set<Ride> rides;
 
-    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "passenger_FavoriteRide", joinColumns = @JoinColumn(name = "PassengerId", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "FavoriteRideId", referencedColumnName = "id"))
     @ToString.Exclude
     private Set<FavoriteRide> favorites;
