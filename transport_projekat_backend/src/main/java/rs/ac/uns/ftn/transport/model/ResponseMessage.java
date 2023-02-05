@@ -1,12 +1,10 @@
 package rs.ac.uns.ftn.transport.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 public class ResponseMessage {
     private String message;
 

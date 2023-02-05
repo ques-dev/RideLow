@@ -1,9 +1,11 @@
 package rs.ac.uns.ftn.transport.service;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.model.Panic;
 import rs.ac.uns.ftn.transport.model.Ride;
+import rs.ac.uns.ftn.transport.model.User;
 import rs.ac.uns.ftn.transport.repository.PanicRepository;
 import rs.ac.uns.ftn.transport.repository.RideRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IPanicService;
@@ -41,8 +43,9 @@ public class PanicServiceImpl implements IPanicService {
             ride.setIsPanicPressed(true);
             rideRepository.save(ride);
             panic.setRide(ride);
-            //TODO:Get user from token when JWT security will be implemented
-            panic.setUser(userService.findOne(1));
+            //int passengerId = 1;
+            int passengerId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+            panic.setUser(userService.findOne(passengerId));
             return panicRepository.save(panic);
         }
         catch(ResponseStatusException ex) {

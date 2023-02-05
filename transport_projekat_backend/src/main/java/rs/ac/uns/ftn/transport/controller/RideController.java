@@ -20,11 +20,13 @@ import rs.ac.uns.ftn.transport.dto.ride.*;
 import rs.ac.uns.ftn.transport.mapper.RejectionReasonDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.ExtendedPanicDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.panic.PanicReasonDTOMapper;
+import rs.ac.uns.ftn.transport.mapper.passenger.PassengerCreatedDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.passenger.PassengerWithoutIdPasswordDTOMapper;
 import rs.ac.uns.ftn.transport.mapper.ride.*;
 import rs.ac.uns.ftn.transport.model.*;
 import rs.ac.uns.ftn.transport.service.interfaces.IFavoriteRideService;
 import rs.ac.uns.ftn.transport.service.interfaces.IPanicService;
+import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
 
 import java.time.Duration;
@@ -46,17 +48,20 @@ public class RideController {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final MessageSource messageSource;
     private final IFavoriteRideService favoriteRideService;
+    private final IPassengerService passengerService;
 
     public RideController(IRideService rideService,
                           IPanicService panicService,
                           SimpMessagingTemplate simpMessagingTemplate,
                           MessageSource messageSource,
-                          IFavoriteRideService favoriteRideService) {
+                          IFavoriteRideService favoriteRideService,
+                          IPassengerService passengerService) {
         this.rideService = rideService;
         this.panicService = panicService;
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.messageSource = messageSource;
         this.favoriteRideService = favoriteRideService;
+        this.passengerService = passengerService;
     }
 
     @PostMapping(consumes = "application/json")
@@ -195,9 +200,8 @@ public class RideController {
             Ride toStart = rideService.startRide(id);
             RideCreatedDTO started = RideCreatedDTOMapper.fromRideToDTO(toStart);
             this.simpMessagingTemplate.convertAndSend("/ride-started/notification", started);
-            return new ResponseEntity<>(started,HttpStatus.OK);
-        }
-        catch(ResponseStatusException ex) {
+            return new ResponseEntity<>(started, HttpStatus.OK);
+        } catch(ResponseStatusException ex) {
             if(ex.getStatus() == HttpStatus.NOT_FOUND){
                 return new ResponseEntity<>(ex.getReason(), ex.getStatus());
             }
@@ -292,6 +296,11 @@ public class RideController {
     @GetMapping(value = "/favorites/passenger/{id}")
     public ResponseEntity<?> getFavoritesByPassenger(@PathVariable Integer id)
     {
+        try {
+            passengerService.findOne(id);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(messageSource.getMessage("passenger.notFound", null, Locale.getDefault()), HttpStatus.NOT_FOUND);
+        }
         try {
             Set<FavoriteRide> favorites = favoriteRideService.findAllByPassenger(id);
             Set<FavoriteRideDTO> favoriteDTOs = favorites.stream()

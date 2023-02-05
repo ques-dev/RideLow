@@ -62,21 +62,24 @@ public class WebSecurityConfig {
         http.exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint);
     	http.authorizeRequests()
 				.antMatchers("/h2-console/**").permitAll()
-				//.antMatchers("/**").permitAll()
+//				.antMatchers("/**").permitAll()
 					.antMatchers("/api/user/login", "/api/unregisteredUser","api/passenger/*/id").permitAll()
 				.antMatchers("/api/driver/*/vehicle", "/api/vehicle/*/location", "/api/user/*/resetPassword"
 				).permitAll()
 				.antMatchers(HttpMethod.GET,"api/user/*/id", "/api/ride").permitAll()
 				.antMatchers(HttpMethod.POST, "/api/passenger").permitAll()
 
+				.antMatchers(HttpMethod.GET, "/api/ride/favorites/passenger/*").hasRole("PASSENGER")
 				.antMatchers(HttpMethod.POST, "/api/ride", "/api/ride/favorites").hasRole("PASSENGER")
 				.antMatchers(HttpMethod.GET, "/api/ride/passenger/*/active", "/api/ride/favorites"
 				,"/api/ride/favorites/*").hasRole("PASSENGER")
+				.antMatchers(HttpMethod.DELETE, "/api/ride/favorites/*").hasRole("PASSENGER")
 				.antMatchers(HttpMethod.PUT, "/api/passenger/*", "/api/ride/*/withdraw").hasRole("PASSENGER")
 
 				.antMatchers(HttpMethod.GET, "/api/ride/driver/*/active").hasRole("DRIVER")
 				.antMatchers(HttpMethod.PUT, "/api/ride/*/start", "/api/ride/*/start", "/api/ride/*/end",
 						"/api/ride/*/cancel").hasRole("DRIVER")
+				.antMatchers(HttpMethod.GET, "/api/ride/*/passengers").hasRole("DRIVER")
 				.antMatchers("/api/driver/*/working-hour").hasRole("DRIVER")
 
 				.antMatchers(HttpMethod.POST, "/api/diver/*/documents", "/api/driver").hasRole("ADMIN")
@@ -88,6 +91,7 @@ public class WebSecurityConfig {
 				.antMatchers(HttpMethod.GET, "/api/passenger/*/ride").hasAnyRole("ADMIN", "PASSENGER")
 				.antMatchers( HttpMethod.PUT,"api/driver/working-hour/*",
 						"/api/user/*/block", "/api/user/*/unblock").hasAnyRole("ADMIN", "DRIVER")
+				.antMatchers(HttpMethod.PUT, "/api/ride/*/panic").hasAnyRole("DRIVER", "PASSENGER")
 				.antMatchers(HttpMethod.POST, "/api/review/**").hasRole("PASSENGER")
 
 				.anyRequest().authenticated().and()
