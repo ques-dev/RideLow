@@ -1,4 +1,4 @@
-package rs.ac.uns.ftn.transport;
+package rs.ac.uns.ftn.transport.controller;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
