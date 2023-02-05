@@ -12,7 +12,6 @@ public interface IRideService {
 
     Ride save(Ride ride, boolean isReservation, int passengerId);
     void reserve(Ride ride, int passengerId);
-    void scheduleReserving(Ride order, int passengerId);
     Ride findActiveForDriver(Integer driverId);
     Ride findActiveForPassenger(Integer passengerId);
     Page<Ride> findPassenger(Integer passengerId, Pageable page);

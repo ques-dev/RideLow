@@ -88,8 +88,8 @@ public class RideServiceImpl implements IRideService {
         this.scheduleReserving(ride,passengerId);
     }
 
-    @Override
-    public void scheduleReserving(Ride order,int passengerId) {
+
+    private void scheduleReserving(Ride order,int passengerId) {
         ScheduledExecutorService localExecutor = Executors.newSingleThreadScheduledExecutor();
         scheduleReservation = new ConcurrentTaskScheduler(localExecutor);
         Date toSchedule = Date.from(order.getScheduledTime().minus(this.RESERVATION_MINIMUM_TIME_MINUTES + 1, ChronoUnit.MINUTES)
