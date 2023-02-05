@@ -4,6 +4,7 @@ import javax.mail.MessagingException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.transport.dto.passenger.PassengerOneDayReportDTO;
@@ -15,6 +16,7 @@ import rs.ac.uns.ftn.transport.repository.RideRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
 import org.springframework.data.domain.Pageable;
 import rs.ac.uns.ftn.transport.service.interfaces.IRideService;
+import rs.ac.uns.ftn.transport.service.interfaces.IRoleService;
 import rs.ac.uns.ftn.transport.service.interfaces.IUserActivationService;
 
 import java.io.UnsupportedEncodingException;
@@ -32,15 +34,22 @@ public class PassengerServiceImpl implements IPassengerService {
     private final RideRepository rideRepository;
     private final IRideService rideService;
     private final IUserActivationService activationService;
+    private final IRoleService roleService;
 
     public PassengerServiceImpl(PassengerRepository passengerRepository,
                                 RideRepository rideRepository,
                                 IRideService rideService,
-                                IUserActivationService activationService) {
+                                IUserActivationService activationService,
+                                IRoleService roleService) {
         this.passengerRepository = passengerRepository;
         this.rideRepository = rideRepository;
         this.rideService = rideService;
         this.activationService = activationService;
+        this.roleService = roleService;
+    }
+
+    private BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Override
@@ -48,6 +57,8 @@ public class PassengerServiceImpl implements IPassengerService {
         passenger.setIsBlocked(false);
         passenger.setIsActivated(false);
         try {
+            BCryptPasswordEncoder passwordEncoder = this.passwordEncoder();
+            passenger.setPassword(passwordEncoder.encode(passenger.getPassword()));
             Passenger created = passengerRepository.save(passenger);
             UserActivation activation = new UserActivation(created);
             activationService.save(activation);

@@ -2,6 +2,7 @@ package rs.ac.uns.ftn.transport.service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,8 @@ public class MailService implements IMailService {
 
     String activationMessage =
             "<p>Pozdrav,</p>"
-            + "<p>Aktivaciju naloga možete obaviti klikom na sledeći link:</p>";
+                    + "<p>Aktivaciju naloga možete obaviti klikom na sledeći link:</p>";
+
     public MailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
@@ -45,7 +47,7 @@ public class MailService implements IMailService {
     }
 
     @Override
-    public void sendActivationEmail(String recipientEmail, UserActivation activation) throws MessagingException,UnsupportedEncodingException {
+    public void sendActivationEmail(String recipientEmail, UserActivation activation) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
@@ -56,12 +58,12 @@ public class MailService implements IMailService {
 
         String activationLink = "http://localhost:8080/api/passenger/activate/" + activation.getId();
         String body = this.activationMessage +
-                "<a href='" + activationLink +"'>" + activationLink;
+                "<a href='" + activationLink + "'>" + activationLink;
 
         helper.setSubject(subject);
 
         helper.setText(body, true);
 
         mailSender.send(message);
-}
+    }
 }

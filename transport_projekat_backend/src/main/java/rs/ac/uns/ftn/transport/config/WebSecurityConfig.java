@@ -68,6 +68,7 @@ public class WebSecurityConfig {
 				).permitAll()
 				.antMatchers(HttpMethod.GET,"api/user/*/id", "/api/ride").permitAll()
 				.antMatchers(HttpMethod.POST, "/api/passenger").permitAll()
+				.antMatchers(HttpMethod.GET, "/api/passenger/activate/*").permitAll()
 
 				.antMatchers(HttpMethod.GET, "/api/ride/favorites/passenger/*").hasRole("PASSENGER")
 				.antMatchers(HttpMethod.POST, "/api/ride", "/api/ride/favorites").hasRole("PASSENGER")
