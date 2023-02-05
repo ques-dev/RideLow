@@ -1,4 +1,4 @@
-package rs.ac.uns.ftn.transport;
+package rs.ac.uns.ftn.transport.controller;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class RideControllerIntegrationTests2 {
+public class SecondRideControllerIntegrationTests {
     @Autowired
     private TestRestTemplate restTemplatePlain;
     @Autowired
