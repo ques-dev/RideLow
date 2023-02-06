@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RideEstimationDTO {
-    private double estimatedTimeInMinutes;
-    private double estimatedCost;
+    private int estimatedTimeInMinutes;
+    private int estimatedCost;
 }

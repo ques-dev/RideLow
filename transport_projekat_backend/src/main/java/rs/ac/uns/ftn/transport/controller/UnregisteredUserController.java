@@ -1,4 +1,5 @@
 package rs.ac.uns.ftn.transport.controller;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,17 +33,29 @@ public class UnregisteredUserController {
     @PostMapping
     public ResponseEntity<RideEstimationDTO> getEstimation(@RequestBody RideCreationDTO ride){
         RideEstimationDTO rideEstimationDTO = new RideEstimationDTO();
-        Ride ride1 = rideCreationDTOMapper.fromDTOtoRide(ride);
+        /*Ride ride1 = rideCreationDTOMapper.fromDTOtoRide(ride);
 
-        double distance = estimatesService.calculateDistance(ride1.getLocations().iterator().next().getDeparture(),
-                ride1.getLocations().iterator().next().getDestination());
+        Location dep = new Location();
+        dep.setLongitude(ride.getLocations().iterator().next().getDeparture().getLongitude());
+        dep.setLatitude(ride.getLocations().iterator().next().getDeparture().getLatitude());
+
+        Location des = new Location();
+        des.setLongitude(ride.getLocations().iterator().next().getDestination().getLongitude());
+        des.setLatitude(ride.getLocations().iterator().next().getDestination().getLatitude());
+
+        double distance = estimatesService.calculateDistance(dep, des);
+
 
         double price = estimatesService.getEstimatedPrice(ride1.getVehicleType(), distance);
 
         double time = estimatesService.getEstimatedTime(distance);
 
         rideEstimationDTO.setEstimatedCost(price);
-        rideEstimationDTO.setEstimatedTimeInMinutes(time);
+        rideEstimationDTO.setEstimatedTimeInMinutes(time);*/
+
+
+        rideEstimationDTO.setEstimatedCost(ThreadLocalRandom.current().nextInt(100, 300 + 1));
+        rideEstimationDTO.setEstimatedTimeInMinutes(ThreadLocalRandom.current().nextInt(2, 5 + 1));
         return new ResponseEntity<>(rideEstimationDTO, HttpStatus.OK);
     }
 }
