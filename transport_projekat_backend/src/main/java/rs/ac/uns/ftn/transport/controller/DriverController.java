@@ -57,6 +57,7 @@ public class DriverController {
     private final IImageService imageService;
     private final IDriverEditRequestService driverEditRequestService;
     private final IUserService userService;
+    private final IRoleService roleService;
 
     public DriverController(IDriverService driverService,
                             IDocumentService documentService,
@@ -67,7 +68,8 @@ public class DriverController {
                             MessageSource messageSource,
                             IImageService imageService,
                             IDriverEditRequestService driverEditRequestService,
-                            IUserService userService) {
+                            IUserService userService,
+                            IRoleService roleService) {
         this.driverService = driverService;
         this.documentService = documentService;
         this.vehicleService = vehicleService;
@@ -78,6 +80,7 @@ public class DriverController {
         this.imageService = imageService;
         this.driverEditRequestService = driverEditRequestService;
         this.userService = userService;
+        this.roleService = roleService;
     }
 
     @GetMapping(value = "/{id}")
@@ -113,6 +116,7 @@ public class DriverController {
         }
 
         try {
+            driver.setRoles(roleService.findByName("ROLE_DRIVER"));
             driver = driverService.save(driver);
             return new ResponseEntity<>(DriverDTOMapper.fromDrivertoDTO(driver), HttpStatus.OK);
         } catch (DataIntegrityViolationException e) {

@@ -23,8 +23,10 @@ import rs.ac.uns.ftn.transport.model.Passenger;
 import rs.ac.uns.ftn.transport.model.ResponseMessage;
 import rs.ac.uns.ftn.transport.model.Ride;
 import rs.ac.uns.ftn.transport.model.UserActivation;
+import rs.ac.uns.ftn.transport.repository.RoleRepository;
 import rs.ac.uns.ftn.transport.service.interfaces.IImageService;
 import rs.ac.uns.ftn.transport.service.interfaces.IPassengerService;
+import rs.ac.uns.ftn.transport.service.interfaces.IRoleService;
 import rs.ac.uns.ftn.transport.service.interfaces.IUserActivationService;
 
 import java.io.UnsupportedEncodingException;
@@ -44,16 +46,19 @@ public class PassengerController {
     private final IUserActivationService userActivationService;
     private final IImageService imageService;
     private final MessageSource messageSource;
+    private final IRoleService roleService;
 
 
     public PassengerController(IPassengerService passengerService,
                                IUserActivationService userActivationService,
                                IImageService imageService,
-                               MessageSource messageSource) {
+                               MessageSource messageSource,
+                               IRoleService roleService) {
         this.passengerService = passengerService;
         this.userActivationService = userActivationService;
         this.imageService = imageService;
         this.messageSource = messageSource;
+        this.roleService = roleService;
     }
 
     @PostMapping(consumes = "application/json")
@@ -67,6 +72,7 @@ public class PassengerController {
             }
         }
         try {
+            created.setRoles(roleService.findByName("ROLE_PASSENGER"));
             created = passengerService.save(created);
             return new ResponseEntity<>(PassengerCreatedDTOMapper.fromPassengerToDTO(created), HttpStatus.OK);
         } catch (DataIntegrityViolationException e) {
