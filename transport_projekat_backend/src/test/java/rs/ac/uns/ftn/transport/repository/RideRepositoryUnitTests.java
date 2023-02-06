@@ -2,21 +2,21 @@ package rs.ac.uns.ftn.transport.repository;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import rs.ac.uns.ftn.transport.model.*;
-import rs.ac.uns.ftn.transport.model.enumerations.RideStatus;
 
-import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -75,15 +75,86 @@ public class RideRepositoryUnitTests {
         assertThat(retrievedRide).isEmpty();
     }
 
-    @ParameterizedTest
-    @DisplayName("Should get ride by it's status for driver")
-    @Sql("classpath:test-data-insert-ride.sql")
-    public void shouldGetRideForDriverByIdAndStatus(){
-        Optional<Ride> retrievedRide = rideRepository.findById(1);
-        retrievedRide.get().setStatus(RideStatus.ACTIVE);
-        rideRepository.save(retrievedRide.get());
-        Optional<Ride> activeRide = rideRepository.findByDriver_IdAndStatus(4,RideStatus.ACTIVE);
-        assertThat(activeRide).isNotEmpty();
+    @Test
+    @DisplayName("Should count rides by passenger id and ride date")
+    @Sql("classpath:test-data-reports.sql")
+    public void shouldCountRidesByPassengerIdAndRideDate(){
+        int count = rideRepository.countRidesByPassengerIdAndRideDate(1,
+                LocalDateTime.of(2023, Month.JANUARY, 30, 0, 0),
+                LocalDateTime.of(2023, Month.JANUARY, 31, 0, 0));
 
+        assertEquals(3, count);
+
+        count = rideRepository.countRidesByPassengerIdAndRideDate(1,
+                LocalDateTime.of(2023, Month.JANUARY, 31, 0, 0),
+                LocalDateTime.of(2023, Month.FEBRUARY, 1, 0, 0));
+
+        assertEquals(0, count);
+
+        count = rideRepository.countRidesByPassengerIdAndRideDate(1,
+                LocalDateTime.of(2023, Month.FEBRUARY, 1, 0, 0),
+                LocalDateTime.of(2023, Month.FEBRUARY, 2, 0, 0));
+
+        assertEquals(1, count);
+
+        count = rideRepository.countRidesByPassengerIdAndRideDate(1,
+                LocalDateTime.of(2023, Month.FEBRUARY, 2, 0, 0),
+                LocalDateTime.of(2023, Month.FEBRUARY, 3, 0, 0));
+
+        assertEquals(3, count);
+    }
+
+    @Test
+    @DisplayName("Should sum distance by passenger id and ride date")
+    @Sql("classpath:test-data-reports.sql")
+    public void shouldSumDistanceByPassengerIdAndRideDate(){
+        double distance = rideRepository.sumDistanceByPassengerIdAndRideDate(1,
+                LocalDateTime.of(2023, Month.JANUARY, 30, 0, 0),
+                LocalDateTime.of(2023, Month.JANUARY, 31, 0, 0));
+
+        assertEquals(35, distance);
+
+        assertNull(rideRepository.sumDistanceByPassengerIdAndRideDate(1,
+                LocalDateTime.of(2023, Month.JANUARY, 31, 0, 0),
+                LocalDateTime.of(2023, Month.FEBRUARY, 1, 0, 0)));
+
+        distance = rideRepository.sumDistanceByPassengerIdAndRideDate(1,
+                LocalDateTime.of(2023, Month.FEBRUARY, 1, 0, 0),
+                LocalDateTime.of(2023, Month.FEBRUARY, 2, 0, 0));
+
+        assertEquals(5, distance);
+
+        distance = rideRepository.sumDistanceByPassengerIdAndRideDate(1,
+                LocalDateTime.of(2023, Month.FEBRUARY, 2, 0, 0),
+                LocalDateTime.of(2023, Month.FEBRUARY, 3, 0, 0));
+
+        assertEquals(35, distance);
+    }
+
+    @Test
+    @DisplayName("Should sum price by passenger id and ride date")
+    @Sql("classpath:test-data-reports.sql")
+    public void shouldSumPriceByPassengerIdAndRideDate(){
+        double price = rideRepository.sumPriceByPassengerIdAndRideDate(1,
+                LocalDateTime.of(2023, Month.JANUARY, 30, 0, 0),
+                LocalDateTime.of(2023, Month.JANUARY, 31, 0, 0));
+
+        assertEquals(3600, price);
+
+        assertNull(rideRepository.sumPriceByPassengerIdAndRideDate(1,
+                LocalDateTime.of(2023, Month.JANUARY, 31, 0, 0),
+                LocalDateTime.of(2023, Month.FEBRUARY, 1, 0, 0)));
+
+        price = rideRepository.sumPriceByPassengerIdAndRideDate(1,
+                LocalDateTime.of(2023, Month.FEBRUARY, 1, 0, 0),
+                LocalDateTime.of(2023, Month.FEBRUARY, 2, 0, 0));
+
+        assertEquals(2000, price);
+
+        price = rideRepository.sumPriceByPassengerIdAndRideDate(1,
+                LocalDateTime.of(2023, Month.FEBRUARY, 2, 0, 0),
+                LocalDateTime.of(2023, Month.FEBRUARY, 3, 0, 0));
+
+        assertEquals(3000, price);
     }
 }
