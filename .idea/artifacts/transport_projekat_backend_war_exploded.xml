@@ -35,7 +35,6 @@
           <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.36" />
           <element id="library" level="project" name="Maven: jakarta.xml.bind:jakarta.xml.bind-api:2.3.3" />
           <element id="library" level="project" name="Maven: jakarta.activation:jakarta.activation-api:1.2.2" />
-          <element id="library" level="project" name="Maven: net.bytebuddy:byte-buddy:1.12.18" />
           <element id="library" level="project" name="Maven: org.springframework:spring-core:5.3.23" />
           <element id="library" level="project" name="Maven: org.springframework:spring-jcl:5.3.23" />
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot-starter-data-jpa:2.7.5" />
@@ -95,6 +94,7 @@
           <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.13.4" />
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot:2.7.5" />
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot-autoconfigure:2.7.5" />
+          <element id="library" level="project" name="Maven: net.bytebuddy:byte-buddy:1.12.18" />
         </element>
       </element>
       <element id="directory" name="META-INF">
