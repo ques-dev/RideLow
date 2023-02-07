@@ -83,6 +83,7 @@ public class WebSecurityConfig {
 				.antMatchers(HttpMethod.GET, "/api/ride/*/passengers").hasRole("DRIVER")
 				.antMatchers("/api/driver/*/working-hour").hasRole("DRIVER")
 
+                .antMatchers(HttpMethod.PUT, "/api/ride/*/accept").hasRole("DRIVER")
 				.antMatchers(HttpMethod.POST, "/api/diver/*/documents", "/api/driver").hasRole("ADMIN")
 				.antMatchers(HttpMethod.GET, "/api/passenger", "/api/driver",
 						"/api/diver/*/documents", "/api/panic").hasRole("ADMIN")
