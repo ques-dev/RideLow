@@ -129,11 +129,8 @@ public class RideServiceImpl implements IRideService {
 
     @Override
     public Page<Ride> findPassenger(Integer passengerId, Pageable page) {
-        Optional<Page<Ride>> rides = Optional.ofNullable(rideRepository.findPassenger(passengerId, page));
-        if(rides.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        return rides.get();
+        Page<Ride> rides = rideRepository.findByPassengers_Id(passengerId, page);
+        return rides;
     }
 
     @Override

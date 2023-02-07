@@ -18,6 +18,7 @@ public interface RideRepository extends JpaRepository<Ride,Integer> {
             "WHERE pass.id = ?1")
     Page<Ride> findPassenger(Integer passengerId, Pageable page);
 
+    Page<Ride> findByPassengers_Id(Integer passengerId, Pageable page);
     Optional<Ride> findByDriver_IdAndStatus(Integer driverId, RideStatus status);
 
     Optional<Ride> findByPassengers_IdAndStatus(Integer passengerId, RideStatus status);
