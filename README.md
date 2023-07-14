@@ -41,4 +41,3 @@ Note: Please ensure that you have Java and Maven installed on your system before
 ## Related repositories
 1. [Frontend](https://github.com/VukRadmilovic/uber-like-frontend)
 2. [Mobile application](https://github.com/VukRadmilovic/uber-like-mobile-app)
-3. [Selenium test](https://github.com/VukRadmilovic/uber-like-selenium)
