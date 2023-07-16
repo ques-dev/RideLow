@@ -107,13 +107,13 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-    	return (web) -> web.ignoring().antMatchers(HttpMethod.POST, "/auth/login","/socket/**")
-
-    			.antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico",
-    			"/**/*.html", "/**/*.css", "/**/*.js","/socket/**");
-
-    }
+//    @Bean
+//    public WebSecurityCustomizer webSecurityCustomizer() {
+//    	return (web) -> web.ignoring().antMatchers(HttpMethod.POST, "/auth/login","/socket/**")
+//
+//    			.antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico",
+//    			"/**/*.html", "/**/*.css", "/**/*.js","/socket/**");
+//
+//    }
 
 }
