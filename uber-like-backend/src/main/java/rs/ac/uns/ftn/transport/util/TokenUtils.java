@@ -16,7 +16,7 @@ import java.util.Date;
 // Utility klasa za rad sa JSON Web Tokenima
 @Component
 public class TokenUtils {
-	@Value("transport-projekat-backend")
+	@Value("uber-like-backend")
 	private String APP_NAME;
 
 	@Value("somesecret")

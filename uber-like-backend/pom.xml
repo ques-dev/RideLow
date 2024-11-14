@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>rs.ac.uns.ftn</groupId>
-	<artifactId>transport-projekat-backend</artifactId>
+	<artifactId>uber-like-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>transport-projekat-backend</name>
+	<name>uber-like-backend</name>
 	<packaging>war</packaging>
 	<description>Uber tim 9</description>
 	<properties>
