@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin("https://ridelow.netlify.app/")
+    //@CrossOrigin("http://localhost:4200")
 @RestController
 @RequestMapping(value="api/panic")
 public class PanicController {
