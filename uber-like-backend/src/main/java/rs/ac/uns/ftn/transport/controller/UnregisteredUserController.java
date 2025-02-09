@@ -16,7 +16,7 @@ import rs.ac.uns.ftn.transport.service.EstimatesService;
 
 import java.util.Set;
 
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin("https://ridelow.netlify.app/")
 @RestController
 @RequestMapping(value="/api/unregisteredUser")
 public class UnregisteredUserController {
