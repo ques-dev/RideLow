@@ -34,7 +34,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin("https://ridelow.netlify.app/")
+   // @CrossOrigin("http://localhost:4200")
+    
 @RestController
 @RequestMapping(value = "/api/user")
 public class UserController {
